@@ -1,1 +1,94 @@
-
+name: Stellar Legacy Godot - Instalador ZIP
+run-name: Instalar ZIP Godot enviado pelo celular
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: godot-installer-zip
+  cancel-in-progress: false
+jobs:
+  instalar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Abrir repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Extrair ZIP com verificacao de caminhos
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path, PurePosixPath
+          import zipfile,stat,os
+          root=Path.cwd().resolve()
+          zips=sorted(p for p in root.glob('*.zip') if p.is_file())
+          if len(zips)!=1:
+              raise SystemExit(f'Precisa haver um unico ZIP na raiz, encontrados: {len(zips)}')
+          archive=zips[0]
+          print('Instalando:', archive.name)
+          with zipfile.ZipFile(archive) as z:
+              infos=z.infolist()
+              if len(infos)>2000 or sum(i.file_size for i in infos)>200*1024*1024:
+                  raise SystemExit('ZIP excede limites de seguranca')
+              writes=[]
+              for info in infos:
+                  if info.is_dir(): continue
+                  if stat.S_ISLNK(info.external_attr >> 16):
+                      raise SystemExit('Nao aceita symlinks no ZIP')
+                  name=info.filename.replace('\\','/')
+                  if name.startswith('StellarLegacy-Godot/'):
+                      name=name[len('StellarLegacy-Godot/'):]
+                  path=PurePosixPath(name)
+                  if (not name or name.startswith('/') or '..' in path.parts or
+                      path.parts[0] in ('.git','.github') or name.lower().endswith('.zip')):
+                      raise SystemExit('Caminho proibido: '+info.filename)
+                  target=(root / str(path)).resolve()
+                  if not target.is_relative_to(root):
+                      raise SystemExit('Caminho fora da raiz: '+name)
+                  writes.append((info,target))
+              for info,target in writes:
+                  target.parent.mkdir(parents=True,exist_ok=True)
+                  target.write_bytes(z.read(info))
+          archive.unlink()
+          for filename in ('project.godot','scenes/main.tscn','scripts/main.gd','scripts/world_routes.gd'):
+              if not (root/filename).is_file():
+                  raise SystemExit('Arquivo Godot obrigatorio ausente: '+filename)
+          if len(list((root/'assets/ships').glob('*.glb')))<1:
+              raise SystemExit('GLB principal nao encontrado em assets/ships')
+          print('Arquivos extraidos e estrutura basica validada')
+          PY
+      - name: Preparar Godot 4.5.2
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 -o /tmp/godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.5.2-stable/Godot_v4.5.2-stable_linux.x86_64.zip
+          unzip -oq /tmp/godot.zip -d /tmp/stellar-godot
+          chmod +x /tmp/stellar-godot/Godot_v4.5.2-stable_linux.x86_64
+      - name: Importar e validar projeto Godot
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/stellar-godot/Godot_v4.5.2-stable_linux.x86_64 \
+            --headless --path . --editor --import 2>&1 | tee /tmp/stellar-godot-check.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|ERROR:.*(parse|load|import|resource)' /tmp/stellar-godot-check.log; then
+            echo 'Importacao apresentou erros do Godot'
+            exit 1
+          fi
+      - name: Publicar arquivos validados
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Stellar Legacy Godot Installer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Sem alteracoes'
+            exit 0
+          fi
+          git commit -m 'feat: atualizar Godot pelo ZIP validado'
+          git push origin HEAD:main
