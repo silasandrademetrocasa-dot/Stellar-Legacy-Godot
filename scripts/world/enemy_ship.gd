@@ -80,7 +80,7 @@ func tick(delta: float, player_pos: Vector3) -> void:
             want_heading = atan2(move_vector.x, move_vector.z)
     position.x = clampf(position.x, -112.0, 112.0)
     position.z = clampf(position.z, -82.0, 82.0)
-    rotation.y = lerp_angle(rotation.y, want_heading, minf(delta * 4.3, 1.0))
+    rotation.y = lerp_angle(rotation.y, want_heading, minf(delta * 5.2, 1.0))
     if aggressive:
         attack_clock -= delta
 

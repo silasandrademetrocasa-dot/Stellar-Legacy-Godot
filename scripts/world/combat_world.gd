@@ -9,25 +9,27 @@ const NpcCatalog = preload("res://scripts/data/npc_catalog.gd")
 const LASER_RANGE := 78.0
 const LASER_INTERVAL := 0.42
 const NPC_POOL := [
-    ["streuner", "Scavenger", 1000.0, 350.0, 175.0, 3.8],
-    ["recruitStreuner", "Scavenger Scout", 700.0, 200.0, 125.0, 4.2],
-    ["mordon", "Kharon", 1800.0, 550.0, 240.0, 3.1],
-    ["saimon", "Zyron", 2150.0, 700.0, 290.0, 3.3],
-    ["sibelon", "Colossar", 2500.0, 950.0, 360.0, 2.7],
-    ["lordakia", "Vrax", 2900.0, 1100.0, 410.0, 2.8],
-    ["devolarium", "Dreadnox", 3100.0, 1200.0, 465.0, 3.0]
+    ["scavenger", "Scavenger", 1000.0, 350.0, 175.0, 3.8],
+    ["scavenger_scout", "Scavenger Scout", 700.0, 200.0, 125.0, 4.2],
+    ["kharon", "Kharon", 1800.0, 550.0, 240.0, 3.1],
+    ["zyron", "Zyron", 2150.0, 700.0, 290.0, 3.3],
+    ["colossar", "Colossar", 2500.0, 950.0, 360.0, 2.7],
+    ["vrax", "Vrax", 2900.0, 1100.0, 410.0, 2.8],
+    ["dreadnox", "Dreadnox", 3100.0, 1200.0, 465.0, 3.0]
 ]
 const ELITE_POOL := [
-    ["riftScout", "Batedor da Fenda", 3100.0, 1400.0, 450.0, 4.5],
-    ["voidCorsair", "Corsário do Vazio", 3900.0, 1700.0, 500.0, 3.3],
-    ["astralReaper", "Ceifador Astral", 4600.0, 2100.0, 600.0, 3.1],
-    ["nexusWarden", "Guardião Nexus", 5200.0, 2400.0, 680.0, 2.8]
+    ["batedor_fenda", "Batedor da Fenda", 3100.0, 1400.0, 450.0, 4.5],
+    ["corsario_vazio", "Corsário do Vazio", 3900.0, 1700.0, 500.0, 3.3],
+    ["ceifador_astral", "Ceifador Astral", 4600.0, 2100.0, 600.0, 3.1],
+    ["guardiao_nexus", "Guardião Nexus", 5200.0, 2400.0, 680.0, 2.8]
 ]
 
 var player_node: Node3D
 var enemies: Array[Enemy] = []
 var selected: Enemy
 var laser_clock := 0.0
+var missile_clock := 0.0
+var player_laser_damage := 425.0
 var kills := 0
 var map_kills := 0
 var effects: Array[Dictionary] = []
@@ -58,6 +60,7 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
     selected = null
     map_kills = 0
     laser_clock = 0.0
+    missile_clock = 0.0
     for unit in enemies:
         if is_instance_valid(unit):
             unit.free()
@@ -93,9 +96,9 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
             if good:
                 break
         var spec: Array = pool[(i + map_rank - 1) % pool.size()]
-        var model := "res://assets/npcs/npc_%s.glb" % str(spec[0])
+        var model := "res://assets/npcs/%s.glb" % str(spec[0])
         var enemy := Enemy.new()
-        enemy.name = "NPC_%d_%s" % [i, spec[0]]
+        enemy.name = "Enemy_%d" % i
         enemy_root.add_child(enemy)
         var factor := 1.0 + 0.13 * float(map_rank - 1)
         enemy.setup(str(spec[0]), NpcCatalog.display_name(str(spec[0])), model, spawn, float(spec[2]) * factor, float(spec[3]) * factor, float(spec[4]) * factor, float(spec[5]))
@@ -106,6 +109,7 @@ func _process(delta: float) -> void:
     if player_node == null:
         return
     laser_clock = maxf(0.0, laser_clock - delta)
+    missile_clock = maxf(0.0, missile_clock - delta)
     status_clock = maxf(0.0, status_clock - delta)
     for enemy in enemies:
         if not is_instance_valid(enemy):
@@ -200,8 +204,21 @@ func fire_from_player() -> void:
         return
     laser_clock = LASER_INTERVAL
     _draw_beam(player_node.global_position + Vector3.UP * 0.3, selected.global_position + Vector3.UP * 0.3, Color(0.4, 0.9, 1.0))
-    var destroyed: bool = selected.apply_hit(425.0)
+    var destroyed: bool = selected.apply_hit(player_laser_damage)
     if destroyed:
+        _destroy_enemy(selected)
+
+# Míssil local demonstrativo. Não utiliza saldo de munição, não há economia.
+func fire_missile_from_player() -> void:
+    if player_node == null or missile_clock > 0.0:
+        return
+    if selected == null or not is_instance_valid(selected) or not selected.alive:
+        return
+    if player_node.position.distance_to(selected.position) > LASER_RANGE:
+        return
+    missile_clock = 2.0
+    _draw_beam(player_node.global_position + Vector3.UP * 0.45, selected.global_position + Vector3.UP * 0.45, Color(1.0, 0.64, 0.2))
+    if selected.apply_hit(1100.0):
         _destroy_enemy(selected)
 
 func support_hit(from_position: Vector3, amount: float) -> void:

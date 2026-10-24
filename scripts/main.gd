@@ -1,5 +1,5 @@
 extends Node3D
-## Stellar Legacy Godot G0.4 - Tap Navigation & Combat Evolution; G0.3 preservada.
+## Stellar Legacy Godot G0.5 - Mobile HUD, combat strafe and rotating 3D showrooms.
 ## NAO autentica, NAO consulta Render/Supabase, NAO altera producao.
 
 const Routes = preload("res://scripts/world_routes.gd")
@@ -7,6 +7,7 @@ const MinimapUI = preload("res://scripts/ui/mini_map.gd")
 const GalaxyUI = preload("res://scripts/ui/galaxy_map.gd")
 const CombatWorld = preload("res://scripts/world/combat_world.gd")
 const FleetSupport = preload("res://scripts/world/fleet_support.gd")
+const StellarHUD = preload("res://scripts/ui/stellar_hud.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -86,13 +87,20 @@ var last_enemy_tapped: Node3D
 var last_tap_ms := -1000
 var last_tap_screen := Vector2(-9999, -9999)
 var marker: MeshInstance3D
+var travel_heading := 0.0
+var ui_shell
+var selected_ammo := 0
+var show_fps := true
+var starfield: MultiMeshInstance3D
 
 
 func _ready() -> void:
     _read_local_profile()
     _create_world()
     _create_hud()
+    _install_new_hud()
     _set_ship(current_ship)
+    select_ammunition(selected_ammo)
     _rebuild_portals()
     _populate_local_world()
     support_fleet.snap_to_player()
@@ -103,70 +111,72 @@ func _ready() -> void:
 func _process(delta: float) -> void:
     if ship_anchor == null:
         return
-    var blocked := galaxy_panel.visible
+    # O resultado de uma chamada dinamica no HUD e Variant: declarar bool explicitamente.
+    var blocked: bool = galaxy_panel.visible
+    if ui_shell != null and is_instance_valid(ui_shell) and ui_shell.has_method("modal_open"):
+        blocked = blocked or bool(ui_shell.call("modal_open"))
     var manual_turn := int(right_held or Input.is_key_pressed(KEY_D)) - int(left_held or Input.is_key_pressed(KEY_A))
     var manual_thrust := thrust_held or Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP)
     var manual_brake := brake_held or Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN)
     if (manual_turn != 0 or manual_thrust or manual_brake) and not blocked:
         _clear_autonavigation()
-        auto_fire_enabled = false
-        fire_button.text = "LASER"
+        # G0.5: a ordem de movimento NUNCA cancela o travamento nem o tiro.
 
     var desired_speed := 0.0
-    var aim_at: Vector3 = Vector3.ZERO
-    var steering := false
     var unit: Node3D = combat_world.get_selected_enemy()
     var firing_now := auto_fire_enabled or firing_held or Input.is_key_pressed(KEY_SPACE)
+    var movement_vector := Vector3.ZERO
+    var has_navigation := false
 
-    # NPC selecionado: aproximação automática até distância segura de tiro.
-    if not blocked and chase_target and unit != null:
-        var to_enemy: Vector3 = unit.global_position - ship_anchor.global_position
-        to_enemy.y = 0.0
-        aim_at = unit.global_position
-        steering = true
-        if to_enemy.length() > CHASE_DISTANCE:
-            desired_speed = minf(MAX_SPEED, sqrt(maxf(0.0, 2.0 * DECELERATION * (to_enemy.length() - CHASE_DISTANCE))))
-        else:
-            desired_speed = 0.0
-    elif not blocked and destination_active:
-        var to_dest := destination - ship_anchor.global_position
-        to_dest.y = 0.0
-        var remaining := to_dest.length()
+    # Dois vetores independentes: deslocamento (travel_heading) e mira (heading).
+    # O toque no mapa troca apenas o destino. O alvo e o disparo permanecem ativos.
+    if not blocked and destination_active:
+        var toward := destination - ship_anchor.position
+        toward.y = 0.0
+        var remaining := toward.length()
         if remaining <= ARRIVAL_DISTANCE:
             _clear_autonavigation()
         else:
-            aim_at = destination
-            steering = true
+            movement_vector = toward.normalized()
+            has_navigation = true
             desired_speed = minf(MAX_SPEED, sqrt(maxf(0.0, 2.0 * DECELERATION * (remaining - ARRIVAL_DISTANCE))))
-    elif not blocked and firing_now and unit != null:
-        aim_at = unit.global_position
-        steering = true
+    elif not blocked and chase_target and unit != null:
+        var to_enemy := unit.global_position - ship_anchor.global_position
+        to_enemy.y = 0.0
+        if to_enemy.length() > CHASE_DISTANCE:
+            movement_vector = to_enemy.normalized()
+            has_navigation = true
+            desired_speed = minf(MAX_SPEED, sqrt(maxf(0.0, 2.0 * DECELERATION * (to_enemy.length() - CHASE_DISTANCE))))
     elif not blocked:
-        heading += float(manual_turn) * TURN_RATE * delta
+        travel_heading += float(manual_turn) * TURN_RATE * delta
+        movement_vector = Vector3(sin(travel_heading), 0.0, cos(travel_heading))
         desired_speed = MAX_SPEED if manual_thrust and not manual_brake else 0.0
 
-    if steering:
-        var dir := aim_at - ship_anchor.global_position
-        dir.y = 0.0
-        if dir.length_squared() > 0.01:
-            var desired_heading := atan2(dir.x, dir.z)
-            heading = lerp_angle(heading, desired_heading, minf(TURN_RATE * delta, 1.0))
-            # Não deslizar de lado durante manobras de curva fechada.
-            if absf(wrapf(desired_heading - heading, -PI, PI)) > 0.75:
-                desired_speed *= 0.32
-
+    if has_navigation:
+        travel_heading = atan2(movement_vector.x, movement_vector.z)
+    # Visual do casco aponta para o alvo durante tiro; nave transladando em outra direção.
+    var facing := travel_heading
+    if not blocked and firing_now and unit != null and unit.visible:
+        var aim_dir := unit.global_position - ship_anchor.global_position
+        aim_dir.y = 0.0
+        if aim_dir.length_squared() > 0.01:
+            facing = atan2(aim_dir.x, aim_dir.z)
+    heading = lerp_angle(heading, facing, minf(TURN_RATE * delta * 1.5, 1.0))
     ship_anchor.rotation.y = heading
     speed = move_toward(speed, desired_speed if not blocked else 0.0, (ACCELERATION if desired_speed > speed else DECELERATION) * delta)
-    ship_anchor.position += ship_anchor.global_transform.basis.z * speed * delta
+    ship_anchor.position += movement_vector * speed * delta
     ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
     ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
     if destination_active and ship_anchor.position.distance_to(destination) <= ARRIVAL_DISTANCE:
         _clear_autonavigation()
         speed = 0.0
 
-    if not blocked and firing_now and unit != null:
+    if not blocked and firing_now and unit != null and unit.visible:
         if ship_anchor.position.distance_to(unit.global_position) <= combat_world.LASER_RANGE:
-            combat_world.fire_from_player()
+            if selected_ammo == 4:
+                combat_world.fire_missile_from_player()
+            else:
+                combat_world.fire_from_player()
     if unit == null and auto_fire_enabled:
         auto_fire_enabled = false
         fire_button.text = "LASER"
@@ -194,8 +204,7 @@ func _set_destination(point: Vector3) -> void:
     destination = Vector3(clampf(point.x, -118.0, 118.0), 0.0, clampf(point.z, -88.0, 88.0))
     destination_active = true
     chase_target = false
-    auto_fire_enabled = false
-    fire_button.text = "LASER"
+    # A nave mantém o tiro ativo e o NPC selecionado ao receber novo destino.
     if marker != null:
         marker.position = destination + Vector3.UP * 0.02
         marker.visible = true
@@ -217,9 +226,7 @@ func _on_world_tap(screen_point: Vector2, reported_double: bool = false) -> void
         if is_double:
             auto_fire_enabled = true
             fire_button.text = "PARAR LASER"
-        else:
-            auto_fire_enabled = false
-            fire_button.text = "LASER"
+        # Toque simples troca o alvo sem interromper fogo já habilitado.
         _refresh_ui()
         return
     last_enemy_tapped = null
@@ -244,10 +251,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _select_next_target() -> void:
     combat_world.select_nearest()
     if combat_world.get_selected_enemy() != null:
-        _clear_autonavigation()
-        chase_target = true
-        auto_fire_enabled = false
-        fire_button.text = "LASER"
+        if not destination_active:
+            chase_target = true
 
 func _toggle_auto_fire() -> void:
     if combat_world.get_selected_enemy() == null:
@@ -255,8 +260,7 @@ func _toggle_auto_fire() -> void:
         return
     auto_fire_enabled = not auto_fire_enabled
     fire_button.text = "PARAR LASER" if auto_fire_enabled else "LASER"
-    if auto_fire_enabled:
-        _clear_autonavigation()
+    if auto_fire_enabled and not destination_active:
         chase_target = true
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -330,6 +334,7 @@ func _make_starfield() -> void:
     var instance := MultiMeshInstance3D.new()
     instance.name = "Starfield"
     instance.multimesh = multi
+    starfield = instance
     add_child(instance)
 
 func _make_border() -> void:
@@ -509,6 +514,8 @@ func _layout_hud() -> void:
     close_galaxy.position = Vector2(w - 112, 10)
     close_galaxy.size = Vector2(103, 38)
     galaxy_map.queue_redraw()
+    if ui_shell != null:
+        ui_shell.relayout(s)
 
 func _rebuild_portals() -> void:
     for item in portal_root.get_children():
@@ -584,6 +591,11 @@ func _refresh_ui() -> void:
     else:
         target_label.text = "SEM ALVO  •  toque no NPC ou use ALVO"
     status_label.text = "%s  |  KOs locais: %d" % [combat_world.status_message if combat_world.status_clock > 0.0 else "NPCs: %d ativos" % combat_world.enemy_positions().size(), combat_world.kills]
+    # As barras antigas ficam ocultas; nova interface agora mostra o combate.
+    if ui_shell != null:
+        target_hp_bar.visible = false
+        target_shield_bar.visible = false
+        ui_shell.refresh()
 
 func _travel_nearest() -> void:
     var selected := _nearest_index()
@@ -609,6 +621,7 @@ func _travel_nearest() -> void:
         toward_center = Vector3(0, 0, 1)
     ship_anchor.position = entry + toward_center * 16.0
     heading = atan2(toward_center.x, toward_center.z)
+    travel_heading = heading
     ship_anchor.rotation.y = heading
     speed = 0.0
     firing_held = false
@@ -620,6 +633,7 @@ func _travel_nearest() -> void:
 func _toggle_galaxy() -> void:
     galaxy_panel.visible = not galaxy_panel.visible
     if galaxy_panel.visible:
+        galaxy_panel.move_to_front()
         firing_held = false
         _clear_autonavigation()
         auto_fire_enabled = false
@@ -670,6 +684,8 @@ func _set_ship(ship_id: String) -> void:
     current_ship = ship_id
     ship_select.select(maxi(0, SHIP_IDS.find(ship_id)))
     _write_local_profile()
+    if ui_shell != null:
+        ui_shell.refresh()
 
 func _read_local_profile() -> void:
     if not FileAccess.file_exists(SAVE_PATH):
@@ -689,11 +705,13 @@ func _read_local_profile() -> void:
         current_map = saved_map
     if saved_ship in SHIP_IDS:
         current_ship = saved_ship
+    selected_ammo = clampi(int(parsed.get("ammo", 0)), 0, 4)
+    show_fps = bool(parsed.get("show_fps", true))
 
 func _write_local_profile() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"faction": faction, "map": current_map, "ship": current_ship}))
+        f.store_string(JSON.stringify({"faction": faction, "map": current_map, "ship": current_ship, "ammo": selected_ammo, "show_fps": show_fps}))
 
 # Extensao G0.3: a navegacao G0.2 permanece intacta.
 func _populate_local_world() -> void:
@@ -723,3 +741,53 @@ func _toggle_drones() -> void:
 func _toggle_aux() -> void:
     support_fleet.toggle_aux()
     aux_button.text = "AUX-9 ON" if support_fleet.aux_enabled else "AUX-9 OFF"
+
+
+# G0.5: Shell HUD desacoplada para expansao futura sem crescer o script principal.
+func _install_new_hud() -> void:
+    var to_hide: Array[Control] = [header, telemetry, help_label, portal_hint, ship_select,
+        faction_select, warp_button, route_button, target_button, fire_button,
+        drones_button, aux_button, combat_label, target_label, status_label,
+        hp_bar, shield_bar, target_hp_bar, target_shield_bar]
+    for ctrl in to_hide:
+        ctrl.visible = false
+    ui_shell = StellarHUD.new()
+    ui_shell.name = "GameHUD_G05"
+    hud.add_child(ui_shell)
+    ui_shell.setup(self, mini_map)
+    # Painel de rotas já existente permanece acima do HUD novo.
+    galaxy_panel.move_to_front()
+    _layout_hud()
+
+func select_ammunition(index: int) -> void:
+    selected_ammo = clampi(index, 0, 4)
+    match selected_ammo:
+        0:
+            combat_world.player_laser_damage = 425.0
+        1:
+            combat_world.player_laser_damage = 565.0
+        2:
+            combat_world.player_laser_damage = 735.0
+        3:
+            combat_world.player_laser_damage = 905.0
+        4:
+            pass
+    if combat_world.get_selected_enemy() != null:
+        auto_fire_enabled = true
+    _write_local_profile()
+    if ui_shell != null:
+        ui_shell.refresh()
+
+func toggle_fps() -> void:
+    show_fps = not show_fps
+    _write_local_profile()
+    if ui_shell != null:
+        ui_shell.refresh()
+
+func set_test_faction(index: int) -> void:
+    _on_faction_selected(index)
+    faction_select.select(index)
+
+func change_ship_for_hangar(ship_id: String) -> void:
+    if ship_id in SHIP_IDS:
+        _set_ship(ship_id)
