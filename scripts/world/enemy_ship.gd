@@ -17,6 +17,9 @@ var attack_clock := 0.0
 var elapsed := 0.0
 var visual: Node3D
 var name_tag: Label3D
+var hit_light: MeshInstance3D
+var aim_ring: MeshInstance3D
+var hit_clock := 0.0
 
 func setup(kind: String, display: String, model_path: String, where: Vector3, hp_max: float, shield_max: float, attack_damage: float, move_speed: float) -> void:
     npc_id = kind
@@ -52,6 +55,36 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
     name_tag.no_depth_test = true
     name_tag.modulate = Color(1.0, 0.72, 0.64)
     add_child(name_tag)
+    # Impacto de laser e anel de alvo: geometrias persistentes sem alocacoes por tiro.
+    hit_light = MeshInstance3D.new()
+    var flash := SphereMesh.new()
+    flash.radius = 1.1
+    flash.height = 2.2
+    flash.radial_segments = 8
+    flash.rings = 4
+    var spark := StandardMaterial3D.new()
+    spark.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    spark.albedo_color = Color(1.0, 0.56, 0.17, 0.63)
+    spark.emission_enabled = true
+    spark.emission = Color(1.0, 0.42, 0.08)
+    spark.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+    flash.material = spark
+    hit_light.mesh = flash
+    hit_light.visible = false
+    add_child(hit_light)
+    aim_ring = MeshInstance3D.new()
+    var tor := TorusMesh.new()
+    tor.inner_radius = 2.4
+    tor.outer_radius = 2.52
+    var target_mat := StandardMaterial3D.new()
+    target_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    target_mat.albedo_color = Color(1.0, 0.72, 0.22)
+    target_mat.emission_enabled = true
+    target_mat.emission = Color(0.7, 0.4, 0.06)
+    tor.material = target_mat
+    aim_ring.mesh = tor
+    aim_ring.position.y = 0.08
+    add_child(aim_ring)
     set_targeted(false)
 
 func tick(delta: float, player_pos: Vector3) -> void:
@@ -61,6 +94,13 @@ func tick(delta: float, player_pos: Vector3) -> void:
             _revive()
         return
     elapsed += delta
+    hit_clock = maxf(0.0, hit_clock - delta)
+    if hit_light != null:
+        hit_light.visible = hit_clock > 0.0
+        if hit_light.visible:
+            hit_light.scale = Vector3.ONE * (0.65 + hit_clock * 3.0)
+    if aim_ring != null and aim_ring.visible:
+        aim_ring.rotation.y += delta * 1.1
     var before := position
     var want_heading := rotation.y
     var facing_player := aggressive and position.distance_to(player_pos) < 75.0
@@ -88,6 +128,7 @@ func apply_hit(amount: float) -> bool:
     if not alive:
         return false
     aggressive = true
+    hit_clock = 0.16
     var amount_remaining := maxf(amount, 0.0)
     var absorbed := minf(shield, amount_remaining)
     shield -= absorbed
@@ -101,6 +142,8 @@ func apply_hit(amount: float) -> bool:
     return false
 
 func set_targeted(selected: bool) -> void:
+    if aim_ring != null:
+        aim_ring.visible = alive and selected
     if name_tag != null:
         name_tag.visible = alive and selected
         name_tag.modulate = Color(1.0, 0.93, 0.36) if selected else Color(1.0, 0.72, 0.64)

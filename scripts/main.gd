@@ -1,5 +1,5 @@
 extends Node3D
-## Stellar Legacy Godot G0.5 - Mobile HUD, combat strafe and rotating 3D showrooms.
+## Stellar Legacy Godot G0.6 - continuous touch steering, loadouts and optimized visuals.
 ## NAO autentica, NAO consulta Render/Supabase, NAO altera producao.
 
 const Routes = preload("res://scripts/world_routes.gd")
@@ -8,6 +8,7 @@ const GalaxyUI = preload("res://scripts/ui/galaxy_map.gd")
 const CombatWorld = preload("res://scripts/world/combat_world.gd")
 const FleetSupport = preload("res://scripts/world/fleet_support.gd")
 const StellarHUD = preload("res://scripts/ui/stellar_hud.gd")
+const EquipmentState = preload("res://scripts/systems/equipment_state.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -92,14 +93,24 @@ var ui_shell
 var selected_ammo := 0
 var show_fps := true
 var starfield: MultiMeshInstance3D
+var equipment_state
+var active_touch := -1
+var world_mouse_dragging := false
+var drag_last_position := Vector2(-5000.0, -5000.0)
+var drag_update_clock := 0.0
+var afterburner: Node3D
+var exhausts: Array[MeshInstance3D] = []
+
 
 
 func _ready() -> void:
+    equipment_state = EquipmentState.new()
     _read_local_profile()
     _create_world()
     _create_hud()
     _install_new_hud()
     _set_ship(current_ship)
+    _on_equipment_changed()
     select_ammunition(selected_ammo)
     _rebuild_portals()
     _populate_local_world()
@@ -123,6 +134,7 @@ func _process(delta: float) -> void:
         # G0.5: a ordem de movimento NUNCA cancela o travamento nem o tiro.
 
     var desired_speed := 0.0
+    var local_max_speed: float = MAX_SPEED + equipment_state.bonus("MOTORES") if equipment_state != null else MAX_SPEED
     var unit: Node3D = combat_world.get_selected_enemy()
     var firing_now := auto_fire_enabled or firing_held or Input.is_key_pressed(KEY_SPACE)
     var movement_vector := Vector3.ZERO
@@ -139,18 +151,18 @@ func _process(delta: float) -> void:
         else:
             movement_vector = toward.normalized()
             has_navigation = true
-            desired_speed = minf(MAX_SPEED, sqrt(maxf(0.0, 2.0 * DECELERATION * (remaining - ARRIVAL_DISTANCE))))
+            desired_speed = minf(local_max_speed, sqrt(maxf(0.0, 2.0 * DECELERATION * (remaining - ARRIVAL_DISTANCE))))
     elif not blocked and chase_target and unit != null:
         var to_enemy := unit.global_position - ship_anchor.global_position
         to_enemy.y = 0.0
         if to_enemy.length() > CHASE_DISTANCE:
             movement_vector = to_enemy.normalized()
             has_navigation = true
-            desired_speed = minf(MAX_SPEED, sqrt(maxf(0.0, 2.0 * DECELERATION * (to_enemy.length() - CHASE_DISTANCE))))
+            desired_speed = minf(local_max_speed, sqrt(maxf(0.0, 2.0 * DECELERATION * (to_enemy.length() - CHASE_DISTANCE))))
     elif not blocked:
         travel_heading += float(manual_turn) * TURN_RATE * delta
         movement_vector = Vector3(sin(travel_heading), 0.0, cos(travel_heading))
-        desired_speed = MAX_SPEED if manual_thrust and not manual_brake else 0.0
+        desired_speed = local_max_speed if manual_thrust and not manual_brake else 0.0
 
     if has_navigation:
         travel_heading = atan2(movement_vector.x, movement_vector.z)
@@ -165,6 +177,7 @@ func _process(delta: float) -> void:
     ship_anchor.rotation.y = heading
     speed = move_toward(speed, desired_speed if not blocked else 0.0, (ACCELERATION if desired_speed > speed else DECELERATION) * delta)
     ship_anchor.position += movement_vector * speed * delta
+    _animate_engine(delta)
     ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
     ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
     if destination_active and ship_anchor.position.distance_to(destination) <= ARRIVAL_DISTANCE:
@@ -208,7 +221,7 @@ func _set_destination(point: Vector3) -> void:
     if marker != null:
         marker.position = destination + Vector3.UP * 0.02
         marker.visible = true
-    _refresh_ui()
+    # O HUD atualiza a cada 0.12s; nao reconstruir interface a cada drag.
 
 func _on_world_tap(screen_point: Vector2, reported_double: bool = false) -> void:
     if galaxy_panel.visible:
@@ -236,17 +249,49 @@ func _on_world_tap(screen_point: Vector2, reported_double: bool = false) -> void
     if ground is Vector3:
         _set_destination(ground)
 
+func _screen_destination(screen_point: Vector2) -> void:
+    if galaxy_panel.visible or (ui_shell != null and ui_shell.modal_open()):
+        return
+    var origin: Vector3 = game_camera.project_ray_origin(screen_point)
+    var direction: Vector3 = game_camera.project_ray_normal(screen_point)
+    var ground: Variant = Plane(Vector3.UP, 0.0).intersects_ray(origin, direction)
+    if ground is Vector3:
+        _set_destination(ground)
+
 func _unhandled_input(event: InputEvent) -> void:
+    # Recebe somente toques nao capturados pelo HUD, menus ou minimapa.
     if event is InputEventScreenTouch:
         var finger := event as InputEventScreenTouch
-        if finger.pressed and finger.index == 0:
-            _on_world_tap(finger.position, finger.double_tap)
+        if finger.index == 0:
+            if finger.pressed:
+                active_touch = finger.index
+                drag_last_position = finger.position
+                _on_world_tap(finger.position, finger.double_tap)
+            else:
+                active_touch = -1
             get_viewport().set_input_as_handled()
-    elif event is InputEventMouseButton:
+    elif event is InputEventScreenDrag:
+        var finger_drag := event as InputEventScreenDrag
+        if active_touch == finger_drag.index:
+            # Rota continua seguindo a posicao atual do dedo sem cancelar laser.
+            if finger_drag.position.distance_squared_to(drag_last_position) >= 3.0:
+                drag_last_position = finger_drag.position
+                _screen_destination(finger_drag.position)
+            get_viewport().set_input_as_handled()
+    elif event is InputEventMouseButton and not OS.has_feature("mobile"):
         var mouse := event as InputEventMouseButton
-        if mouse.pressed and mouse.button_index == MOUSE_BUTTON_LEFT and not OS.has_feature("mobile"):
-            _on_world_tap(mouse.position, mouse.double_click)
+        if mouse.button_index == MOUSE_BUTTON_LEFT:
+            world_mouse_dragging = mouse.pressed
+            if mouse.pressed:
+                drag_last_position = mouse.position
+                _on_world_tap(mouse.position, mouse.double_click)
             get_viewport().set_input_as_handled()
+    elif event is InputEventMouseMotion and world_mouse_dragging and not OS.has_feature("mobile"):
+        var move := event as InputEventMouseMotion
+        if move.position.distance_squared_to(drag_last_position) >= 9.0:
+            drag_last_position = move.position
+            _screen_destination(move.position)
+        get_viewport().set_input_as_handled()
 
 func _select_next_target() -> void:
     combat_world.select_nearest()
@@ -292,6 +337,7 @@ func _create_world() -> void:
     ship_anchor = Node3D.new()
     ship_anchor.name = "PlayerShip"
     add_child(ship_anchor)
+    _create_engine_effect()
     game_camera = Camera3D.new()
     game_camera.current = true
     game_camera.fov = 56.0
@@ -314,6 +360,39 @@ func _create_world() -> void:
     _make_starfield()
     _make_border()
     _make_navigation_marker()
+
+func _create_engine_effect() -> void:
+    afterburner = Node3D.new()
+    afterburner.name = "LocalThrusterFX"
+    ship_anchor.add_child(afterburner)
+    for i in range(2):
+        var jet := MeshInstance3D.new()
+        var mesh := SphereMesh.new()
+        mesh.radius = 0.23
+        mesh.height = 1.1
+        mesh.radial_segments = 8
+        mesh.rings = 5
+        var mat := StandardMaterial3D.new()
+        mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+        mat.albedo_color = Color(0.07, 0.56, 1.0, 0.76)
+        mat.emission_enabled = true
+        mat.emission = Color(0.04, 0.48, 1.0)
+        mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+        mesh.material = mat
+        jet.mesh = mesh
+        jet.position = Vector3(-0.7 if i == 0 else 0.7, 0.0, 1.2)
+        afterburner.add_child(jet)
+        exhausts.append(jet)
+
+func _animate_engine(delta: float) -> void:
+    if afterburner == null:
+        return
+    var strength := clampf(speed / (MAX_SPEED + 12.0), 0.0, 1.0)
+    afterburner.rotation.y += delta * 0.15
+    for i in range(exhausts.size()):
+        var jet := exhausts[i]
+        jet.scale = Vector3(0.45 + strength * 0.42, 0.38 + strength * 0.18, 0.35 + strength * 0.8)
+        jet.visible = strength > 0.06
 
 func _make_starfield() -> void:
     var sphere := SphereMesh.new()
@@ -772,6 +851,8 @@ func select_ammunition(index: int) -> void:
             combat_world.player_laser_damage = 905.0
         4:
             pass
+    if equipment_state != null:
+        combat_world.player_laser_damage += equipment_state.bonus("ARMAS")
     if combat_world.get_selected_enemy() != null:
         auto_fire_enabled = true
     _write_local_profile()
@@ -791,3 +872,10 @@ func set_test_faction(index: int) -> void:
 func change_ship_for_hangar(ship_id: String) -> void:
     if ship_id in SHIP_IDS:
         _set_ship(ship_id)
+
+func _on_equipment_changed() -> void:
+    # Recalcula os valores DEMONSTRATIVOS mantendo o disparo ativo.
+    var base_damage: float = [425.0, 565.0, 735.0, 905.0, 425.0][selected_ammo]
+    combat_world.player_laser_damage = base_damage + equipment_state.bonus("ARMAS")
+    if ui_shell != null:
+        ui_shell.refresh()

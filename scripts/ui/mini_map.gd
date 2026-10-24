@@ -26,26 +26,41 @@ func _to_screen(p: Vector3) -> Vector2:
     var uv := Vector2((p.x + WORLD_HALF.x) / (2.0 * WORLD_HALF.x), (p.z + WORLD_HALF.y) / (2.0 * WORLD_HALF.y))
     return Vector2(7.0, 25.0) + uv * (size - Vector2(14.0, 32.0))
 
-func _gui_input(event: InputEvent) -> void:
-    var pointer := Vector2.ZERO
-    var valid := false
-    if event is InputEventScreenTouch:
-        var finger := event as InputEventScreenTouch
-        valid = finger.pressed and finger.index == 0
-        pointer = finger.position
-    elif event is InputEventMouseButton:
-        var mouse := event as InputEventMouseButton
-        valid = mouse.pressed and mouse.button_index == MOUSE_BUTTON_LEFT
-        pointer = mouse.position
-    if not valid:
-        return
+var touch_held := false
+var mouse_held := false
+
+func _send_destination(pointer: Vector2) -> void:
     var bounds := size - Vector2(14.0, 32.0)
     if bounds.x <= 0.0 or bounds.y <= 0.0:
         return
     var uv := (pointer - Vector2(7.0, 25.0)) / bounds
     uv = uv.clamp(Vector2.ZERO, Vector2.ONE)
     destination_requested.emit(Vector3((uv.x * 2.0 - 1.0) * WORLD_HALF.x, 0.0, (uv.y * 2.0 - 1.0) * WORLD_HALF.y))
-    accept_event()
+
+func _gui_input(event: InputEvent) -> void:
+    if event is InputEventScreenTouch:
+        var finger := event as InputEventScreenTouch
+        if finger.index == 0:
+            touch_held = finger.pressed
+            if finger.pressed:
+                _send_destination(finger.position)
+            accept_event()
+    elif event is InputEventScreenDrag:
+        var movement := event as InputEventScreenDrag
+        if touch_held and movement.index == 0:
+            _send_destination(movement.position)
+            accept_event()
+    elif event is InputEventMouseButton:
+        var mouse := event as InputEventMouseButton
+        if mouse.button_index == MOUSE_BUTTON_LEFT:
+            mouse_held = mouse.pressed
+            if mouse.pressed:
+                _send_destination(mouse.position)
+            accept_event()
+    elif event is InputEventMouseMotion and mouse_held:
+        var move := event as InputEventMouseMotion
+        _send_destination(move.position)
+        accept_event()
 
 func _draw() -> void:
     draw_rect(Rect2(Vector2.ZERO, size), Color(0.018, 0.038, 0.085, 0.9), true)
