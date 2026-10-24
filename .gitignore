@@ -1,0 +1,15 @@
+# Godot 4.1+ cache local
+.godot/
+# Cache e arquivos temporários
+.DS_Store
+*.tmp
+# Credenciais - nunca enviar ao GitHub
+.env
+.env.*
+!.env.example
+# APK compilado / grandes artefatos gerados
+*.apk
+*.aab
+*.pck
+# As atualizações ZIP vão pela instalação controlada, nunca ficam como fonte
+*.zip

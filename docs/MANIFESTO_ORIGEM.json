@@ -1,0 +1,157 @@
+{
+  "source_file": "stellar-legacy-main (1).zip",
+  "source_version": "V64 (README_V64.md)",
+  "source_sha256": "10e79dbb08b075afde2ebf1686e13192b805813e055abdf8987aedd9d809466e",
+  "source_unchanged": true,
+  "assets": [
+    {
+      "name": "SL_AURORA_FINAL.glb",
+      "target": "assets/ships/SL_AURORA_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_AURORA_FINAL.glb",
+      "bytes": 100504,
+      "sha256": "25ced7d82fa2829149900ab666b7f58850ee1e98b85fc3f5daa9f349fa0f7173"
+    },
+    {
+      "name": "SL_BASTION_FINAL.glb",
+      "target": "assets/ships/SL_BASTION_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_BASTION_FINAL.glb",
+      "bytes": 156888,
+      "sha256": "58b2c533e8c834b5367f5297802277eda5227a57057860391ae4417e1a700792"
+    },
+    {
+      "name": "SL_BULWARK_FINAL.glb",
+      "target": "assets/ships/SL_BULWARK_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_BULWARK_FINAL.glb",
+      "bytes": 163252,
+      "sha256": "2bd6fa0b9b463da91d5402e92f203df23333503d0feae0eaca9348f7469ceccd"
+    },
+    {
+      "name": "SL_KENSEI_FINAL.glb",
+      "target": "assets/ships/SL_KENSEI_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_KENSEI_FINAL.glb",
+      "bytes": 143880,
+      "sha256": "2d29c44e62c01f20b81a1f78dc6eae9613cd52e2f7b9088873bd06d6b6378880"
+    },
+    {
+      "name": "SL_LEVIATHAN_FINAL.glb",
+      "target": "assets/ships/SL_LEVIATHAN_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_LEVIATHAN_FINAL.glb",
+      "bytes": 166496,
+      "sha256": "9cb83f240eae122286c57c641fada6835d2f1c31ec24ecb3e4a90881111ee720"
+    },
+    {
+      "name": "SL_LYNX_FINAL.glb",
+      "target": "assets/ships/SL_LYNX_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_LYNX_FINAL.glb",
+      "bytes": 172900,
+      "sha256": "4ad4161d3240098fc4167e4a93addd42527917901b2664dced55a67b0e9c3d81"
+    },
+    {
+      "name": "SL_MERIDIAN_FINAL.glb",
+      "target": "assets/ships/SL_MERIDIAN_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_MERIDIAN_FINAL.glb",
+      "bytes": 161644,
+      "sha256": "c0390cdeee4a530a7c8af489e696fbca456dfd47fe40971272c6f9263cdba6ca"
+    },
+    {
+      "name": "SL_PATHFINDER_FINAL.glb",
+      "target": "assets/ships/SL_PATHFINDER_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_PATHFINDER_FINAL.glb",
+      "bytes": 173020,
+      "sha256": "e9132c903bcfcc90e1f54fd4b33eb689de981ec0f057704096715159d3c94661"
+    },
+    {
+      "name": "SL_PHANTOM_FINAL.glb",
+      "target": "assets/ships/SL_PHANTOM_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_PHANTOM_FINAL.glb",
+      "bytes": 224456,
+      "sha256": "4be698f3c3ef2c1dd23703cd8df2246d05b29091a1467e4442506904a55ff56f"
+    },
+    {
+      "name": "SL_PIONEER_FINAL.glb",
+      "target": "assets/ships/SL_PIONEER_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_PIONEER_FINAL.glb",
+      "bytes": 174472,
+      "sha256": "ba96a454e8979c2161faa1d6d84aa38619ac8847313ed22c6dcf992d7870bb73"
+    },
+    {
+      "name": "SL_RAPTOR_FINAL.glb",
+      "target": "assets/ships/SL_RAPTOR_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_RAPTOR_FINAL.glb",
+      "bytes": 181788,
+      "sha256": "eb72d1dbb27357236a0786a1351b0c7b09ebc4c039b1661c4bd7b53aa2f9bdcb"
+    },
+    {
+      "name": "SL_SERAPH_FINAL.glb",
+      "target": "assets/ships/SL_SERAPH_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_SERAPH_FINAL.glb",
+      "bytes": 163012,
+      "sha256": "e9d5f301a960c46932ec1c5527f6a662ddcee08107604af6f2d4347eb5cc687f"
+    },
+    {
+      "name": "SL_VALKYRIE_FINAL.glb",
+      "target": "assets/ships/SL_VALKYRIE_FINAL.glb",
+      "source": "stellar-legacy-main/public/assets/v62/models/SL_VALKYRIE_FINAL.glb",
+      "bytes": 224424,
+      "sha256": "f5f74666134de9b735ca8f15d93bf097ace2cfdc249893f4da0b2529f7a6cf63"
+    },
+    {
+      "name": "drone_a.glb",
+      "target": "assets/drones/drone_a.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_a.glb",
+      "bytes": 252652,
+      "sha256": "4baa49dec5c63b5c323d28c61de99839f472e4189c6abcb2e15c2c651e1992a2"
+    },
+    {
+      "name": "drone_b.glb",
+      "target": "assets/drones/drone_b.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_b.glb",
+      "bytes": 263736,
+      "sha256": "43350cd5ec15554da6ce8477e7528546535bd4b3d5156ff8d5bf27d25ea60f48"
+    },
+    {
+      "name": "drone_c.glb",
+      "target": "assets/drones/drone_c.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_c.glb",
+      "bytes": 215040,
+      "sha256": "a9e39194145195dd90adecef97617099b017be6345f74d04a1fa24b07c1730ab"
+    },
+    {
+      "name": "drone_common.glb",
+      "target": "assets/drones/drone_common.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_common.glb",
+      "bytes": 209264,
+      "sha256": "84651736878939357d4ad7db2619aea8e905d4a55bed5e086752cd90c0060b7a"
+    },
+    {
+      "name": "drone_d.glb",
+      "target": "assets/drones/drone_d.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_d.glb",
+      "bytes": 260180,
+      "sha256": "5906f0de24432149e2d33f3097da6f096ee6902f50dd9de9634c94eb4f3470b8"
+    },
+    {
+      "name": "drone_e.glb",
+      "target": "assets/drones/drone_e.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_e.glb",
+      "bytes": 262100,
+      "sha256": "76b24ecd325df920272ed1473aeb8b2bebc79c4aa15a2f2e333a0aa02287b81a"
+    },
+    {
+      "name": "drone_elite.glb",
+      "target": "assets/drones/drone_elite.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/drone_elite.glb",
+      "bytes": 234236,
+      "sha256": "f9f16ab93150311bb4a3cfc3af5c30548a822d55f6f4b7521aa3206f895aa4c6"
+    },
+    {
+      "name": "aux9.glb",
+      "target": "assets/aux/aux9.glb",
+      "source": "stellar-legacy-main/public/assets/v59/models/aux9.glb",
+      "bytes": 188872,
+      "sha256": "74ae052c7af5f8c068bfdce3ae4012cb96d6d29d01a4bdfd7ed20f6cbcce0123"
+    }
+  ],
+  "project_type": "Godot Android prototype offline, separate from web production",
+  "created_on": "2026-10-24"
+}
