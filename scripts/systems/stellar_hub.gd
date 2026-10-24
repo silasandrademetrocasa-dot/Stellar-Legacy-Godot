@@ -20,12 +20,27 @@ const SHOP_EQUIPMENT := [
     {"name":"THR-2","cost":760,"description":"Propulsao de combate"},
     {"name":"THR-3","cost":1380,"description":"Propulsor de elite"},
     {"name":"AUTO-AIM","cost":950,"description":"Assistencia tatica"},
+    {"name":"VSH-0","cost":500,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"VSH-2","cost":1800,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"VSH-3","cost":3200,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"VSH-5","cost":6200,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"FS-01","cost":700,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"FS-03","cost":2450,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"ARC-Q","cost":12500,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"VORTEX-X","cost":8750,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"PULSAR-7","cost":4250,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"FALCAO","cost":1850,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"BRASA","cost":1600,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"RAIO CELESTE","cost":8900,"description":"Vitrine GLB do arsenal Stellar Legacy"},
+    {"name":"THR-1","cost":200,"description":"Vitrine GLB do arsenal Stellar Legacy"},
 ]
 const AUCTION := [
     {"name":"THR-3 | MOTOR DE ELITE","opening":900,"model":"res://assets/equipment/thr-3.glb"},
     {"name":"SG-3 | ESCUDO ELITE","opening":1100,"model":"res://assets/equipment/sg-3.glb"},
     {"name":"ARC-4 | LASER ELITE","opening":1400,"model":"res://assets/equipment/arc-4.glb"},
     {"name":"RELOAD BOOSTER | EXTRA","opening":1200,"model":"res://assets/equipment/reload_booster.glb"},
+    {"name":"ARC-Q | ARMAMENTO LENDARIO","opening":12500,"model":"res://assets/equipment/arc-q.glb"},
+    {"name":"VSH-3 | ESCUDO DE SINGULARIDADE","opening":5200,"model":"res://assets/equipment/vsh-3.glb"},
 ]
 const CONTRACTS := [
     {"key": "hunter", "label": "Patrulha da Fronteira", "goal": 8, "credits": 450},
@@ -245,3 +260,31 @@ func capture_ratio(map_id: String) -> float:
     if capture_map != map_id:
         return 0.0
     return clampf(capture_progress / CAPTURE_SECONDS, 0.0, 1.0)
+
+func refine_astral(astral, pilot_credits: int) -> String:
+    const COST = 350
+    if astral == null:
+        return "Materializador indisponivel"
+    if credit_balance(pilot_credits) < COST:
+        return "Creditos locais insuficientes para a refinaria"
+    spent_credits += COST
+    astral.award_fragments(4)
+    _save()
+    return "REFINARIA: +4 FRAGMENTOS ASTRAIS por 350 CR (TESTE)"
+
+func change_title(next_title: String, pilot, astral) -> String:
+    var unlocked: bool = false
+    match next_title:
+        "Explorador": unlocked = true
+        "Sentinela": unlocked = pilot.kills >= 5
+        "Cacador Estelar": unlocked = pilot.kills >= 20
+        "Conquistador": unlocked = relay_captures >= 1
+        "Navegante Astral":
+            for k in astral.clears:
+                if int(astral.clears[k]) > 0:
+                    unlocked = true
+    if not unlocked:
+        return "Titulo bloqueado: conclua seu requisito local"
+    title = next_title
+    _save()
+    return "TITULO ATIVO: " + title

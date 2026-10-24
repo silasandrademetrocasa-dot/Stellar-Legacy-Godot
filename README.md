@@ -1,3 +1,5 @@
+# Stellar Legacy Godot G0.10 — Arsenal & Materializador X-1
+
 # STELLAR LEGACY — GODOT G0.9 | ASTRAL DOMINION
 
 **Android / cliente Godot experimental. Somente offline.** A versão web (iPhone), Render e Supabase de produção não foram alterados.
@@ -42,3 +44,6 @@
 - Nenhuma configuração ou SQL do Render e do Supabase foi alterado.
 - Os 3 GLBs de portais são originais gerados para Godot, inspirados no esquema de cores e nomes do catálogo web V64, não são réplicas idênticas de imagens conceituais.
 - A validação local cobre estrutura, importações referenciadas e GLB; a execução no Godot 4.5.2 deve ser verificada no GitHub Actions e o desempenho no Android.
+
+
+Veja `docs/G010_VIDEO_MIGRACAO.md` para diferencas, testes e escopo.

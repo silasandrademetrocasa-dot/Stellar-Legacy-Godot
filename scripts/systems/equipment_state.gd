@@ -11,8 +11,11 @@ var stock: Dictionary = {}
 func _init() -> void:
     for _i in range(2):
         configurations.append(_blank())
+    # Equipamentos iniciais da G0.6 continuam disponíveis. Itens novos devem ser conquistados/comprados no teste.
+    const STARTER_ITEMS = ["ARC-1", "ARC-2", "ARC-4", "SG-1", "SG-2", "SG-3", "THR-1", "THR-2", "THR-3", "AUTO-AIM", "NANOBOT REP-2", "RELOAD BOOSTER"]
     for item in Catalog.ITEMS:
-        stock[str(item["name"])] = 2
+        var label: String = str(item["name"])
+        stock[label] = 2 if STARTER_ITEMS.has(label) else 0
     _read()
 
 func _blank() -> Dictionary:
@@ -104,7 +107,7 @@ func bonus(kind: String) -> float:
 func _save() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations}))
+        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock}))
 
 func _read() -> void:
     if not FileAccess.file_exists(SAVE_PATH):
@@ -115,6 +118,11 @@ func _read() -> void:
     var parsed: Variant = JSON.parse_string(f.get_as_text())
     if not (parsed is Dictionary):
         return
+    var loaded_stock: Variant = parsed.get("stock", {})
+    if loaded_stock is Dictionary:
+        for catalog_item in Catalog.ITEMS:
+            var official_name: String = str(catalog_item["name"])
+            stock[official_name] = clampi(int(loaded_stock.get(official_name, stock[official_name])),0,9999)
     var cfgs: Variant = parsed.get("configs", [])
     if not (cfgs is Array) or cfgs.size() != 2:
         return

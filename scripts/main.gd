@@ -801,6 +801,10 @@ func _travel_nearest() -> void:
     if Routes.is_astral(source):
         astral_trials.leave()
     if Routes.is_astral(target):
+        if not astral_trials.consume_entry(target):
+            if ui_shell != null:
+                ui_shell.show_notification("CHAVE ASTRAL NECESSARIA: CENTRAL > PORTAIS > MATERIALIZAR (OFFLINE)")
+            return
         astral_trials.begin(target)
         hp = MAX_HP
         shield = MAX_SHIELD
@@ -911,7 +915,7 @@ func _read_local_profile() -> void:
 func _write_local_profile() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        var saved_map: String = ("%s-8" % faction) if Routes.is_astral(current_map) else current_map
+        var saved_map: String = ("%s-1" % faction) if Routes.is_astral(current_map) else current_map
         f.store_string(JSON.stringify({"faction": faction, "map": saved_map, "ship": current_ship, "ammo": selected_ammo, "show_fps": show_fps, "quality": graphics_quality}))
 
 # Extensao G0.3: a navegacao G0.2 permanece intacta.
@@ -969,12 +973,14 @@ func set_graphics_quality(profile: String, persist: bool = true) -> void:
 
 func _on_enemy_destroyed(display_name: String, map_id: String, _where: Vector3) -> void:
     var reward: Dictionary = pilot_progress.defeated_enemy(display_name, map_id)
+    astral_trials.award_fragments(1)
     var announcement: String = "+%d XP  +%d CREDITOS (TESTE)" % [int(reward["xp"]), int(reward["credits"])]
     if ui_shell != null:
         ui_shell.show_notification(announcement)
 
 func _on_loot_collected(_map_id: String) -> void:
     var reward: Dictionary = pilot_progress.collected_box()
+    astral_trials.award_fragments(2)
     var announcement: String = "CAIXA +%d XP / +%d CREDITOS (TESTE)" % [int(reward["xp"]), int(reward["credits"])]
     if ui_shell != null:
         ui_shell.show_notification(announcement)
