@@ -1,22 +1,18 @@
-# Stellar Legacy Godot — G0.6
+# Stellar Legacy Godot G0.7 — Progresso do Piloto (offline)
 
-Cliente experimental offline para Android com suporte a migração futura para desktop/iOS. **A versão Web/iPhone do Stellar Legacy permanece totalmente separada.**
+Cliente 3D Android experimental. Mantém rotas X/4/U, HUD/hangar/loja 3D, controle por arraste, combate em movimento, AUX-9, drones e equipamentos CONF 1/CONF 2 da G0.6.
 
-## O que há na versão
+## Novidades G0.7
+- Menu **PILOTO**: XP, nível, créditos demonstrativos, missões, eliminações e caixas coletadas.
+- Coleta de caixas no mundo: aproximar a nave ou tocar na caixa para navegar até ela.
+- Mini mapa indica caixas em amarelo.
+- Recompensas e missões estritamente **offline/de teste**, salvas em `user://stellar_g07_pilot_offline.json`.
+- A progressão usa nível 1→2 = 10.000 XP, 2→3 = 20.000 XP etc.
 
-- Navegação X-1 a X-8 / U-1 a U-3 / 4-X e portais 3D
-- Toque e arraste no cenário e minimapa para reposicionamento contínuo
-- Ataque automático independente da navegação e mira orientada ao alvo
-- HUD superior, minimapa, munições e modais
-- Hangar/Loja com vitrine 3D, plataforma e modelos carregados localmente
-- Equipamentos experimentais: 12 GLBs, slots locais e CONF 1/CONF 2
-- NPCs e drones locais, efeitos e drops demonstrativos
+## Instalação
+Envie somente o ZIP `StellarLegacy_Godot_G0.7_ATUALIZACAO.zip` à raiz do GitHub, sem extrair, remova outros ZIPs de instalação da raiz e execute `Actions > Instalador Godot > Run workflow`. Depois sincronize o projeto no editor Android. O `StellarLegacy_Godot_G0.7_COMPLETO.zip` é para importar um projeto independente.
 
-## Instalar
+## Isolamento
+Não chama Render, Supabase ou o banco antigo, nem autentica. Creditos e XP são simulados e NÃO devem ser reutilizados como fonte de autoridade de servidor. O jogo web/iPhone continua inalterado.
 
-Para primeiro acesso, importe o ZIP **completo** usando o Godot Android.
-Para GitHub, envie o ZIP **incremental G0.6** como o único ZIP da raiz e execute o workflow já existente `Stellar Legacy Godot - Instalador ZIP`. O workflow valida a importação antes de publicar. Extraia/importe o projeto atualizado no Godot Android para jogar a nova versão.
-
-## Segurança
-
-Nenhum acesso ao Render/Supabase, login, SQL ou economia de produção. Alterações da G0.6 são somente do cliente Godot e de salvamentos locais `user://`. Veja `docs/G0.6-TACTICAL-HANGAR-EQUIPMENT.md` para as mudanças e testes.
+Consulte `docs/G07_TESTES_E_PLANO_BACKEND.md` para testes, riscos e futuro staging.

@@ -1,5 +1,5 @@
 extends Node3D
-## Stellar Legacy Godot G0.6 - continuous touch steering, loadouts and optimized visuals.
+## Stellar Legacy Godot G0.7 - combate local, coleta e progressao demonstrativa.
 ## NAO autentica, NAO consulta Render/Supabase, NAO altera producao.
 
 const Routes = preload("res://scripts/world_routes.gd")
@@ -9,6 +9,7 @@ const CombatWorld = preload("res://scripts/world/combat_world.gd")
 const FleetSupport = preload("res://scripts/world/fleet_support.gd")
 const StellarHUD = preload("res://scripts/ui/stellar_hud.gd")
 const EquipmentState = preload("res://scripts/systems/equipment_state.gd")
+const PilotProgress = preload("res://scripts/systems/pilot_progress.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -94,6 +95,7 @@ var selected_ammo := 0
 var show_fps := true
 var starfield: MultiMeshInstance3D
 var equipment_state
+var pilot_progress
 var active_touch := -1
 var world_mouse_dragging := false
 var drag_last_position := Vector2(-5000.0, -5000.0)
@@ -105,6 +107,7 @@ var exhausts: Array[MeshInstance3D] = []
 
 func _ready() -> void:
     equipment_state = EquipmentState.new()
+    pilot_progress = PilotProgress.new()
     _read_local_profile()
     _create_world()
     _create_hud()
@@ -114,6 +117,7 @@ func _ready() -> void:
     select_ammunition(selected_ammo)
     _rebuild_portals()
     _populate_local_world()
+    pilot_progress.visit_map(current_map)
     support_fleet.snap_to_player()
     _refresh_ui()
     get_viewport().size_changed.connect(_layout_hud)
@@ -180,6 +184,7 @@ func _process(delta: float) -> void:
     _animate_engine(delta)
     ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
     ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
+    combat_world.collect_nearby(ship_anchor.global_position)
     if destination_active and ship_anchor.position.distance_to(destination) <= ARRIVAL_DISTANCE:
         _clear_autonavigation()
         speed = 0.0
@@ -243,6 +248,12 @@ func _on_world_tap(screen_point: Vector2, reported_double: bool = false) -> void
         _refresh_ui()
         return
     last_enemy_tapped = null
+    var chosen_drop: Dictionary = combat_world.loot_at_screen(screen_point, game_camera)
+    if not chosen_drop.is_empty():
+        var point: Vector3 = chosen_drop["position"]
+        _set_destination(point)
+        combat_world._message("Indo coletar caixa estelar")
+        return
     var origin := game_camera.project_ray_origin(screen_point)
     var direction := game_camera.project_ray_normal(screen_point)
     var ground = Plane(Vector3.UP, 0.0).intersects_ray(origin, direction)
@@ -352,6 +363,8 @@ func _create_world() -> void:
     add_child(combat_world)
     combat_world.player_node = ship_anchor
     combat_world.incoming_damage.connect(_receive_local_damage)
+    combat_world.enemy_destroyed.connect(_on_enemy_destroyed)
+    combat_world.loot_collected.connect(_on_loot_collected)
     support_fleet = FleetSupport.new()
     support_fleet.name = "SupportFleet"
     add_child(support_fleet)
@@ -655,7 +668,7 @@ func _refresh_ui() -> void:
     var points: Array[Vector3] = []
     for portal in portals:
         points.append(portal["pos"])
-    mini_map.update_state(current_map, ship_anchor.position, points, nearest_portal, combat_world.enemy_positions(), destination, destination_active)
+    mini_map.update_state(current_map, ship_anchor.position, points, nearest_portal, combat_world.enemy_positions(), destination, destination_active, combat_world.loot_positions())
     combat_label.text = "HP %d / %d   ESC %d / %d" % [roundi(hp), roundi(MAX_HP), roundi(shield), roundi(MAX_SHIELD)]
     hp_bar.value = 100.0 * hp / MAX_HP
     shield_bar.value = 100.0 * shield / MAX_SHIELD
@@ -688,6 +701,7 @@ func _travel_nearest() -> void:
     fire_button.text = "LASER"
     var source := current_map
     current_map = target
+    pilot_progress.visit_map(current_map)
     _rebuild_portals()
     _populate_local_world()
     var entry := Vector3.ZERO
@@ -736,6 +750,7 @@ func _on_faction_selected(index: int) -> void:
         return
     faction = Routes.FACTIONS[index]
     current_map = "%s-1" % faction
+    pilot_progress.visit_map(current_map)
     _return_to_center()
     support_fleet.snap_to_player()
     _rebuild_portals()
@@ -798,6 +813,18 @@ func _populate_local_world() -> void:
     for portal in portals:
         points.append(portal["pos"])
     combat_world.configure(current_map, points)
+
+func _on_enemy_destroyed(display_name: String, map_id: String, _where: Vector3) -> void:
+    var reward: Dictionary = pilot_progress.defeated_enemy(display_name, map_id)
+    var announcement: String = "+%d XP  +%d CREDITOS (TESTE)" % [int(reward["xp"]), int(reward["credits"])]
+    if ui_shell != null:
+        ui_shell.show_notification(announcement)
+
+func _on_loot_collected(_map_id: String) -> void:
+    var reward: Dictionary = pilot_progress.collected_box()
+    var announcement: String = "CAIXA +%d XP / +%d CREDITOS (TESTE)" % [int(reward["xp"]), int(reward["credits"])]
+    if ui_shell != null:
+        ui_shell.show_notification(announcement)
 
 func _receive_local_damage(amount: float) -> void:
     combat_recovery_clock = 4.0

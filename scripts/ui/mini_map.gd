@@ -9,15 +9,17 @@ var ship_pos := Vector3.ZERO
 var portal_points: Array[Vector3] = []
 var focused_portal := -1
 var enemy_points: Array[Vector3] = []
+var loot_points: Array[Vector3] = []
 var destination: Vector3 = Vector3.ZERO
 var destination_active := false
 
-func update_state(map_id: String, new_ship_pos: Vector3, points: Array[Vector3], selected: int, enemies: Array[Vector3] = [], next_destination: Vector3 = Vector3.ZERO, has_destination: bool = false) -> void:
+func update_state(map_id: String, new_ship_pos: Vector3, points: Array[Vector3], selected: int, enemies: Array[Vector3] = [], next_destination: Vector3 = Vector3.ZERO, has_destination: bool = false, boxes: Array[Vector3] = []) -> void:
     current_map = map_id
     ship_pos = new_ship_pos
     portal_points = points
     focused_portal = selected
     enemy_points = enemies
+    loot_points = boxes
     destination = next_destination
     destination_active = has_destination
     queue_redraw()
@@ -74,6 +76,9 @@ func _draw() -> void:
         draw_circle(_to_screen(portal_points[i]), 4.2, col)
     for enemy in enemy_points:
         draw_circle(_to_screen(enemy), 2.9, Color(1.0, 0.39, 0.4))
+    for box in loot_points:
+        var pixel: Vector2 = _to_screen(box)
+        draw_rect(Rect2(pixel - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), Color(1.0, 0.83, 0.27), true)
     if destination_active:
         var p := _to_screen(destination)
         draw_line(_to_screen(ship_pos), p, Color(0.88, 0.95, 0.46, 0.65), 1.2)

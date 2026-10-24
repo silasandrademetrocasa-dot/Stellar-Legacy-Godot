@@ -3,6 +3,8 @@ extends Node3D
 ## NÃO envia requisições, NÃO altera inventário, créditos, STL ou progresso.
 
 signal incoming_damage(amount: float)
+signal enemy_destroyed(enemy_name: String, map_id: String, position: Vector3)
+signal loot_collected(map_id: String)
 
 const Enemy = preload("res://scripts/world/enemy_ship.gd")
 const NpcCatalog = preload("res://scripts/data/npc_catalog.gd")
@@ -234,6 +236,7 @@ func _destroy_enemy(enemy: Enemy) -> void:
     kills += 1
     map_kills += 1
     _spawn_local_drop(enemy.position)
+    enemy_destroyed.emit(enemy.display_name, live_map, enemy.position)
     _message("%s destruído! +1 eliminação de teste" % enemy.display_name)
     selected = null
 
@@ -249,10 +252,47 @@ func _spawn_local_drop(where: Vector3) -> void:
     loot_root.add_child(box)
     box.position = where
     box.scale = Vector3.ONE * 0.8
-    drops.append({"node": box, "time": 18.0})
+    drops.append({"node": box, "time": 45.0})
 
 ## Reutiliza malhas de laser; evita alocar geometria/material a cada disparo.
 ## Máximo 18 raios simultâneos de teste para proteger celulares modestos.
+func loot_positions() -> Array[Vector3]:
+    var result: Array[Vector3] = []
+    for drop in drops:
+        var node: Node3D = drop["node"]
+        if is_instance_valid(node):
+            result.append(node.position)
+    return result
+
+func loot_at_screen(screen_point: Vector2, camera: Camera3D) -> Dictionary:
+    var best: Dictionary = {}
+    var best_pixels: float = 40.0
+    for drop in drops:
+        var node: Node3D = drop["node"]
+        if not is_instance_valid(node):
+            continue
+        var center: Vector3 = node.global_position + Vector3.UP * 0.7
+        if camera.is_position_behind(center):
+            continue
+        var pixels: float = camera.unproject_position(center).distance_to(screen_point)
+        if pixels < best_pixels:
+            best_pixels = pixels
+            best = {"position": node.global_position}
+    return best
+
+func collect_nearby(player_pos: Vector3) -> void:
+    for i in range(drops.size() - 1, -1, -1):
+        var box: Node3D = drops[i]["node"]
+        if not is_instance_valid(box):
+            drops.remove_at(i)
+            continue
+        if box.global_position.distance_to(player_pos) > 7.5:
+            continue
+        box.queue_free()
+        drops.remove_at(i)
+        loot_collected.emit(live_map)
+        _message("Caixa recolhida! Recompensa de TESTE local")
+
 func _draw_beam(a: Vector3, b: Vector3, tint: Color) -> void:
     var length := a.distance_to(b)
     if length < 0.1:

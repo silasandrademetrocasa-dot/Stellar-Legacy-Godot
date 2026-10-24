@@ -1,5 +1,5 @@
 extends Control
-## Stellar Legacy G0.6 - Interface tática, showroom galactico e equipamentos reais em GLB.
+## Stellar Legacy G0.7 - HUD com perfil local, progressao e vitrine 3D.
 ## Interface local de demonstracao: sem compras, saldo real ou consultas a rede.
 
 const C_BG := Color(0.018, 0.036, 0.074, 0.95)
@@ -69,6 +69,8 @@ var equip_remove: Button
 var equip_copy: Button
 var equip_slots: HFlowContainer
 var showroom_floor: Node3D
+var notification_label: Label
+var notification_seconds: float = 0.0
 var modal_kind := ""
 var selected_item: Dictionary = {}
 var catalogue: Array[Dictionary] = []
@@ -147,7 +149,7 @@ func _create_shell() -> void:
     top_panel = _panel(self)
     top_title = _label(top_panel, "STELLAR LEGACY", 19, C_HI)
     top_subtitle = _label(top_panel, "GODOT  |  PROTOTIPO OFFLINE", 10, C_MUTED)
-    for item in ["HANGAR", "EQUIPAMENTOS", "BATALHA", "MAPAS", "LOJA", "CONFIG"]:
+    for item in ["HANGAR", "EQUIPAMENTOS", "BATALHA", "MAPAS", "LOJA", "PILOTO", "CONFIG"]:
         var b := _button(top_panel, item, 13)
         b.pressed.connect(_on_top_button.bind(item))
         top_buttons.append(b)
@@ -166,6 +168,10 @@ func _create_shell() -> void:
     map_widget.visible = true
 
     info_line = _label(self, "Toque no mapa para navegar. O ataque continua durante o deslocamento.", 12, C_WHITE)
+    notification_label = _label(self, "", 14, C_GOLD)
+    notification_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    notification_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    notification_label.visible = false
     action_panel = _panel(self)
     warp_btn = _button(action_panel, "VIAJAR", 13)
     warp_btn.pressed.connect(func() -> void: game._travel_nearest())
@@ -415,6 +421,17 @@ func _copy_equipment_config() -> void:
 func _process(delta: float) -> void:
     if modal_overlay.visible and preview_mesh != null and is_instance_valid(preview_mesh):
         preview_mesh.rotation.y += delta * 0.53
+    if notification_seconds > 0.0:
+        notification_seconds = maxf(0.0, notification_seconds - delta)
+        notification_label.visible = notification_seconds > 0.0
+
+func show_notification(message: String) -> void:
+    if notification_label == null:
+        return
+    notification_label.text = message
+    notification_seconds = 2.8
+    notification_label.visible = true
+
 
 func modal_open() -> bool:
     return modal_overlay != null and modal_overlay.visible
@@ -429,9 +446,12 @@ func _on_top_button(item: String) -> void:
 func _open_modal(kind: String) -> void:
     modal_kind = kind
     modal_overlay.visible = true
-    modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES"}.get(kind, kind)
-    modal_info.text = "G0.6  |  VISUALIZACAO ESTELAR 3D  |  demonstracao local"
+    modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO"}.get(kind, kind)
+    modal_info.text = "G0.7  |  DADOS LOCAIS DE TESTE  |  sem ligacao com producao"
     var show_gallery := kind in ["HANGAR", "LOJA", "EQUIPAMENTOS"]
+    if not show_gallery and preview_mesh != null and is_instance_valid(preview_mesh):
+        preview_mesh.queue_free()
+        preview_mesh = null
     category_row.visible = show_gallery
     list_scroll.visible = true
     preview_wrap.visible = show_gallery
@@ -458,6 +478,8 @@ func _open_modal(kind: String) -> void:
         _build_battle_menu()
     elif kind == "CONFIG":
         _build_settings_menu()
+    elif kind == "PILOTO":
+        _build_pilot_menu()
     relayout(layout_size)
 
 func _clear_dynamic_rows() -> void:
@@ -586,6 +608,36 @@ func _add_menu_row(caption: String, action: Callable) -> void:
     b.custom_minimum_size = Vector2(200, 43)
     b.pressed.connect(action)
 
+func _add_pilot_row(text_value: String, highlighted: bool = false) -> void:
+    var label: Label = _label(item_stack, text_value, 13, C_GOLD if highlighted else C_WHITE)
+    label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    label.custom_minimum_size = Vector2(175.0, 38.0)
+
+func _build_pilot_menu() -> void:
+    var stats: Dictionary = game.pilot_progress.snapshot()
+    _add_pilot_row("PERFIL LOCAL / SIMULACAO (nao representa sua conta)", true)
+    _add_pilot_row("NIVEL %d   |   XP %d / %d" % [int(stats["level"]), int(stats["xp_current"]), int(stats["xp_needed"])])
+    var progress_bar: ProgressBar = _bar(item_stack, C_HI)
+    progress_bar.custom_minimum_size = Vector2(180.0, 15.0)
+    progress_bar.value = 100.0 if int(stats["xp_needed"]) <= 0 else 100.0 * float(stats["xp_current"]) / float(stats["xp_needed"])
+    _add_pilot_row("CREDITOS DE TESTE  %d    |    XP TOTAL  %d" % [int(stats["credits"]), int(stats["xp_total"])])
+    _add_pilot_row("ELIMINACOES  %d   |   CAIXAS  %d   |   MAPAS  %d" % [int(stats["kills"]), int(stats["boxes"]), int(stats["maps"])])
+    _add_pilot_row("MISSOES DA FUNDACAO", true)
+    var missions: Array = stats["missions"]
+    for mission in missions:
+        var status: String = "CONCLUIDA"
+        if not bool(mission["claimed"]):
+            status = "%d / %d" % [mini(int(mission["done"]), int(mission["goal"])), int(mission["goal"])]
+        _add_pilot_row("%s     %s" % [str(mission["name"]), status])
+    _add_pilot_row("ATIVIDADES RECENTES", true)
+    var events: Array = stats["recent"]
+    if events.is_empty():
+        _add_pilot_row("Derrote um NPC, recolha caixas e explore mapas.")
+    else:
+        for entry in events:
+            _add_pilot_row(str(entry))
+
 func _build_battle_menu() -> void:
     _add_menu_row("SELECIONAR PROXIMO ALVO", func() -> void:
         game._select_next_target()
@@ -654,7 +706,8 @@ func close_modal() -> void:
 func refresh() -> void:
     if game == null or not is_instance_valid(game) or game.ship_anchor == null:
         return
-    top_subtitle.text = "MAPA %s   /   %s    %s" % [game.current_map, str(game.current_ship), ("%d FPS" % Engine.get_frames_per_second()) if game.show_fps else ""]
+    var lvl: Dictionary = game.pilot_progress.level_info()
+    top_subtitle.text = "LV %d  |  %s  |  %s  %s" % [int(lvl["level"]), game.current_map, str(game.current_ship), ("%d FPS" % Engine.get_frames_per_second()) if game.show_fps else ""]
     vitals_title.text = "PILOTO  |  HP %d  /  ESC %d" % [roundi(game.hp), roundi(game.shield)]
     vitals_hp.value = 100.0 * game.hp / game.MAX_HP
     vitals_shield.value = 100.0 * game.shield / game.MAX_SHIELD
@@ -743,6 +796,8 @@ func relayout(view_size: Vector2) -> void:
     fire_btn.position = Vector2(5 + 5 * weapon_button_w, 4)
     fire_btn.size = Vector2(weapon_button_w - 3, action_h - 4)
     fire_btn.add_theme_font_size_override("font_size", 11 if compact else 13)
+    notification_label.position = Vector2(w * 0.29, 56)
+    notification_label.size = Vector2(w * 0.43, 26)
     info_line.position = Vector2(12, h - 84)
     info_line.size = Vector2(w - 25, 22)
     info_line.add_theme_font_size_override("font_size", 11 if compact else 12)
