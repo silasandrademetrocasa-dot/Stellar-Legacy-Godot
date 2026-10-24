@@ -10,6 +10,7 @@ const FleetSupport = preload("res://scripts/world/fleet_support.gd")
 const StellarHUD = preload("res://scripts/ui/stellar_hud.gd")
 const EquipmentState = preload("res://scripts/systems/equipment_state.gd")
 const PilotProgress = preload("res://scripts/systems/pilot_progress.gd")
+const HubStore = preload("res://scripts/systems/stellar_hub.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -96,6 +97,9 @@ var show_fps := true
 var starfield: MultiMeshInstance3D
 var equipment_state
 var pilot_progress
+var hub_store
+var relay_visual: Node3D
+var relay_ring: MeshInstance3D
 var active_touch := -1
 var world_mouse_dragging := false
 var drag_last_position := Vector2(-5000.0, -5000.0)
@@ -108,6 +112,7 @@ var exhausts: Array[MeshInstance3D] = []
 func _ready() -> void:
     equipment_state = EquipmentState.new()
     pilot_progress = PilotProgress.new()
+    hub_store = HubStore.new()
     _read_local_profile()
     _create_world()
     _create_hud()
@@ -185,6 +190,13 @@ func _process(delta: float) -> void:
     ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
     ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
     combat_world.collect_nearby(ship_anchor.global_position)
+    if hub_store != null and Routes.is_pvp(current_map):
+        var relay_event: String = hub_store.relay_tick(current_map, faction, ship_anchor.position.length(), delta)
+        if not relay_event.is_empty() and ui_shell != null:
+            ui_shell.show_notification(relay_event)
+            _update_relay_color()
+    if relay_ring != null and is_instance_valid(relay_ring):
+        relay_ring.rotate_y(delta * 0.5)
     if destination_active and ship_anchor.position.distance_to(destination) <= ARRIVAL_DISTANCE:
         _clear_autonavigation()
         speed = 0.0
@@ -636,10 +648,78 @@ func _rebuild_portals() -> void:
         label.no_depth_test = true
         gate.add_child(label)
         portals.append({"dest": target, "pos": p, "node": gate})
+    _build_relay_visual()
     var bg := Color(0.018, 0.009, 0.045) if Routes.is_pvp(current_map) else (Color(0.006, 0.035, 0.055) if Routes.is_universe(current_map) else Color(0.008, 0.014, 0.036))
     sky.environment.background_color = bg
     galaxy_map.set_route_view(faction, current_map)
     _refresh_ui()
+
+func _build_relay_visual() -> void:
+    relay_visual = null
+    relay_ring = null
+    if not Routes.is_pvp(current_map):
+        return
+    relay_visual = Node3D.new()
+    relay_visual.name = "ReleEstelar_Offline_4X"
+    portal_root.add_child(relay_visual)
+    for i in range(6):
+        var spire := MeshInstance3D.new()
+        var column := CylinderMesh.new()
+        column.top_radius = 0.18
+        column.bottom_radius = 0.48
+        column.height = 6.5
+        spire.mesh = column
+        var metal := StandardMaterial3D.new()
+        metal.albedo_color = Color(0.13, 0.25, 0.4)
+        metal.metallic = 0.78
+        metal.roughness = 0.28
+        spire.material_override = metal
+        var theta: float = TAU * float(i) / 6.0
+        spire.position = Vector3(cos(theta) * 6.0, 3.0, sin(theta) * 6.0)
+        relay_visual.add_child(spire)
+    var core := MeshInstance3D.new()
+    var capsule := SphereMesh.new()
+    capsule.radius = 1.8
+    capsule.height = 3.6
+    core.mesh = capsule
+    core.position = Vector3(0, 4.1, 0)
+    relay_visual.add_child(core)
+    relay_ring = MeshInstance3D.new()
+    var torus := TorusMesh.new()
+    torus.inner_radius = 5.0
+    torus.outer_radius = 5.35
+    relay_ring.mesh = torus
+    relay_ring.position = Vector3(0, 1.4, 0)
+    relay_visual.add_child(relay_ring)
+    var tag := Label3D.new()
+    tag.text = "RELE %s  |  CAPTURA LOCAL" % current_map
+    tag.font_size = 44
+    tag.pixel_size = 0.012
+    tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+    tag.no_depth_test = true
+    tag.position = Vector3(0, 9.0, 0)
+    relay_visual.add_child(tag)
+    _update_relay_color()
+
+func _update_relay_color() -> void:
+    if relay_visual == null or not is_instance_valid(relay_visual):
+        return
+    var owner: String = str(hub_store.relay_owners.get(current_map, ""))
+    var tint := Color(0.28, 0.84, 1.0)
+    match owner:
+        "1": tint = Color(0.22, 0.65, 1.0)
+        "2": tint = Color(1.0, 0.26, 0.29)
+        "3": tint = Color(0.37, 1.0, 0.42)
+    var glow := StandardMaterial3D.new()
+    glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    glow.albedo_color = tint
+    glow.emission_enabled = true
+    glow.emission = tint
+    if relay_ring != null:
+        relay_ring.material_override = glow
+    var central: Node = relay_visual.get_child(6)
+    if central is MeshInstance3D:
+        (central as MeshInstance3D).material_override = glow
 
 func _nearest_index() -> int:
     var selected := -1

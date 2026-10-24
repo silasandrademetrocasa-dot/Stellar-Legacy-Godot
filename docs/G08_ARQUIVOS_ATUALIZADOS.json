@@ -1,0 +1,29 @@
+{
+  "release": "G0.8",
+  "base": "G0.7_COMPLETO",
+  "release_kind": "incremental and complete",
+  "removed_files": [],
+  "updated_files": [
+    "README.md",
+    "docs/G08_ARQUITETURA_BANCO_NOVO.md",
+    "docs/G08_CENTRAL_E_RELES.md",
+    "project.godot",
+    "scripts/main.gd",
+    "scripts/systems/stellar_hub.gd",
+    "scripts/ui/mini_map.gd",
+    "scripts/ui/stellar_hud.gd"
+  ],
+  "sha256": {
+    "README.md": "93982a6a1a4f9439c9ea21f1f552ff8005ae897912d823f130499696f2148759",
+    "docs/G08_ARQUITETURA_BANCO_NOVO.md": "8de369f964b12c6cab1c5c7c3fd4eeb51c8593fdb55f3dbf8f4f536a9efbbc67",
+    "docs/G08_CENTRAL_E_RELES.md": "73f2d4f86b4c9794e9f685de97ba6bc9ae7250c5d816b8ab36202536b7eee00b",
+    "project.godot": "8af03f41f91ab0614cc5c585f13da4b56f9e163744157c2694fa1201bf020f48",
+    "scripts/main.gd": "61aa15361733d36af0ac39fa38c322cd68faffa2894a032824fa0235d1db5e8a",
+    "scripts/systems/stellar_hub.gd": "773c1d596ea88406818de8cedcce4faad6e75a481ef95122e696c674bb50206d",
+    "scripts/ui/mini_map.gd": "0eb3f530c750f363d15900721dd8bba407b208788dfdc56e3c31bf86f43f1d5c",
+    "scripts/ui/stellar_hud.gd": "65ee910cff1e3e4b7e37fd09ec069b56f2047fc2993892726832ac1fbbf3f7b0"
+  },
+  "backend_changes": false,
+  "database_changes": false,
+  "real_multiplayer": false
+}

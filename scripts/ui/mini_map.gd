@@ -74,6 +74,10 @@ func _draw() -> void:
     for i in range(portal_points.size()):
         var col := Color(1, 0.83, 0.36) if i == focused_portal else Color(0.35, 0.85, 1)
         draw_circle(_to_screen(portal_points[i]), 4.2, col)
+    if current_map.begins_with("4-"):
+        var relay_location: Vector2 = _to_screen(Vector3.ZERO)
+        draw_arc(relay_location, 7.0, 0.0, TAU, 16, Color(0.24, 0.94, 1.0), 1.8)
+        draw_circle(relay_location, 2.6, Color(0.95, 0.72, 0.23))
     for enemy in enemy_points:
         draw_circle(_to_screen(enemy), 2.9, Color(1.0, 0.39, 0.4))
     for box in loot_points:

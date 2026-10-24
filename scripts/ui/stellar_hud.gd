@@ -9,6 +9,7 @@ const C_GOLD := Color(1.0, 0.78, 0.35)
 const C_WHITE := Color(0.88, 0.96, 1.0)
 const C_MUTED := Color(0.5, 0.66, 0.78)
 const EquipCatalog = preload("res://scripts/data/equipment_catalog.gd")
+const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
 const WEAPON_NAMES := ["PLS-1", "PLS-2", "PLS-3", "PLS-4", "CMT-1"]
 const DRONE_ITEMS := [
@@ -149,9 +150,11 @@ func _create_shell() -> void:
     top_panel = _panel(self)
     top_title = _label(top_panel, "STELLAR LEGACY", 19, C_HI)
     top_subtitle = _label(top_panel, "GODOT  |  PROTOTIPO OFFLINE", 10, C_MUTED)
-    for item in ["HANGAR", "EQUIPAMENTOS", "BATALHA", "MAPAS", "LOJA", "PILOTO", "CONFIG"]:
+    for item in ["HANGAR", "EQUIPAMENTOS", "BATALHA", "MAPAS", "LOJA", "PILOTO", "CENTRAL", "CONFIG"]:
         var b := _button(top_panel, item, 13)
         b.pressed.connect(_on_top_button.bind(item))
+        if item == "EQUIPAMENTOS":
+            b.text = "EQUIP."
         top_buttons.append(b)
 
     vitals_panel = _panel(self)
@@ -446,13 +449,14 @@ func _on_top_button(item: String) -> void:
 func _open_modal(kind: String) -> void:
     modal_kind = kind
     modal_overlay.visible = true
-    modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.7  |  DADOS LOCAIS DE TESTE  |  sem ligacao com producao"
+    modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE"}.get(kind, kind)
+    modal_info.text = "G0.8  |  SISTEMAS OFFLINE  |  SEM MULTIPLAYER NEM COMPRAS REAIS"
     var show_gallery := kind in ["HANGAR", "LOJA", "EQUIPAMENTOS"]
     if not show_gallery and preview_mesh != null and is_instance_valid(preview_mesh):
         preview_mesh.queue_free()
         preview_mesh = null
-    category_row.visible = show_gallery
+    var hub_pages: Array[String] = ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]
+    category_row.visible = show_gallery or kind in hub_pages
     list_scroll.visible = true
     preview_wrap.visible = show_gallery
     preview_title.visible = show_gallery
@@ -466,6 +470,8 @@ func _open_modal(kind: String) -> void:
     equip_notice.visible = kind == "EQUIPAMENTOS"
 
     _clear_dynamic_rows()
+    if kind in hub_pages:
+        _build_hub_navigation()
     if show_gallery:
         _build_categories()
         if kind == "EQUIPAMENTOS":
@@ -480,6 +486,8 @@ func _open_modal(kind: String) -> void:
         _build_settings_menu()
     elif kind == "PILOTO":
         _build_pilot_menu()
+    elif kind in hub_pages:
+        _build_hub_page(kind)
     relayout(layout_size)
 
 func _clear_dynamic_rows() -> void:
@@ -616,6 +624,18 @@ func _add_pilot_row(text_value: String, highlighted: bool = false) -> void:
 
 func _build_pilot_menu() -> void:
     var stats: Dictionary = game.pilot_progress.snapshot()
+    _add_pilot_row("IDENTIDADE STELLAR LEGACY  |  PERFIL LOCAL", true)
+    var name_edit := LineEdit.new()
+    name_edit.text = game.hub_store.callsign
+    name_edit.placeholder_text = "Apelido do piloto (3-24 caracteres)"
+    name_edit.max_length = 24
+    name_edit.custom_minimum_size = Vector2(190, 39)
+    item_stack.add_child(name_edit)
+    _add_menu_row("SALVAR APELIDO LOCAL", func() -> void:
+        _toast_and_refresh(game.hub_store.set_callsign(name_edit.text), "PILOTO")
+    )
+    _add_pilot_row("TITULO: %s  |  FACCAO: %s" % [game.hub_store.title, game.faction])
+    _add_pilot_row("ALIANCA: %s" % (game.hub_store.alliance if not game.hub_store.alliance.is_empty() else "Nenhuma (simulacao)"))
     _add_pilot_row("PERFIL LOCAL / SIMULACAO (nao representa sua conta)", true)
     _add_pilot_row("NIVEL %d   |   XP %d / %d" % [int(stats["level"]), int(stats["xp_current"]), int(stats["xp_needed"])])
     var progress_bar: ProgressBar = _bar(item_stack, C_HI)
@@ -664,9 +684,143 @@ func _build_battle_menu() -> void:
         game._clear_autonavigation()
         close_modal()
     )
+    _add_menu_row("PVP 4-X / CONQUISTA DE RELES", func() -> void:
+        _open_modal("RELES")
+    )
     _add_menu_row("PLS-1 A PLS-4 / CMT-1: NO RODAPE", func() -> void:
         close_modal()
     )
+
+func _toast_and_refresh(note: String, kind: String) -> void:
+    show_notification(note)
+    _open_modal(kind)
+
+func _hub_text(text_value: String, emphasized: bool = false) -> void:
+    var row: Label = _label(item_stack, text_value, 14, C_HI if emphasized else C_WHITE)
+    row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    row.custom_minimum_size = Vector2(230, 34 if not emphasized else 39)
+    row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _build_hub_navigation() -> void:
+    for category in ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]:
+        var b: Button = _button(category_row, category, 11)
+        b.custom_minimum_size = Vector2(85, 31)
+        b.add_theme_color_override("font_color", C_GOLD if category == modal_kind else C_HI)
+        b.pressed.connect(_open_modal.bind(category))
+
+func _claim_contract_menu(key: String) -> void:
+    _toast_and_refresh(game.hub_store.claim_contract(key, game.pilot_progress), "MISSOES")
+
+func _claim_pass_menu(stage: int) -> void:
+    _toast_and_refresh(game.hub_store.claim_pass(stage, game.pilot_progress), "PASSE")
+
+func _buy_market_menu(name: String) -> void:
+    _toast_and_refresh(game.hub_store.buy_demo(name, game.pilot_progress.credits), "MERCADO")
+
+func _bid_auction_menu(lot: int) -> void:
+    _toast_and_refresh(game.hub_store.simulate_bid(lot), "LEILAO")
+
+func _build_hub_page(kind: String) -> void:
+    var hub = game.hub_store
+    var pilot = game.pilot_progress
+    match kind:
+        "CENTRAL":
+            _hub_text("STELLAR LEGACY | CENTRAL DE OPERACOES", true)
+            _hub_text("Faccoes, PvP 4-X, relés, economia e temporada — laboratorios offline.")
+            _hub_text("PILOTO: %s | FACCAO %s | LV %d" % [hub.callsign, game.faction, int(pilot.level_info()["level"])])
+            _hub_text("CREDITOS DE SIMULACAO: %d" % hub.credit_balance(pilot.credits))
+            _hub_text("NAVE: %s | ALIANCA: %s" % [game.current_ship, hub.alliance if not hub.alliance.is_empty() else "Sem alianca"])
+            _add_menu_row("RELES — EVENTO DE CONQUISTA 4-X", func() -> void: _open_modal("RELES"))
+            _add_menu_row("ALIANCAS E FACCOES", func() -> void: _open_modal("ALIANCA"))
+            _add_menu_row("MISSOES E PASSE", func() -> void: _open_modal("MISSOES"))
+            _add_menu_row("LOJA NORMAL / LEILAO / PREMIUM", func() -> void: _open_modal("MERCADO"))
+        "ALIANCA":
+            _hub_text("FACCAO ATUAL: %s" % game.faction, true)
+            _hub_text("Aliancas serao vinculadas a contas e faccoes no novo servidor.")
+            _hub_text("ALIANCAS OFFLINE: %s" % (hub.alliance if not hub.alliance.is_empty() else "Nenhuma"))
+            if hub.alliance.is_empty():
+                var name_input := LineEdit.new()
+                name_input.text = "Esquadrao Estelar"
+                name_input.max_length = 28
+                name_input.custom_minimum_size = Vector2(200, 40)
+                item_stack.add_child(name_input)
+                _add_menu_row("CRIAR ALIANCA LOCAL", func() -> void:
+                    _toast_and_refresh(hub.create_alliance(name_input.text, game.faction), "ALIANCA")
+                )
+            else:
+                _hub_text("TAG: [%s]  |  MEMBROS: 1 PILOTO LOCAL" % hub.alliance_tag)
+                _add_menu_row("SAIR DA ALIANCA DE TESTE", func() -> void:
+                    _toast_and_refresh(hub.leave_alliance(), "ALIANCA")
+                )
+            _hub_text("Convites, administracao e guerra de aliancas exigem autenticação.")
+        "RELES":
+            _hub_text("EVENTO: DOMINIO DE RELES ESTELARES", true)
+            _hub_text("PvP 4-X: posicione a nave no centro do mapa por 12s.")
+            _hub_text("SIMULACAO LOCAL. Nao ha jogadores ou disputa online.")
+            for map_id in HubCatalog.RELAY_MAPS:
+                var progress_text: String = ""
+                if game.current_map == map_id:
+                    progress_text = " | CAPTURA %d%%" % roundi(hub.capture_ratio(map_id) * 100.0)
+                _hub_text("%s — %s%s" % [map_id, hub.relay_text(map_id), progress_text])
+            _hub_text("LOCALIZACAO: %s | DOMINIOS TOTAIS: %d" % [game.current_map, hub.relay_captures])
+            _hub_text("Viaje pelos PORTAIS. Nao existe teleporte por menu.")
+            _add_menu_row("VOLTAR AO MAPA / PILOTAR", func() -> void: close_modal())
+        "MISSOES":
+            _hub_text("CONTRATOS DE PATRULHA / RECOMPENSAS LOCAIS", true)
+            _hub_text("Missões iniciais da G0.7 continuam preservadas.")
+            for contract in HubCatalog.CONTRACTS:
+                var key: String = str(contract["key"])
+                var amount: int = hub.progress_contract(key, pilot)
+                var required: int = int(contract["goal"])
+                _hub_text("%s | %d/%d | +%d CRED" % [str(contract["label"]), mini(amount, required), required, int(contract["credits"])])
+                if bool(hub.contract_claims.get(key, false)):
+                    _hub_text("RECOMPENSA RECEBIDA", true)
+                else:
+                    _add_menu_row("RESGATAR: %s" % str(contract["label"]), _claim_contract_menu.bind(key))
+            _add_menu_row("ABRIR PASSE GALACTICO", func() -> void: _open_modal("PASSE"))
+        "PASSE":
+            _hub_text("PASSE GALACTICO — TRILHA GRATUITA (LOCAL)", true)
+            _hub_text("Progresso por combates, caixas e exploracao.")
+            _hub_text("PONTOS: %d  |  COMPRAS PREMIUM DESATIVADAS" % hub.pass_score(pilot))
+            for stage in range(HubCatalog.PASS_GOALS.size()):
+                _hub_text("ETAPA %d | %d/%d PONTOS | %d CRED" % [stage+1, mini(hub.pass_score(pilot),HubCatalog.PASS_GOALS[stage]),HubCatalog.PASS_GOALS[stage],HubCatalog.PASS_REWARDS[stage]])
+                if bool(hub.pass_claims.get(str(stage),false)):
+                    _hub_text("ETAPA RESGATADA", true)
+                else:
+                    _add_menu_row("RESGATAR ETAPA %d" % (stage + 1), _claim_pass_menu.bind(stage))
+        "MERCADO":
+            _hub_text("LOJA NORMAL — INVENTARIO DE TESTE", true)
+            _hub_text("SALDO DEMONSTRATIVO: %d CREDITOS" % hub.credit_balance(pilot.credits))
+            for product in HubCatalog.SHOP:
+                var product_name: String = str(product["name"])
+                _hub_text("%s | %d CRED" % [product_name, int(product["cost"])])
+                _hub_text(str(product["info"]))
+                if hub.purchases.has(product_name):
+                    _hub_text("ADQUIRIDO NO APARELHO", true)
+                else:
+                    _add_menu_row("ADQUIRIR COLECIONAVEL: %s" % product_name, _buy_market_menu.bind(product_name))
+            _add_menu_row("VITRINE 3D DE EQUIPAMENTOS", func() -> void: _open_modal("LOJA"))
+        "LEILAO":
+            _hub_text("LEILAO ESTELAR | PROTOTIPO SEM SERVIDOR", true)
+            _hub_text("Lances locais NAO reservam saldo nem compram itens.")
+            for i in range(HubCatalog.AUCTION.size()):
+                var listing: Dictionary = HubCatalog.AUCTION[i]
+                var current_value: int = int(hub.auction_bids.get(str(i),int(listing["opening"])))
+                _hub_text("LOTE %d — %s | LANCE %d" % [i+1,str(listing["name"]),current_value])
+                _add_menu_row("SIMULAR LANCE NO LOTE %d" % (i+1), _bid_auction_menu.bind(i))
+        "PREMIUM":
+            _hub_text("LOJA PREMIUM — VISUALIZACAO / SEM PAGAMENTO", true)
+            _hub_text("Futuras colecoes: visuais de nave, emblemas e decoracoes.")
+            _hub_text("Nenhuma moeda premium e vendida neste prototipo.")
+            _hub_text("Sem anuncio de precos, checkout ou beneficio pago ativo.")
+            _add_menu_row("EXPLORAR VITRINE 3D LOCAL", func() -> void: _open_modal("LOJA"))
+        "ADM":
+            _hub_text("PLANO DE ADMINISTRACAO (SOMENTE LEITURA)", true)
+            _hub_text("ADM REAL NAO ESTA HABILITADO NO CLIENTE OFFLINE.")
+            _hub_text("CONTROLE FUTURO: moderacao, contas, relés e auditoria.")
+            _hub_text("Servidor autenticara papeis. Interface nao concede acesso ADM.")
+            _hub_text("BANCO: NOVO SUPABASE ISOLADO (AINDA NAO CRIADO).")
+            _hub_text("NENHUMA ALTERACAO NO RENDER OU SUPABASE ATUAIS.")
 
 func _build_settings_menu() -> void:
     _add_menu_row("ALTERNAR INDICADOR FPS", func() -> void:
@@ -719,7 +873,13 @@ func refresh() -> void:
     else:
         target_title.text = "ALVO: NENHUM"
         target_detail.text = "Toque NPC / 2 toques para atacar"
-    minimap_caption.text = "MAPA  %s  |  TOQUE PARA IR" % game.current_map
+    if game.current_map.begins_with("4-"):
+        if game.hub_store.capture_ratio(game.current_map) > 0.0:
+            minimap_caption.text = "CAPTURA %s | %d%%" % [game.current_map, roundi(game.hub_store.capture_ratio(game.current_map) * 100.0)]
+        else:
+            minimap_caption.text = "RELE %s | %s" % [game.current_map, game.hub_store.relay_text(game.current_map)]
+    else:
+        minimap_caption.text = "MAPA  %s  |  TOQUE PARA IR" % game.current_map
     var pidx: int = game._nearest_index()
     warp_btn.disabled = pidx < 0 or game.warp_cooldown > 0.0
     drone_btn.text = "DRONES ON" if game.support_fleet.drones_enabled else "DRONES OFF"
@@ -820,7 +980,8 @@ func relayout(view_size: Vector2) -> void:
     modal_body.size = Vector2(modal_w - 24, modal_h - 75)
     var body_w := modal_body.size.x
     var body_h := modal_body.size.y
-    var cat_h: float = (70.0 if modal_kind == "LOJA" else 37.0) if category_row.visible else 0.0
+    var hub_modal: bool = modal_kind in ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]
+    var cat_h: float = ((78.0 if modal_w < 845.0 else 42.0) if hub_modal else (70.0 if modal_kind == "LOJA" else 37.0)) if category_row.visible else 0.0
     category_row.position = Vector2(5, 0)
     category_row.size = Vector2(body_w - 10, cat_h)
     var left_w := maxf(160.0, body_w * 0.35)
@@ -847,5 +1008,5 @@ func relayout(view_size: Vector2) -> void:
         equip_notice.position = Vector2(7, body_h - 27)
         equip_notice.size = Vector2(body_w - 15, 24)
     else:
-        list_scroll.position = Vector2(12, 8)
-        list_scroll.size = Vector2(body_w - 24, body_h - 20)
+        list_scroll.position = Vector2(12, cat_h + 8)
+        list_scroll.size = Vector2(body_w - 24, maxf(48.0, body_h - cat_h - 20))
