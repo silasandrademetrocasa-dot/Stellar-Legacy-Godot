@@ -3,6 +3,9 @@ extends RefCounted
 ## Preview offline: NAO concede acesso no servidor; o servidor prevalecera.
 
 const FACTIONS := ["1", "2", "3"]
+# Portais Astrais originais do Stellar Legacy WEB V64: Aurora, Nexus, Eclipse.
+const ASTRAL_MAPS := ["A-AURORA", "A-NEXUS", "A-ECLIPSE"]
+const ASTRAL_COLORS := {"A-AURORA": Color(0.12, 0.86, 0.95), "A-NEXUS": Color(0.60, 0.36, 0.98), "A-ECLIPSE": Color(1.0, 0.32, 0.38)}
 const FACTION_NAMES := {"1": "TERRA", "2": "MARTE", "3": "JUPITER"}
 const BOUNDS := Vector2(120.0, 90.0)
 const SLOTS := {
@@ -19,7 +22,7 @@ const PVP_SLOTS := {
 }
 
 static func valid_map(map_id: String) -> bool:
-    if map_id in ["U-1", "U-2", "U-3", "4-1", "4-2", "4-3"]:
+    if map_id in ["U-1", "U-2", "U-3", "4-1", "4-2", "4-3"] + ASTRAL_MAPS:
         return true
     var parts := map_id.split("-")
     if parts.size() != 2 or not (parts[0] in FACTIONS):
@@ -28,6 +31,9 @@ static func valid_map(map_id: String) -> bool:
 
 static func neighbors(map_id: String, faction: String) -> Array[String]:
     var result: Array[String] = []
+    if is_astral(map_id):
+        result.append("%s-8" % faction)
+        return result
     if map_id.begins_with("U-"):
         match map_id:
             "U-1":
@@ -56,6 +62,7 @@ static func neighbors(map_id: String, faction: String) -> Array[String]:
         result.append("4-%s" % faction)
     if number == 8:
         result.append("U-1")
+        result.append_array(ASTRAL_MAPS)
     return result
 
 static func can_preview(from_id: String, to_id: String, faction: String) -> bool:
@@ -67,6 +74,10 @@ static func can_preview(from_id: String, to_id: String, faction: String) -> bool
 
 static func portal_point(from_id: String, to_id: String, faction: String) -> Vector3:
     var slot := ""
+    if is_astral(from_id):
+        return Vector3(0, 0, -24)
+    if from_id.ends_with("-8") and to_id in ASTRAL_MAPS:
+        return Vector3(float(ASTRAL_MAPS.find(to_id) - 1) * 28.0, 0.0, -25.0)
     if PVP_SLOTS.has(from_id):
         slot = str(PVP_SLOTS[from_id].get(to_id, ""))
     elif from_id.begins_with("U-"):
@@ -94,6 +105,12 @@ static func portal_point(from_id: String, to_id: String, faction: String) -> Vec
     var uv: Vector2 = SLOTS.get(slot, Vector2.ZERO)
     return Vector3(uv.x * BOUNDS.x, 0.0, uv.y * BOUNDS.y)
 
+static func is_astral(map_id: String) -> bool:
+    return map_id in ASTRAL_MAPS
+
+static func astral_label(map_id: String) -> String:
+    return map_id.trim_prefix("A-")
+
 static func is_pvp(map_id: String) -> bool:
     return map_id.begins_with("4-")
 
@@ -101,6 +118,8 @@ static func is_universe(map_id: String) -> bool:
     return map_id.begins_with("U-")
 
 static func portal_model(target: String) -> String:
+    if is_astral(target):
+        return "res://assets/astral/portal_astral_%s.glb" % astral_label(target).to_lower()
     if is_pvp(target):
         return "res://assets/portals/portal_pvp.glb"
     if is_universe(target):
@@ -113,6 +132,8 @@ static func link_keys(faction: String) -> Array[PackedStringArray]:
         links.append(PackedStringArray(["%s-%d" % [faction, i], "%s-%d" % [faction, i + 1]]))
     links.append(PackedStringArray(["%s-1" % faction, "4-%s" % faction]))
     links.append(PackedStringArray(["%s-8" % faction, "U-1"]))
+    for astral_map in ASTRAL_MAPS:
+        links.append(PackedStringArray(["%s-8" % faction, astral_map]))
     links.append(PackedStringArray(["U-1", "U-2"]))
     links.append(PackedStringArray(["U-2", "U-3"]))
     links.append(PackedStringArray(["4-1", "4-2"]))

@@ -11,6 +11,8 @@ const StellarHUD = preload("res://scripts/ui/stellar_hud.gd")
 const EquipmentState = preload("res://scripts/systems/equipment_state.gd")
 const PilotProgress = preload("res://scripts/systems/pilot_progress.gd")
 const HubStore = preload("res://scripts/systems/stellar_hub.gd")
+const AstralTrials = preload("res://scripts/systems/astral_trials.gd")
+const AstralEnvironment = preload("res://scripts/world/astral_environment.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -31,6 +33,7 @@ var ship_visual: Node3D
 var game_camera: Camera3D
 var sky: WorldEnvironment
 var portal_root: Node3D
+var astral_environment: Node3D
 var hud_layer: CanvasLayer
 var hud: Control
 var header: Label
@@ -98,6 +101,9 @@ var starfield: MultiMeshInstance3D
 var equipment_state
 var pilot_progress
 var hub_store
+var astral_trials
+var graphics_quality: String = "MEDIO"
+var cinematic_light: DirectionalLight3D
 var relay_visual: Node3D
 var relay_ring: MeshInstance3D
 var active_touch := -1
@@ -113,8 +119,10 @@ func _ready() -> void:
     equipment_state = EquipmentState.new()
     pilot_progress = PilotProgress.new()
     hub_store = HubStore.new()
+    astral_trials = AstralTrials.new()
     _read_local_profile()
     _create_world()
+    set_graphics_quality(graphics_quality, false)
     _create_hud()
     _install_new_hud()
     _set_ship(current_ship)
@@ -356,6 +364,8 @@ func _create_world() -> void:
     var light := DirectionalLight3D.new()
     light.rotation_degrees = Vector3(-50, 27, -12)
     light.light_energy = 1.55
+    light.shadow_enabled = false
+    cinematic_light = light
     add_child(light)
     ship_anchor = Node3D.new()
     ship_anchor.name = "PlayerShip"
@@ -370,6 +380,9 @@ func _create_world() -> void:
     portal_root = Node3D.new()
     portal_root.name = "Portals"
     add_child(portal_root)
+    astral_environment = AstralEnvironment.new()
+    astral_environment.name = "AstralEnvironment"
+    add_child(astral_environment)
     combat_world = CombatWorld.new()
     combat_world.name = "CombatWorld"
     add_child(combat_world)
@@ -377,6 +390,7 @@ func _create_world() -> void:
     combat_world.incoming_damage.connect(_receive_local_damage)
     combat_world.enemy_destroyed.connect(_on_enemy_destroyed)
     combat_world.loot_collected.connect(_on_loot_collected)
+    combat_world.astral_wave_finished.connect(_on_astral_wave_finished)
     support_fleet = FleetSupport.new()
     support_fleet.name = "SupportFleet"
     add_child(support_fleet)
@@ -640,7 +654,7 @@ func _rebuild_portals() -> void:
                 gate.add_child(visual)
                 visual.scale = Vector3.ONE * 1.45
         var label := Label3D.new()
-        label.text = target
+        label.text = ("PORTAL " + Routes.astral_label(target)) if Routes.is_astral(target) else target
         label.position = Vector3(0, 6.8, 0)
         label.font_size = 50
         label.pixel_size = 0.01
@@ -649,7 +663,11 @@ func _rebuild_portals() -> void:
         gate.add_child(label)
         portals.append({"dest": target, "pos": p, "node": gate})
     _build_relay_visual()
+    if astral_environment != null:
+        astral_environment.reset_arena(current_map, graphics_quality)
     var bg := Color(0.018, 0.009, 0.045) if Routes.is_pvp(current_map) else (Color(0.006, 0.035, 0.055) if Routes.is_universe(current_map) else Color(0.008, 0.014, 0.036))
+    if Routes.is_astral(current_map):
+        bg = Routes.ASTRAL_COLORS[current_map].darkened(0.93)
     sky.environment.background_color = bg
     galaxy_map.set_route_view(faction, current_map)
     _refresh_ui()
@@ -780,6 +798,12 @@ func _travel_nearest() -> void:
     auto_fire_enabled = false
     fire_button.text = "LASER"
     var source := current_map
+    if Routes.is_astral(source):
+        astral_trials.leave()
+    if Routes.is_astral(target):
+        astral_trials.begin(target)
+        hp = MAX_HP
+        shield = MAX_SHIELD
     current_map = target
     pilot_progress.visit_map(current_map)
     _rebuild_portals()
@@ -881,18 +905,67 @@ func _read_local_profile() -> void:
         current_ship = saved_ship
     selected_ammo = clampi(int(parsed.get("ammo", 0)), 0, 4)
     show_fps = bool(parsed.get("show_fps", true))
+    var saved_quality: String = str(parsed.get("quality", "MEDIO"))
+    graphics_quality = saved_quality if saved_quality in ["BAIXO", "MEDIO", "ALTO"] else "MEDIO"
 
 func _write_local_profile() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"faction": faction, "map": current_map, "ship": current_ship, "ammo": selected_ammo, "show_fps": show_fps}))
+        var saved_map: String = ("%s-8" % faction) if Routes.is_astral(current_map) else current_map
+        f.store_string(JSON.stringify({"faction": faction, "map": saved_map, "ship": current_ship, "ammo": selected_ammo, "show_fps": show_fps, "quality": graphics_quality}))
 
 # Extensao G0.3: a navegacao G0.2 permanece intacta.
 func _populate_local_world() -> void:
     var points: Array[Vector3] = []
     for portal in portals:
         points.append(portal["pos"])
-    combat_world.configure(current_map, points)
+    if Routes.is_astral(current_map):
+        combat_world.configure_astral(current_map, astral_trials.wave)
+    else:
+        combat_world.configure(current_map, points)
+
+func _on_astral_wave_finished(wave_number: int) -> void:
+    if not Routes.is_astral(current_map) or wave_number != astral_trials.wave:
+        return
+    var completed: bool = astral_trials.record_wave()
+    if completed:
+        var reward: int = int(AstralTrials.ARENAS[current_map]["reward"])
+        pilot_progress.total_xp += reward
+        pilot_progress.credits += reward
+        pilot_progress._event("Portal %s concluido: +%d XP / CRED" % [Routes.astral_label(current_map),reward])
+        pilot_progress._save()
+        if ui_shell != null:
+            ui_shell.show_notification("PORTAL %s CONCLUIDO! 3 ONDAS  |  +%d XP / CRED (TESTE)" % [Routes.astral_label(current_map), reward])
+        return
+    if ui_shell != null:
+        ui_shell.show_notification("ONDA %d COMPLETA!  PREPARANDO ONDA %d" % [wave_number, astral_trials.wave])
+    get_tree().create_timer(1.8).timeout.connect(_start_next_astral_wave.bind(current_map,astral_trials.wave))
+
+func _start_next_astral_wave(expected_map: String, next_wave: int) -> void:
+    if current_map == expected_map and Routes.is_astral(current_map) and astral_trials.wave == next_wave and not astral_trials.finished:
+        combat_world.configure_astral(current_map,next_wave)
+
+## Perfil de qualidade nao altera GLBs, suas texturas, a escala das malhas ou modelos NPC.
+## Apenas ambiente, sombras do cenario, estrelas e efeitos auxiliares variam.
+func set_graphics_quality(profile: String, persist: bool = true) -> void:
+    if profile not in ["BAIXO", "MEDIO", "ALTO"]:
+        return
+    graphics_quality = profile
+    if sky != null and sky.environment != null:
+        sky.environment.ambient_light_energy = 0.70 if profile == "BAIXO" else (0.84 if profile == "MEDIO" else 1.03)
+    if cinematic_light != null:
+        cinematic_light.light_energy = 1.15 if profile == "BAIXO" else (1.48 if profile == "MEDIO" else 1.85)
+        cinematic_light.shadow_enabled = profile == "ALTO"
+    if starfield != null:
+        starfield.visible = profile != "BAIXO" and (ui_shell == null or ui_shell.demo_starfield_visible)
+    if afterburner != null:
+        afterburner.visible = profile != "BAIXO"
+    if astral_environment != null and Routes.is_astral(current_map):
+        astral_environment.reset_arena(current_map,profile)
+    if persist:
+        _write_local_profile()
+        if ui_shell != null:
+            ui_shell.show_notification("GRAFICOS %s  |  GLBs SEM REDUCAO" % profile)
 
 func _on_enemy_destroyed(display_name: String, map_id: String, _where: Vector3) -> void:
     var reward: Dictionary = pilot_progress.defeated_enemy(display_name, map_id)

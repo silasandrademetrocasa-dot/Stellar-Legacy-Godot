@@ -5,6 +5,7 @@ extends Node3D
 signal incoming_damage(amount: float)
 signal enemy_destroyed(enemy_name: String, map_id: String, position: Vector3)
 signal loot_collected(map_id: String)
+signal astral_wave_finished(wave_number: int)
 
 const Enemy = preload("res://scripts/world/enemy_ship.gd")
 const NpcCatalog = preload("res://scripts/data/npc_catalog.gd")
@@ -43,6 +44,7 @@ var enemy_root: Node3D
 var effects_root: Node3D
 var drops: Array[Dictionary] = []
 var live_map := "1-1"
+var active_astral_wave: int = 0
 var status_message := "Selecione um NPC para testar o combate"
 var status_clock := 4.0
 
@@ -59,6 +61,7 @@ func _ready() -> void:
 
 func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
     live_map = map_id
+    active_astral_wave = 0
     selected = null
     map_kills = 0
     laser_clock = 0.0
@@ -106,6 +109,32 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
         enemy.setup(str(spec[0]), NpcCatalog.display_name(str(spec[0])), model, spawn, float(spec[2]) * factor, float(spec[3]) * factor, float(spec[4]) * factor, float(spec[5]))
         enemies.append(enemy)
     _message("NPCs locais carregados: %d" % enemies.size())
+
+## As ondas usam os GLBs FULL dos NPCs: nenhum LOD simplificado.
+func configure_astral(arena_map: String, wave_number: int) -> void:
+    configure("4-1", [])  # limpa NPCs sem gerar patrulhas de PvP.
+    live_map = arena_map
+    active_astral_wave = wave_number
+    var picks: Array[String] = []
+    match arena_map:
+        "A-AURORA": picks = ["scavenger_prime", "vrax", "kharon", "zyron"]
+        "A-NEXUS": picks = ["guardiao_nexus", "colossar_prime", "kharon_prime", "zyron"]
+        "A-ECLIPSE": picks = ["ceifador_astral", "ceifador_astral_prime", "dreadnox", "corsario_vazio"]
+        _: picks = ["scavenger"]
+    var count: int = 2 + wave_number
+    for i in range(count):
+        var code: String = picks[(i + wave_number - 1) % picks.size()]
+        var enemy: Enemy = Enemy.new()
+        enemy.name = "Astral_%d_%d" % [wave_number, i]
+        enemy_root.add_child(enemy)
+        var angle: float = TAU * float(i) / float(count)
+        var radius: float = 34.0 + 8.0 * float((i + wave_number) % 2)
+        var place: Vector3 = Vector3(sin(angle) * radius,0.0,cos(angle) * radius)
+        var level: float = 1.0 + float(wave_number) * 0.48
+        enemy.setup(code,NpcCatalog.display_name(code),"res://assets/npcs/%s.glb" % code,place,1350.0 * level,640.0 * level,120.0 * level,3.0)
+        enemy.respawn_allowed = false
+        enemies.append(enemy)
+    _message("PORTAL %s: ONDA %d / 3" % [arena_map.trim_prefix("A-"),wave_number])
 
 func _process(delta: float) -> void:
     if player_node == null:
@@ -239,6 +268,16 @@ func _destroy_enemy(enemy: Enemy) -> void:
     enemy_destroyed.emit(enemy.display_name, live_map, enemy.position)
     _message("%s destruído! +1 eliminação de teste" % enemy.display_name)
     selected = null
+    if active_astral_wave > 0:
+        var all_destroyed: bool = true
+        for foe in enemies:
+            if is_instance_valid(foe) and foe.alive:
+                all_destroyed = false
+                break
+        if all_destroyed:
+            var cleared_wave: int = active_astral_wave
+            active_astral_wave = 0
+            astral_wave_finished.emit(cleared_wave)
 
 func _spawn_local_drop(where: Vector3) -> void:
     if drops.size() >= 8:

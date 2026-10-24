@@ -1,46 +1,44 @@
-# Stellar Legacy Godot G0.8 — Central Estelar & Relés 4-X
+# STELLAR LEGACY — GODOT G0.9 | ASTRAL DOMINION
 
-**Cliente Android 3D experimental, OFFLINE.** O jogo WEB/iPhone, seus jogadores, Render e Supabase de produção seguem inalterados.
+**Android / cliente Godot experimental. Somente offline.** A versão web (iPhone), Render e Supabase de produção não foram alterados.
 
-## Funcionalidades novas
-- PILOTO: apelido local, facção e estatísticas da G0.7.
-- CENTRAL: Alianças, Relés PvP 4-X, Missões, Passe gratuito, Mercado, Leilão, Premium e planejamento ADM.
-- Relés 3D nos mapas 4-1 / 4-2 / 4-3: domínio demonstrativo em 12 segundos junto ao núcleo; facção muda a cor do relé e estado fica salvo no dispositivo.
-- Missões e passe: objetivos locais com recompensas de teste resgatáveis.
-- Mercado de colecionáveis de demonstração: operações offline apenas.
-- Leilão: simulação de propostas; loja premium informativa e ADM somente leitura.
-- **Não implementa Arena, PvP online, pagamentos ou permissões administrativas reais.**
+## O que tem de novo
 
-## Funcionalidades preservadas
-Navegação por toque/arraste, ataque em movimento, mapas X/4/U, portais, NPCs, modelos GLB, vitrine 3D, drones, AUX-9, equipamentos e duas configurações G0.6, progressão e caixas da G0.7.
+**Portais Astrais Aurora, Nexus e Eclipse**: 3 GLBs novos com cerca de 26 mil faces cada, núcleo, anéis e runas iluminadas. Entrada física apenas nos mapas **1-8 / 2-8 / 3-8**; aproxime-se do portal e use **VIAJAR**. Cada arena tem 3 ondas PvE progressivas e NPCs GLB de qualidade integral. Saia pelo portal físico de retorno. Vitórias e melhor onda ficam salvas no celular; não representam dados reais de outros jogadores.
 
-## Instalação pelo celular
-1. Use apenas `StellarLegacy_Godot_G0.8_ATUALIZACAO.zip` no instalador universal do GitHub, **sobre a G0.7 aprovada**.
-2. Remova outros ZIPs antigos da raiz e execute Actions > Instalador Godot > Run workflow.
-3. Depois de validado, baixe o projeto do GitHub e importe no editor Godot Android.
-4. Para projeto novo independente, importe `StellarLegacy_Godot_G0.8_COMPLETO.zip`.
+**Loja normal**: cartões visuais, vitrine 3D giratória, armas ARC, escudos SG, motores THR e extras. Compras de teste descontam créditos exclusivamente locais e acrescentam uma unidade ao estoque local de equipamentos. Não há preço real, pagamento, recibo ou compra em servidor.
 
-## Documentação
-`docs/G08_CENTRAL_E_RELES.md` contém o escopo real, as limitações e 12 testes recomendados. `docs/G08_ARQUITETURA_BANCO_NOVO.md` descreve o futuro backend seguro e isolado — **não foi executado**.
+**Leilão orbital**: quatro lotes com preview de equipamentos 3D e lances de simulação local (+50 créditos por clique). Não há concorrentes online, temporizador do servidor, reserva de saldo ou vencedor real.
 
----
+**Gráficos BAIXO / MÉDIO / ALTO**: em CONFIG, os perfis afetam apenas cenário, estrelas, FX auxiliares, iluminação e sombras. Em todos os perfis, o mesmo arquivo GLB de qualidade total é utilizado para naves, NPCs, drones e AUX-9 — nenhuma troca por LOD, simplificação, textura reduzida ou reescalonamento das malhas é feita. O modo ALTO habilita sombras do ambiente, o MÉDIO equilibra cenário e o BAIXO reduz efeitos decorativos.
 
-## Histórico G0.7
-# Stellar Legacy Godot G0.7 — Progresso do Piloto (offline)
+**Menu Astral**: BATALHA → PORTAIS ASTRAIS ou CENTRAL → ASTRAL. Exibe fichas visuais e progresso. O menu não teleporta: siga pelo universo até um portal.
 
-Cliente 3D Android experimental. Mantém rotas X/4/U, HUD/hangar/loja 3D, controle por arraste, combate em movimento, AUX-9, drones e equipamentos CONF 1/CONF 2 da G0.6.
+## Como atualizar pelo instalador universal
 
-## Novidades G0.7
-- Menu **PILOTO**: XP, nível, créditos demonstrativos, missões, eliminações e caixas coletadas.
-- Coleta de caixas no mundo: aproximar a nave ou tocar na caixa para navegar até ela.
-- Mini mapa indica caixas em amarelo.
-- Recompensas e missões estritamente **offline/de teste**, salvas em `user://stellar_g07_pilot_offline.json`.
-- A progressão usa nível 1→2 = 10.000 XP, 2→3 = 20.000 XP etc.
+1. Mantenha a G0.8 validada no repositório.
+2. Exclua os ZIPs antigos da raiz do GitHub (não apague os diretórios de código).
+3. Envie **somente** `StellarLegacy_Godot_G0.9_ATUALIZACAO.zip` para a raiz.
+4. GitHub → Actions → Instalador ZIP Godot → Run workflow.
+5. Acompanhe o job **Importar e validar projeto Godot**. Se terminar verde, baixe a versão do repositório e importe no editor Android.
+6. Use o ZIP COMPLETO para iniciar outro projeto isolado no Godot, se desejar.
 
-## Instalação
-Envie somente o ZIP `StellarLegacy_Godot_G0.7_ATUALIZACAO.zip` à raiz do GitHub, sem extrair, remova outros ZIPs de instalação da raiz e execute `Actions > Instalador Godot > Run workflow`. Depois sincronize o projeto no editor Android. O `StellarLegacy_Godot_G0.7_COMPLETO.zip` é para importar um projeto independente.
+## Roteiro prático de testes Android
 
-## Isolamento
-Não chama Render, Supabase ou o banco antigo, nem autentica. Creditos e XP são simulados e NÃO devem ser reutilizados como fonte de autoridade de servidor. O jogo web/iPhone continua inalterado.
+- Iniciar na G0.8 já existente: mapa/nave/equipamentos mantidos.
+- Tocar em CONFIG; alternar BAIXO / MÉDIO / ALTO e conferir que as mesmas naves/NPC/drones/AUX continuam idênticos em geometria.
+- Ir fisicamente do mapa X-1 até X-8; visualizar os 3 GLBs de portais astrais em X-8; aproximar e viajar para Aurora.
+- Selecionar e atacar todos os NPCs; concluir 3 ondas; confirmar a notificação de vitória e progresso no menu ASTRAL.
+- Retornar pelo portal de saída para X-8. Repetir em Nexus e Eclipse.
+- Abrir CENTRAL → MERCADO; visualizar modelos 3D, adquirir item com créditos locais e verificar o estoque no menu EQUIPAMENTOS.
+- Abrir CENTRAL → LEILAO; visualizar lotes e testar lances locais.
+- Testar FPS e consumo de memória no modo BAIXO, MÉDIO e ALTO, especialmente em aparelhos modestos.
+- Conferir que relés PvP 4-X, drones, movimento por arraste, loot, configuração 1/2 e Perfil continuam operacionais.
 
-Consulte `docs/G07_TESTES_E_PLANO_BACKEND.md` para testes, riscos e futuro staging.
+## Limites de segurança
+
+- Protótipo OFFLINE, sem autenticação, banco novo, compras premium, ranking e leilão online.
+- A captura de relés e resultados de combate não são autoritativos em multiplayer.
+- Nenhuma configuração ou SQL do Render e do Supabase foi alterado.
+- Os 3 GLBs de portais são originais gerados para Godot, inspirados no esquema de cores e nomes do catálogo web V64, não são réplicas idênticas de imagens conceituais.
+- A validação local cobre estrutura, importações referenciadas e GLB; a execução no Godot 4.5.2 deve ser verificada no GitHub Actions e o desempenho no Android.

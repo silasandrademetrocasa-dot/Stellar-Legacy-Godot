@@ -11,10 +11,21 @@ const SHOP := [
     {"name": "Emblema Sentinela", "cost": 280, "info": "Colecionavel local; nao altera atributos"},
     {"name": "Distintivo da Frota", "cost": 430, "info": "Colecionavel local de demonstracao"},
 ]
+const SHOP_EQUIPMENT := [
+    {"name":"ARC-1","cost":380,"description":"Emissor de pulso estelar"},
+    {"name":"ARC-2","cost":680,"description":"Lasers de patrulha reforcados"},
+    {"name":"ARC-4","cost":1450,"description":"Armamento de alto impacto"},
+    {"name":"SG-1","cost":420,"description":"Campo defensivo"},
+    {"name":"SG-3","cost":1300,"description":"Escudo de alta resistencia"},
+    {"name":"THR-2","cost":760,"description":"Propulsao de combate"},
+    {"name":"THR-3","cost":1380,"description":"Propulsor de elite"},
+    {"name":"AUTO-AIM","cost":950,"description":"Assistencia tatica"},
+]
 const AUCTION := [
-    {"name": "Lote de motores THR", "opening": 300},
-    {"name": "Lote de escudos SG", "opening": 500},
-    {"name": "Lote de lasers ARC", "opening": 750},
+    {"name":"THR-3 | MOTOR DE ELITE","opening":900,"model":"res://assets/equipment/thr-3.glb"},
+    {"name":"SG-3 | ESCUDO ELITE","opening":1100,"model":"res://assets/equipment/sg-3.glb"},
+    {"name":"ARC-4 | LASER ELITE","opening":1400,"model":"res://assets/equipment/arc-4.glb"},
+    {"name":"RELOAD BOOSTER | EXTRA","opening":1200,"model":"res://assets/equipment/reload_booster.glb"},
 ]
 const CONTRACTS := [
     {"key": "hunter", "label": "Patrulha da Fronteira", "goal": 8, "credits": 450},
@@ -168,6 +179,25 @@ func buy_demo(name: String, pilot_credits: int) -> String:
             _save()
             return "%s adicionado a colecao offline" % name
     return "Produto desconhecido"
+
+func buy_equipment(item_name: String, amount: int, pilot_credits: int, equipment) -> String:
+    # Economias de G0.9 sempre locais; nunca converter lances em saldos reais.
+    var authorized: bool = false
+    for item in SHOP_EQUIPMENT:
+        if str(item["name"]) == item_name and int(item["cost"]) == amount:
+            authorized = true
+            break
+    if not authorized:
+        return "Equipamento indisponivel nesta loja de teste"
+    if credit_balance(pilot_credits) < amount:
+        return "Creditos locais insuficientes"
+    if equipment == null:
+        return "Inventario indisponivel"
+    equipment.stock[item_name] = int(equipment.stock.get(item_name,0)) + 1
+    equipment._save()
+    spent_credits += amount
+    _save()
+    return "%s adquirido no inventario LOCAL (sem compra online)" % item_name
 
 func simulate_bid(lot: int) -> String:
     if lot < 0 or lot >= AUCTION.size():

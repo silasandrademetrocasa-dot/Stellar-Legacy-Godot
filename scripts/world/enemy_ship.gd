@@ -13,6 +13,7 @@ var speed := 0.0
 var aggressive := false
 var alive := true
 var respawn_left := 0.0
+var respawn_allowed := true
 var attack_clock := 0.0
 var elapsed := 0.0
 var visual: Node3D
@@ -89,6 +90,8 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
 
 func tick(delta: float, player_pos: Vector3) -> void:
     if not alive:
+        if not respawn_allowed:
+            return
         respawn_left -= delta
         if respawn_left <= 0.0:
             _revive()

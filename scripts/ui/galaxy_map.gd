@@ -17,6 +17,8 @@ func _positions() -> Dictionary:
     for i in range(1, 4):
         result["U-%d" % i] = Vector2(0.16 + (i - 1) * 0.29, 0.83)
         result["4-%d" % i] = Vector2(0.15 + (i - 1) * 0.29, 0.66)
+    for i in range(Routes.ASTRAL_MAPS.size()):
+        result[Routes.ASTRAL_MAPS[i]] = Vector2(0.13 + float(i) * 0.33, 0.95)
     return result
 
 func _draw() -> void:

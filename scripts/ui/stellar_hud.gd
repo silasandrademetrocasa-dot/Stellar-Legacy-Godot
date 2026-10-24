@@ -10,6 +10,7 @@ const C_WHITE := Color(0.88, 0.96, 1.0)
 const C_MUTED := Color(0.5, 0.66, 0.78)
 const EquipCatalog = preload("res://scripts/data/equipment_catalog.gd")
 const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
+const AstralCatalog = preload("res://scripts/systems/astral_trials.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
 const WEAPON_NAMES := ["PLS-1", "PLS-2", "PLS-3", "PLS-4", "CMT-1"]
 const DRONE_ITEMS := [
@@ -209,7 +210,7 @@ func _create_modal() -> void:
     modal_overlay.add_child(shadow)
     modal_box = _panel(modal_overlay, Color(0.022, 0.047, 0.087, 0.99))
     modal_backdrop = TextureRect.new()
-    modal_backdrop.texture = load("res://assets/ui/hangar_backdrop.png") as Texture2D
+    modal_backdrop.texture = load("res://assets/ui/astral_interface_g09.png") as Texture2D
     modal_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     modal_backdrop.stretch_mode = TextureRect.STRETCH_SCALE
     modal_backdrop.modulate = Color(0.63, 0.74, 0.92, 0.75)
@@ -449,18 +450,20 @@ func _on_top_button(item: String) -> void:
 func _open_modal(kind: String) -> void:
     modal_kind = kind
     modal_overlay.visible = true
-    modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE"}.get(kind, kind)
-    modal_info.text = "G0.8  |  SISTEMAS OFFLINE  |  SEM MULTIPLAYER NEM COMPRAS REAIS"
-    var show_gallery := kind in ["HANGAR", "LOJA", "EQUIPAMENTOS"]
-    if not show_gallery and preview_mesh != null and is_instance_valid(preview_mesh):
+    modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE"}.get(kind, kind)
+    modal_info.text = "G0.9  |  EXPLORACAO, MERCADO E PORTAIS  |  TESTE LOCAL / SEM TRANSACOES REAIS"
+    var show_gallery: bool = kind in ["HANGAR", "LOJA", "EQUIPAMENTOS"]
+    var show_economy_3d: bool = kind in ["ASTRAL", "MERCADO", "LEILAO", "PREMIUM"]
+    var show_preview: bool = show_gallery or show_economy_3d
+    if not show_preview and preview_mesh != null and is_instance_valid(preview_mesh):
         preview_mesh.queue_free()
         preview_mesh = null
-    var hub_pages: Array[String] = ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]
+    var hub_pages: Array[String] = ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "ASTRAL"]
     category_row.visible = show_gallery or kind in hub_pages
     list_scroll.visible = true
-    preview_wrap.visible = show_gallery
-    preview_title.visible = show_gallery
-    preview_note.visible = show_gallery
+    preview_wrap.visible = show_preview
+    preview_title.visible = show_preview
+    preview_note.visible = show_preview
     choose_btn.visible = kind in ["HANGAR", "EQUIPAMENTOS"]
     choose_btn.text = "EQUIPAR NAVE" if kind == "HANGAR" else "EQUIPAR ITEM"
     equip_presets.visible = kind == "EQUIPAMENTOS"
@@ -684,6 +687,9 @@ func _build_battle_menu() -> void:
         game._clear_autonavigation()
         close_modal()
     )
+    _add_menu_row("PORTAIS ASTRAIS / ONDAS PVE", func() -> void:
+        _open_modal("ASTRAL")
+    )
     _add_menu_row("PVP 4-X / CONQUISTA DE RELES", func() -> void:
         _open_modal("RELES")
     )
@@ -702,7 +708,7 @@ func _hub_text(text_value: String, emphasized: bool = false) -> void:
     row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _build_hub_navigation() -> void:
-    for category in ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]:
+    for category in ["CENTRAL", "ASTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]:
         var b: Button = _button(category_row, category, 11)
         b.custom_minimum_size = Vector2(85, 31)
         b.add_theme_color_override("font_color", C_GOLD if category == modal_kind else C_HI)
@@ -720,6 +726,73 @@ func _buy_market_menu(name: String) -> void:
 func _bid_auction_menu(lot: int) -> void:
     _toast_and_refresh(game.hub_store.simulate_bid(lot), "LEILAO")
 
+func _preview_hub_model(item_name: String, path: String, description: String) -> void:
+    selected_item = {"name": item_name, "path": path, "source": "GLB FULL / LOCAL"}
+    preview_title.text = item_name.to_upper()
+    preview_note.text = description
+    _load_preview(path)
+
+## Card premium nativo, totalmente interativo; o painel 3D preserva o GLB carregado.
+func _rich_card(title: String, subtitle: String, path: String, accent: Color, action_caption: String, action: Callable) -> void:
+    var card := PanelContainer.new()
+    card.custom_minimum_size = Vector2(180, 112)
+    card.add_theme_stylebox_override("panel",_style_box(Color(0.018,0.046,0.090,0.96),accent,7))
+    card.mouse_filter = Control.MOUSE_FILTER_PASS
+    item_stack.add_child(card)
+    var body := VBoxContainer.new()
+    body.add_theme_constant_override("separation",4)
+    card.add_child(body)
+    var name_label := _label(body,title,14,C_WHITE)
+    name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    var sub_label := _label(body,subtitle,10,accent)
+    sub_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    var inspect := _button(body,"VISUALIZAR 3D",11)
+    inspect.custom_minimum_size = Vector2(130,30)
+    inspect.pressed.connect(_preview_hub_model.bind(title,path,subtitle))
+    if not action_caption.is_empty():
+        var command := _button(body,action_caption,11)
+        command.custom_minimum_size = Vector2(130,31)
+        command.pressed.connect(action)
+
+func _purchase_equipment(name: String, cost: int) -> void:
+    var note: String = game.hub_store.buy_equipment(name,cost,game.pilot_progress.credits,game.equipment_state)
+    show_notification(note)
+    _open_modal("MERCADO")
+
+func _show_astral_catalog() -> void:
+    _preview_hub_model("PORTAL AURORA", "res://assets/astral/portal_astral_aurora.glb", "GLB detalhado. Entradas fisicas nos mapas 1-8, 2-8 e 3-8.")
+    for name in AstralCatalog.ARENAS:
+        var info: Dictionary = AstralCatalog.ARENAS[name]
+        var gate_path: String = "res://assets/astral/portal_astral_%s.glb" % str(info["label"]).to_lower()
+        var summary: String = "%s  |  %s" % [str(info["description"]), game.astral_trials.status(name)]
+        var col: Color = Color(0.32,0.90,0.93) if name == "A-AURORA" else (Color(0.71,0.48,0.99) if name == "A-NEXUS" else Color(1.0,0.46,0.36))
+        _rich_card("PORTAL " + str(info["label"]),summary,gate_path,col,"CONSULTAR ROTAS",func() -> void:
+            close_modal()
+            game._toggle_galaxy()
+        )
+    _hub_text("RITUAL: ir fisicamente ao X-8 da sua faccao, aproximar do portal e VIAJAR.")
+    _hub_text("3 ONDAS PvE POR PORTAL. Conquistas e premios apenas no aparelho.")
+    if game.current_map.begins_with("A-"):
+        _hub_text("AGORA: %s  |  ONDA %d/3  |  %s" % [game.current_map,game.astral_trials.wave,"FINALIZADO" if game.astral_trials.finished else "EM COMBATE"],true)
+
+func _show_market_catalog() -> void:
+    _preview_hub_model("LASER ARC-4","res://assets/equipment/arc-4.glb","Armas de qualidade integral. Compras somente na simulacao offline.")
+    _hub_text("CREDITOS LOCAIS: %d  |  SEM PAGAMENTO REAL" % game.hub_store.credit_balance(game.pilot_progress.credits),true)
+    for listing in HubCatalog.SHOP_EQUIPMENT:
+        var name: String = str(listing["name"])
+        var cost: int = int(listing["cost"])
+        var model: String = EquipCatalog.model_path(name)
+        _rich_card(name,"%d CR | %s" % [cost,str(listing["description"])],model,C_HI,"ADQUIRIR (LOCAL)",_purchase_equipment.bind(name,cost))
+    _hub_text("As compras equipam apenas o estoque local; sem economia de servidor.")
+
+func _show_auction_catalog() -> void:
+    _preview_hub_model("LEILAO ORBITAL","res://assets/equipment/thr-3.glb","Lotes Elite e equipamentos 3D. Sem leiloes ou outros participantes online.")
+    for i in range(HubCatalog.AUCTION.size()):
+        var listing: Dictionary = HubCatalog.AUCTION[i]
+        var current: int = int(game.hub_store.auction_bids.get(str(i),int(listing["opening"])))
+        _rich_card(str(listing["name"]),"LOTE %02d | LANCE LOCAL %d CR" % [i+1,current],str(listing.get("model","res://assets/equipment/arc-4.glb")),C_GOLD,"SIMULAR +50 CR",_bid_auction_menu.bind(i))
+    _hub_text("O leilao nao tem temporizador online, compra, concorrentes ou saldo real.")
+
 func _build_hub_page(kind: String) -> void:
     var hub = game.hub_store
     var pilot = game.pilot_progress
@@ -730,6 +803,7 @@ func _build_hub_page(kind: String) -> void:
             _hub_text("PILOTO: %s | FACCAO %s | LV %d" % [hub.callsign, game.faction, int(pilot.level_info()["level"])])
             _hub_text("CREDITOS DE SIMULACAO: %d" % hub.credit_balance(pilot.credits))
             _hub_text("NAVE: %s | ALIANCA: %s" % [game.current_ship, hub.alliance if not hub.alliance.is_empty() else "Sem alianca"])
+            _add_menu_row("PORTAIS ASTRAIS: AURORA, NEXUS E ECLIPSE", func() -> void: _open_modal("ASTRAL"))
             _add_menu_row("RELES — EVENTO DE CONQUISTA 4-X", func() -> void: _open_modal("RELES"))
             _add_menu_row("ALIANCAS E FACCOES", func() -> void: _open_modal("ALIANCA"))
             _add_menu_row("MISSOES E PASSE", func() -> void: _open_modal("MISSOES"))
@@ -788,32 +862,18 @@ func _build_hub_page(kind: String) -> void:
                     _hub_text("ETAPA RESGATADA", true)
                 else:
                     _add_menu_row("RESGATAR ETAPA %d" % (stage + 1), _claim_pass_menu.bind(stage))
+        "ASTRAL":
+            _show_astral_catalog()
         "MERCADO":
-            _hub_text("LOJA NORMAL — INVENTARIO DE TESTE", true)
-            _hub_text("SALDO DEMONSTRATIVO: %d CREDITOS" % hub.credit_balance(pilot.credits))
-            for product in HubCatalog.SHOP:
-                var product_name: String = str(product["name"])
-                _hub_text("%s | %d CRED" % [product_name, int(product["cost"])])
-                _hub_text(str(product["info"]))
-                if hub.purchases.has(product_name):
-                    _hub_text("ADQUIRIDO NO APARELHO", true)
-                else:
-                    _add_menu_row("ADQUIRIR COLECIONAVEL: %s" % product_name, _buy_market_menu.bind(product_name))
-            _add_menu_row("VITRINE 3D DE EQUIPAMENTOS", func() -> void: _open_modal("LOJA"))
+            _show_market_catalog()
         "LEILAO":
-            _hub_text("LEILAO ESTELAR | PROTOTIPO SEM SERVIDOR", true)
-            _hub_text("Lances locais NAO reservam saldo nem compram itens.")
-            for i in range(HubCatalog.AUCTION.size()):
-                var listing: Dictionary = HubCatalog.AUCTION[i]
-                var current_value: int = int(hub.auction_bids.get(str(i),int(listing["opening"])))
-                _hub_text("LOTE %d — %s | LANCE %d" % [i+1,str(listing["name"]),current_value])
-                _add_menu_row("SIMULAR LANCE NO LOTE %d" % (i+1), _bid_auction_menu.bind(i))
+            _show_auction_catalog()
         "PREMIUM":
-            _hub_text("LOJA PREMIUM — VISUALIZACAO / SEM PAGAMENTO", true)
-            _hub_text("Futuras colecoes: visuais de nave, emblemas e decoracoes.")
-            _hub_text("Nenhuma moeda premium e vendida neste prototipo.")
-            _hub_text("Sem anuncio de precos, checkout ou beneficio pago ativo.")
-            _add_menu_row("EXPLORAR VITRINE 3D LOCAL", func() -> void: _open_modal("LOJA"))
+            _hub_text("VITRINE PREMIUM  |  SEM CHECKOUT / SEM VALORES REAIS",true)
+            _preview_hub_model("AURORA ELITE","res://assets/ships/SL_AURORA_FINAL.glb","Nave GLB integral. Sem compra premium, somente demonstracao.")
+            _rich_card("COLECAO AURORA","COSMETICOS ESTELARES EM ESTUDO", "res://assets/ships/SL_AURORA_FINAL.glb",C_GOLD,"",func() -> void: pass)
+            _rich_card("DRONES ELITE","VISUAL COMPLETO / SEM VENDA", "res://assets/drones/drone_elite.glb",C_HI,"",func() -> void: pass)
+            _hub_text("Sem pagamento, moedas vendidas ou direitos de conta neste prototipo.")
         "ADM":
             _hub_text("PLANO DE ADMINISTRACAO (SOMENTE LEITURA)", true)
             _hub_text("ADM REAL NAO ESTA HABILITADO NO CLIENTE OFFLINE.")
@@ -823,6 +883,11 @@ func _build_hub_page(kind: String) -> void:
             _hub_text("NENHUMA ALTERACAO NO RENDER OU SUPABASE ATUAIS.")
 
 func _build_settings_menu() -> void:
+    _hub_text("QUALIDADE GRAFICA  |  %s" % game.graphics_quality, true)
+    _hub_text("Naves, NPCs, drones e AUX-9 permanecem com seus GLBs FULL em todos os perfis.")
+    for preset in ["BAIXO","MEDIO","ALTO"]:
+        var note: String = {"BAIXO":"Cenario leve / sombras OFF / estrelas OFF", "MEDIO":"Cenario equilibrado / sombras OFF", "ALTO":"Iluminacao intensa / sombras ON / estrelas ON"}[preset]
+        _add_menu_row("%s  -  %s" % [preset,note], _apply_quality_setting.bind(preset))
     _add_menu_row("ALTERNAR INDICADOR FPS", func() -> void:
         game.toggle_fps()
         refresh()
@@ -847,6 +912,10 @@ func _build_settings_menu() -> void:
         close_modal()
     )
 
+func _apply_quality_setting(preset: String) -> void:
+    game.set_graphics_quality(preset)
+    _open_modal("CONFIG")
+
 func _pick_ammo(index: int) -> void:
     game.select_ammunition(index)
     refresh()
@@ -861,7 +930,7 @@ func refresh() -> void:
     if game == null or not is_instance_valid(game) or game.ship_anchor == null:
         return
     var lvl: Dictionary = game.pilot_progress.level_info()
-    top_subtitle.text = "LV %d  |  %s  |  %s  %s" % [int(lvl["level"]), game.current_map, str(game.current_ship), ("%d FPS" % Engine.get_frames_per_second()) if game.show_fps else ""]
+    top_subtitle.text = "LV %d  |  %s  |  %s  |  %s  %s" % [int(lvl["level"]), game.current_map, str(game.current_ship), game.graphics_quality, ("%d FPS" % Engine.get_frames_per_second()) if game.show_fps else ""]
     vitals_title.text = "PILOTO  |  HP %d  /  ESC %d" % [roundi(game.hp), roundi(game.shield)]
     vitals_hp.value = 100.0 * game.hp / game.MAX_HP
     vitals_shield.value = 100.0 * game.shield / game.MAX_SHIELD
@@ -873,7 +942,9 @@ func refresh() -> void:
     else:
         target_title.text = "ALVO: NENHUM"
         target_detail.text = "Toque NPC / 2 toques para atacar"
-    if game.current_map.begins_with("4-"):
+    if game.current_map.begins_with("A-"):
+        minimap_caption.text = "PORTAL %s | ONDA %d/3" % [game.current_map.trim_prefix("A-"), game.astral_trials.wave]
+    elif game.current_map.begins_with("4-"):
         if game.hub_store.capture_ratio(game.current_map) > 0.0:
             minimap_caption.text = "CAPTURA %s | %d%%" % [game.current_map, roundi(game.hub_store.capture_ratio(game.current_map) * 100.0)]
         else:
@@ -980,7 +1051,7 @@ func relayout(view_size: Vector2) -> void:
     modal_body.size = Vector2(modal_w - 24, modal_h - 75)
     var body_w := modal_body.size.x
     var body_h := modal_body.size.y
-    var hub_modal: bool = modal_kind in ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]
+    var hub_modal: bool = modal_kind in ["CENTRAL", "ASTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM"]
     var cat_h: float = ((78.0 if modal_w < 845.0 else 42.0) if hub_modal else (70.0 if modal_kind == "LOJA" else 37.0)) if category_row.visible else 0.0
     category_row.position = Vector2(5, 0)
     category_row.size = Vector2(body_w - 10, cat_h)
