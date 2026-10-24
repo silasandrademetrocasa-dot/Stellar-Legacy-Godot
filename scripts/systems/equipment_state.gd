@@ -7,6 +7,48 @@ var active_configuration := 0
 var last_switch_ms := -100000
 var configurations: Array[Dictionary] = []
 var stock: Dictionary = {}
+# G0.12: suporte instalado no hangar, nunca por botoes de combate.
+const SUPPORT_ITEMS: Array[String] = ["Drone Alfa", "Drone Beta", "Drone Gama", "Drone Delta", "Drone Epsilon", "Drone Comum", "Drone Elite", "AUX-9"]
+var support_stock: Dictionary = {"Drone Alfa":1, "Drone Beta":1, "AUX-9":1}
+var fitted_drones: Array[String] = ["Drone Alfa", "Drone Beta"]
+var fitted_aux: String = "AUX-9"
+
+func owned_support(item_name: String) -> int:
+    return int(support_stock.get(item_name, 0))
+
+func equipped_support(item_name: String) -> bool:
+    return fitted_drones.has(item_name) or fitted_aux == item_name
+
+func buy_support(item_name: String) -> String:
+    if not SUPPORT_ITEMS.has(item_name):
+        return "Suporte nao cadastrado"
+    if owned_support(item_name) >= 4:
+        return "Limite local de unidades alcancado"
+    support_stock[item_name] = owned_support(item_name) + 1
+    _save()
+    return "%s adicionado ao inventario de teste" % item_name
+
+func toggle_support(item_name: String) -> String:
+    if not SUPPORT_ITEMS.has(item_name):
+        return "Modelo desconhecido"
+    if item_name == "AUX-9":
+        if fitted_aux == "AUX-9":
+            fitted_aux = ""
+        elif owned_support("AUX-9") > 0:
+            fitted_aux = "AUX-9"
+        else:
+            return "Adquira AUX-9 para instalar"
+    elif fitted_drones.has(item_name):
+        fitted_drones.erase(item_name)
+    elif owned_support(item_name) > 0:
+        if fitted_drones.size() >= 2:
+            return "Dois slots ocupados: remova um drone"
+        fitted_drones.append(item_name)
+    else:
+        return "Adquira o drone antes de equipar"
+    _save()
+    return "%s: %s" % [item_name, "INSTALADO" if equipped_support(item_name) else "REMOVIDO"]
+
 
 func _init() -> void:
     for _i in range(2):
@@ -123,7 +165,7 @@ func bonus(kind: String) -> float:
 func _save() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock}))
+        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock,"support_stock":support_stock,"fitted_drones":fitted_drones,"fitted_aux":fitted_aux}))
 
 func _read() -> void:
     if not FileAccess.file_exists(SAVE_PATH):
@@ -134,6 +176,19 @@ func _read() -> void:
     var parsed: Variant = JSON.parse_string(f.get_as_text())
     if not (parsed is Dictionary):
         return
+    var loaded_support: Variant = parsed.get("support_stock", {})
+    if loaded_support is Dictionary:
+        for name in SUPPORT_ITEMS:
+            support_stock[name] = clampi(int(loaded_support.get(name, support_stock.get(name, 0))), 0, 4)
+    var loaded_drones: Variant = parsed.get("fitted_drones", fitted_drones)
+    if loaded_drones is Array:
+        fitted_drones.clear()
+        for value in loaded_drones:
+            var drone_name: String = str(value)
+            if drone_name != "AUX-9" and SUPPORT_ITEMS.has(drone_name) and owned_support(drone_name) > 0 and not fitted_drones.has(drone_name) and fitted_drones.size() < 2:
+                fitted_drones.append(drone_name)
+    var saved_aux: String = str(parsed.get("fitted_aux", fitted_aux))
+    fitted_aux = "AUX-9" if saved_aux == "AUX-9" and owned_support("AUX-9") > 0 else ""
     var loaded_stock: Variant = parsed.get("stock", {})
     if loaded_stock is Dictionary:
         for catalog_item in Catalog.ITEMS:

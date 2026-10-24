@@ -1,4 +1,12 @@
-# Stellar Legacy Godot G0.11 — Base & Equipment Command
+# Stellar Legacy Godot G0.12 — Premium HUD & Base Refinement
+
+**Cliente Android demonstrativo OFFLINE**. Atualização cumulativa da G0.11: HUD premium por setor, chat local, base rasante, drones/AUX-9 determinados por inventário/equipamento no hangar. Sem mudanças na versão web ou servidores.
+
+Leia `docs/G012_PREMIUM_VISUAL_E_CHAT.md` para testes e limites.
+
+---
+
+# Histórico: Stellar Legacy Godot G0.11 — Base & Equipment Command
 
 **Atualização incremental sobre a G0.10 aprovada no Android.** Cliente experimental inteiramente local: não altera a versão web, Render ou Supabase.
 

@@ -133,7 +133,7 @@ func _ready() -> void:
     _rebuild_portals()
     _populate_local_world()
     pilot_progress.visit_map(current_map)
-    support_fleet.snap_to_player()
+    support_fleet.apply_equipment(equipment_state)
     _refresh_ui()
     get_viewport().size_changed.connect(_layout_hud)
     _layout_hud()
@@ -680,13 +680,13 @@ func _build_faction_base() -> void:
     if current_map != "%s-1" % faction:
         return
     faction_base = FactionBase.new()
-    faction_base.position = Vector3(0.0, 0.0, 44.0)
+    faction_base.position = Vector3(0.0, -4.5, 44.0)
     portal_root.add_child(faction_base)
     faction_base.build(faction)
     faction_base.set_quality(graphics_quality)
 
 func near_faction_base() -> bool:
-    return faction_base != null and is_instance_valid(faction_base) and ship_anchor != null and ship_anchor.global_position.distance_to(faction_base.global_position) < 28.0
+    return faction_base != null and is_instance_valid(faction_base) and ship_anchor != null and Vector2(ship_anchor.global_position.x, ship_anchor.global_position.z).distance_to(Vector2(faction_base.global_position.x, faction_base.global_position.z)) < 29.0
 
 func open_faction_base() -> void:
     if near_faction_base():
@@ -1024,13 +1024,14 @@ func _receive_local_damage(amount: float) -> void:
 func aux_enabled() -> bool:
     return support_fleet != null and support_fleet.aux_enabled
 
+# Suporte nao pode ser ligado/desligado em combate: equipar no hangar.
 func _toggle_drones() -> void:
-    support_fleet.toggle_drones()
-    drones_button.text = "DRONES ON" if support_fleet.drones_enabled else "DRONES OFF"
+    if ui_shell != null:
+        ui_shell.show_notification("INSTALE DRONES NO HANGAR > DRONES")
 
 func _toggle_aux() -> void:
-    support_fleet.toggle_aux()
-    aux_button.text = "AUX-9 ON" if support_fleet.aux_enabled else "AUX-9 OFF"
+    if ui_shell != null:
+        ui_shell.show_notification("INSTALE AUX-9 NO HANGAR > AUX-9")
 
 
 # G0.5: Shell HUD desacoplada para expansao futura sem crescer o script principal.
@@ -1088,5 +1089,7 @@ func _on_equipment_changed() -> void:
     # Recalcula os valores DEMONSTRATIVOS mantendo o disparo ativo.
     var base_damage: float = [425.0, 565.0, 735.0, 905.0, 425.0][selected_ammo]
     combat_world.player_laser_damage = base_damage + equipment_state.bonus("ARMAS")
+    if support_fleet != null:
+        support_fleet.apply_equipment(equipment_state)
     if ui_shell != null:
         ui_shell.refresh()

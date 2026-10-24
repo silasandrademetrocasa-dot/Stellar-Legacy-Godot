@@ -41,6 +41,9 @@ func setup(owner_game) -> void:
     left_panel = _panel(self)
     center_panel = _panel(self)
     right_panel = _panel(self)
+    _premium_border(left_panel, CYAN)
+    _premium_border(center_panel, Color(0.33, 0.80, 1.0))
+    _premium_border(right_panel, GOLD)
     ship_caption = _label(left_panel, "NAVE ATIVA", 15, CYAN)
     ship_view = _showcase(left_panel, true)
     ship_root = ship_view.get_child(0).get_node("ModelPivot") as Node3D
@@ -93,6 +96,22 @@ func setup(owner_game) -> void:
     status = _label(self, "Slots vazios podem receber o item selecionado. Toque um slot ocupado para remover.", 11, GOLD)
     _filter("ARMAS")
     relayout(size)
+
+func _premium_border(target: Panel, accent: Color) -> void:
+    var skin := StyleBoxFlat.new()
+    skin.bg_color = PANEL
+    skin.border_color = accent
+    skin.border_width_left = 2
+    skin.border_width_right = 2
+    skin.border_width_top = 2
+    skin.border_width_bottom = 2
+    skin.corner_radius_top_left = 9
+    skin.corner_radius_top_right = 9
+    skin.corner_radius_bottom_left = 9
+    skin.corner_radius_bottom_right = 9
+    skin.shadow_color = Color(accent.r, accent.g, accent.b, 0.14)
+    skin.shadow_size = 3
+    target.add_theme_stylebox_override("panel", skin)
 
 func _panel(parent: Node) -> Panel:
     var p := Panel.new()

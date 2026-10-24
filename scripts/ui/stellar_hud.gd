@@ -2,8 +2,8 @@ extends Control
 ## Stellar Legacy G0.7 - HUD com perfil local, progressao e vitrine 3D.
 ## Interface local de demonstracao: sem compras, saldo real ou consultas a rede.
 
-const C_BG := Color(0.018, 0.036, 0.074, 0.95)
-const C_EDGE := Color(0.15, 0.43, 0.65, 0.8)
+const C_BG := Color(0.010, 0.021, 0.049, 0.975)
+const C_EDGE := Color(0.13, 0.48, 0.78, 0.94)
 const C_HI := Color(0.25, 0.82, 0.95)
 const C_GOLD := Color(1.0, 0.78, 0.35)
 const C_WHITE := Color(0.88, 0.96, 1.0)
@@ -42,6 +42,28 @@ var minimap_caption: Label
 var info_line: Label
 var action_panel: Panel
 var base_btn: Button
+var top_target_btn: Button
+var chat_panel: Panel
+var chat_title: Label
+var chat_preview: RichTextLabel
+var chat_input: LineEdit
+var chat_send: Button
+var chat_expand: Button
+var chat_expanded: bool = false
+var chat_messages: Array[String] = []
+const CHAT_LIMIT: int = 16
+const SECTOR_COLORS: Dictionary = {
+    "HANGAR": Color(0.18, 0.77, 1.0), "EQUIPAMENTOS": Color(0.22, 0.85, 1.0),
+    "LOJA": Color(0.98, 0.72, 0.27), "MERCADO": Color(0.98, 0.72, 0.27),
+    "LEILAO": Color(0.83, 0.48, 1.0), "PREMIUM": Color(0.88, 0.48, 1.0),
+    "BATALHA": Color(1.0, 0.37, 0.32), "RELES": Color(1.0, 0.42, 0.28),
+    "ASTRAL": Color(0.60, 0.48, 1.0), "MAPAS": Color(0.21, 0.80, 0.99),
+    "PILOTO": Color(0.40, 0.94, 0.69), "CENTRAL": Color(0.36, 0.73, 1.0),
+    "MISSOES": Color(0.31, 0.88, 0.75), "PASSE": Color(0.98, 0.77, 0.28),
+    "ALIANCA": Color(0.35, 0.79, 1.0), "CONFIG": Color(0.55, 0.80, 1.0),
+    "REFINARIA": Color(0.95, 0.58, 0.29), "TITULOS": Color(0.95, 0.76, 0.39),
+    "ADM": Color(1.0, 0.57, 0.43)
+}
 var warp_btn: Button
 var target_btn: Button
 var aux_btn: Button
@@ -51,6 +73,8 @@ var weapon_buttons: Array[Button] = []
 var fire_btn: Button
 var modal_overlay: Control
 var modal_box: Panel
+var sector_strip: ColorRect
+var side_strip: ColorRect
 var modal_title: Label
 var modal_info: Label
 var modal_body: Control
@@ -109,6 +133,9 @@ func _style_box(bg: Color, edge: Color = C_EDGE, radius: int = 9) -> StyleBoxFla
     sty.content_margin_right = 5
     sty.content_margin_top = 4
     sty.content_margin_bottom = 4
+    sty.shadow_color = Color(0.00, 0.35, 0.68, 0.13)
+    sty.shadow_size = 3
+    sty.anti_aliasing = true
     return sty
 
 func _panel(parent: Control, bg: Color = C_BG) -> Panel:
@@ -152,8 +179,12 @@ func _bar(parent: Control, fill: Color) -> ProgressBar:
     return b
 
 func _create_shell() -> void:
-    top_panel = _panel(self)
+    top_panel = _panel(self, Color(0.007, 0.017, 0.044, 0.99))
+    top_panel.add_theme_stylebox_override("panel", _style_box(Color(0.008, 0.023, 0.052, 0.99), Color(0.11, 0.63, 1.0), 10))
     top_title = _label(top_panel, "STELLAR LEGACY", 19, C_HI)
+    top_title.add_theme_color_override("font_shadow_color", Color(0.1, 0.72, 1.0, 0.65))
+    top_title.add_theme_constant_override("shadow_offset_x", 1)
+    top_title.add_theme_constant_override("shadow_offset_y", 1)
     top_subtitle = _label(top_panel, "GODOT  |  PROTOTIPO OFFLINE", 10, C_MUTED)
     for item in ["HANGAR", "EQUIPAMENTOS", "BATALHA", "MAPAS", "LOJA", "PILOTO", "CENTRAL", "CONFIG"]:
         var b := _button(top_panel, item, 13)
@@ -169,6 +200,8 @@ func _create_shell() -> void:
     target_panel = _panel(self)
     target_title = _label(target_panel, "ALVO  |  NAO SELECIONADO", 12, C_GOLD)
     target_detail = _label(target_panel, "Toque NPC: selecionar  |  2 toques: disparar", 11, C_MUTED)
+    top_target_btn = _button(target_panel, "+ ALVO", 11)
+    top_target_btn.pressed.connect(func() -> void: game._select_next_target())
 
     nav_panel = _panel(self)
     minimap_caption = _label(nav_panel, "NAVEGACAO TATICA", 12, C_HI)
@@ -185,14 +218,7 @@ func _create_shell() -> void:
     warp_btn.pressed.connect(func() -> void: game._travel_nearest())
     target_btn = _button(action_panel, "ALVO", 13)
     target_btn.pressed.connect(func() -> void: game._select_next_target())
-    drone_btn = _button(action_panel, "DRONES", 12)
-    drone_btn.pressed.connect(func() -> void:
-        game._toggle_drones()
-        refresh())
-    aux_btn = _button(action_panel, "AUX-9", 12)
-    aux_btn.pressed.connect(func() -> void:
-        game._toggle_aux()
-        refresh())
+    # DRONES / AUX-9 nao sao controles de HUD; dependem do inventario instalado.
     base_btn = _button(action_panel, "BASE", 12)
     base_btn.pressed.connect(func() -> void: game.open_faction_base())
 
@@ -203,6 +229,53 @@ func _create_shell() -> void:
         weapon_buttons.append(w)
     fire_btn = _button(weapon_panel, "ATACAR", 15)
     fire_btn.pressed.connect(func() -> void: game._toggle_auto_fire(); refresh())
+    _build_local_chat()
+
+func _build_local_chat() -> void:
+    chat_panel = _panel(self, Color(0.008, 0.029, 0.069, 0.97))
+    chat_title = _label(chat_panel, "COMUNICADOR  /  OFFLINE", 11, C_HI)
+    chat_expand = _button(chat_panel, "ABRIR", 10)
+    chat_expand.pressed.connect(_toggle_chat)
+    chat_preview = RichTextLabel.new()
+    chat_preview.bbcode_enabled = false
+    chat_preview.scroll_following = true
+    chat_preview.fit_content = false
+    chat_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    chat_preview.add_theme_font_size_override("normal_font_size", 11)
+    chat_preview.add_theme_color_override("default_color", C_WHITE)
+    chat_panel.add_child(chat_preview)
+    chat_input = LineEdit.new()
+    chat_input.placeholder_text = "Mensagem local..."
+    chat_input.max_length = 160
+    chat_input.add_theme_font_size_override("font_size", 11)
+    chat_input.add_theme_color_override("font_color", C_WHITE)
+    chat_input.add_theme_stylebox_override("normal", _style_box(Color(0.018, 0.052, 0.09), C_EDGE, 5))
+    chat_input.text_submitted.connect(_send_chat)
+    chat_panel.add_child(chat_input)
+    chat_send = _button(chat_panel, "ENVIAR", 10)
+    chat_send.pressed.connect(func() -> void: _send_chat(chat_input.text))
+    _chat_line("SISTEMA", "Canal local ativo. Multiplayer ainda desativado.")
+
+func _chat_line(sender: String, body: String) -> void:
+    chat_messages.append("[%s] %s" % [sender, body.strip_edges().substr(0, 160)])
+    while chat_messages.size() > CHAT_LIMIT:
+        chat_messages.pop_front()
+    if chat_preview != null:
+        chat_preview.text = "\n".join(PackedStringArray(chat_messages if chat_expanded else chat_messages.slice(maxi(0, chat_messages.size() - 1))))
+
+func _send_chat(message: String) -> void:
+    var clean: String = message.strip_edges()
+    if clean.is_empty():
+        return
+    _chat_line("PILOTO", clean)
+    chat_input.clear()
+    chat_input.release_focus()
+
+func _toggle_chat() -> void:
+    chat_expanded = not chat_expanded
+    chat_expand.text = "RECOLHER" if chat_expanded else "ABRIR"
+    chat_preview.text = "\n".join(PackedStringArray(chat_messages if chat_expanded else chat_messages.slice(maxi(0, chat_messages.size() - 1))))
+    relayout(layout_size)
 
 func _create_modal() -> void:
     modal_overlay = Control.new()
@@ -222,6 +295,14 @@ func _create_modal() -> void:
     modal_backdrop.modulate = Color(0.63, 0.74, 0.92, 0.75)
     modal_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
     modal_box.add_child(modal_backdrop)
+    sector_strip = ColorRect.new()
+    sector_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    sector_strip.color = C_HI
+    modal_box.add_child(sector_strip)
+    side_strip = ColorRect.new()
+    side_strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    side_strip.color = C_HI
+    modal_box.add_child(side_strip)
     modal_title = _label(modal_box, "HANGAR", 22, C_HI)
     modal_info = _label(modal_box, "Visualizacao 3D local, sem rede.", 12, C_MUTED)
     close_btn = _button(modal_box, "FECHAR  X", 13)
@@ -458,11 +539,34 @@ func _on_top_button(item: String) -> void:
     else:
         _open_modal(item)
 
+func _apply_sector_skin(kind: String) -> void:
+    var accent: Color = SECTOR_COLORS.get(kind, C_HI)
+    modal_box.add_theme_stylebox_override("panel", _style_box(Color(0.012, 0.032, 0.072, 0.985), accent, 12))
+    modal_title.add_theme_color_override("font_color", accent)
+    sector_strip.color = accent
+    side_strip.color = accent.darkened(0.40)
+    modal_info.add_theme_color_override("font_color", accent.lightened(0.30))
+    close_btn.add_theme_stylebox_override("normal", _style_box(Color(0.055, 0.084, 0.14), accent, 7))
+    # Mesmo vocabulário cromático em todos os setores e subtelas.
+    for tab in top_buttons:
+        var matches: bool = tab.text == kind or (tab.text == "EQUIP." and kind == "EQUIPAMENTOS")
+        tab.add_theme_color_override("font_color", accent if matches else C_WHITE)
+        tab.add_theme_stylebox_override("normal", _style_box(Color(0.07, 0.15, 0.22, 0.99) if matches else Color(0.025, 0.065, 0.115, 0.99), accent if matches else C_EDGE, 7))
+    if kind in ["EQUIPAMENTOS", "HANGAR"]:
+        modal_backdrop.modulate = Color(0.60, 0.79, 1.0, 0.86)
+    elif kind in ["BATALHA", "RELES"]:
+        modal_backdrop.modulate = Color(1.0, 0.63, 0.55, 0.63)
+    elif kind in ["LOJA", "MERCADO", "LEILAO", "PREMIUM"]:
+        modal_backdrop.modulate = Color(1.0, 0.82, 0.54, 0.68)
+    else:
+        modal_backdrop.modulate = Color(0.65, 0.77, 0.96, 0.68)
+
 func _open_modal(kind: String) -> void:
     modal_kind = kind
     modal_overlay.visible = true
+    _apply_sector_skin(kind)
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.11  |  BASE X-1 E COMANDO DE EQUIPAMENTOS  |  OFFLINE"
+    modal_info.text = "G0.12  |  HUD PREMIUM / SUPORTE POR EQUIPAMENTO  |  OFFLINE"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
     equipment_command.visible = equipment_mode
     if equipment_mode:
@@ -588,7 +692,16 @@ func _select_item(index: int) -> void:
         preview_note.text += "  |  livres: %d" % free
         choose_btn.disabled = free <= 0
     else:
-        choose_btn.disabled = modal_kind != "HANGAR" or str(selected_item.get("id", "")) == ""
+        var support_type: bool = modal_kind == "HANGAR" and active_category in ["DRONES", "AUX-9"]
+        choose_btn.disabled = not support_type and (modal_kind != "HANGAR" or str(selected_item.get("id", "")) == "")
+        if support_type:
+            var support_name: String = str(selected_item.get("name", ""))
+            var owned: int = game.equipment_state.owned_support(support_name)
+            var is_fitted: bool = game.equipment_state.equipped_support(support_name)
+            choose_btn.text = ("REMOVER " if is_fitted else ("INSTALAR " if owned > 0 else "ADQUIRIR (TESTE) ")) + support_name
+            preview_note.text += "  |  Inventario: %d  |  %s" % [owned, "EQUIPADO" if is_fitted else "NAO EQUIPADO"]
+        else:
+            choose_btn.text = "EQUIPAR NAVE"
     _load_preview(str(selected_item.get("path", "")))
 
 func _load_preview(path: String) -> void:
@@ -626,6 +739,16 @@ func _equip_preview() -> void:
     if modal_kind == "HANGAR" and ship_id != "":
         game.change_ship_for_hangar(ship_id)
         close_modal()
+    elif modal_kind == "HANGAR" and active_category in ["DRONES", "AUX-9"]:
+        var support_name: String = str(selected_item.get("name", ""))
+        var result_note: String = ""
+        if game.equipment_state.owned_support(support_name) == 0:
+            result_note = game.equipment_state.buy_support(support_name)
+        else:
+            result_note = game.equipment_state.toggle_support(support_name)
+        game._on_equipment_changed()
+        show_notification(result_note)
+        _select_item(catalogue.find(selected_item))
     elif modal_kind == "EQUIPAMENTOS":
         var result: String = game.equipment_state.equip(str(selected_item.get("name", "")))
         game._on_equipment_changed()
@@ -693,14 +816,6 @@ func _build_battle_menu() -> void:
     _add_menu_row("ATIVAR / PAUSAR DISPARO", func() -> void:
         game._toggle_auto_fire()
         close_modal()
-    )
-    _add_menu_row("LIGAR / DESLIGAR DRONES", func() -> void:
-        game._toggle_drones()
-        refresh()
-    )
-    _add_menu_row("LIGAR / DESLIGAR AUX-9", func() -> void:
-        game._toggle_aux()
-        refresh()
     )
     _add_menu_row("IR ATE ALVO (SEGUIR)", func() -> void:
         game.chase_target = true
@@ -1001,6 +1116,9 @@ func _pick_ammo(index: int) -> void:
 
 func close_modal() -> void:
     modal_overlay.visible = false
+    for tab in top_buttons:
+        tab.add_theme_color_override("font_color", C_WHITE)
+        tab.add_theme_stylebox_override("normal", _style_box(Color(0.042, 0.085, 0.145, 0.98), Color(0.16, 0.39, 0.53), 7))
     if preview_mesh != null and is_instance_valid(preview_mesh):
         preview_mesh.queue_free()
         preview_mesh = null
@@ -1035,8 +1153,6 @@ func refresh() -> void:
     base_btn.visible = game.current_map.ends_with("-1") and not game.current_map.begins_with("A-") and not game.current_map.begins_with("4-") and not game.current_map.begins_with("U-")
     base_btn.disabled = not game.near_faction_base()
     base_btn.text = "BASE" if not base_btn.disabled else "BASE..."
-    drone_btn.text = "DRONES ON" if game.support_fleet.drones_enabled else "DRONES OFF"
-    aux_btn.text = "AUX-9 ON" if game.support_fleet.aux_enabled else "AUX-9 OFF"
     fire_btn.text = "PARAR TIRO" if game.auto_fire_enabled else "ATACAR"
     for i in range(weapon_buttons.size()):
         var b := weapon_buttons[i]
@@ -1089,30 +1205,46 @@ func relayout(view_size: Vector2) -> void:
     target_title.size = Vector2(target_panel.size.x - 18, 24)
     target_detail.position = Vector2(9, 30)
     target_detail.size = Vector2(target_panel.size.x - 18, 25)
-    var action_h := 47.0
-    var bottom_y := h - 60.0
-    action_panel.position = Vector2(10, bottom_y)
-    action_panel.size = Vector2(minf(420.0, w * 0.44), action_h + 4.0)
-    var action_button_w := (action_panel.size.x - 16) / 5.0
+    top_target_btn.position = Vector2(target_panel.size.x - 94.0, 30)
+    top_target_btn.size = Vector2(85, 26)
+    target_detail.size.x = target_panel.size.x - 105.0
+    var bottom_y: float = h - 72.0
+    var bar_h: float = 63.0
+    var chat_w: float = clampf(w * 0.33, 210.0, 345.0)
+    chat_panel.position = Vector2(9, h - (172.0 if chat_expanded else 72.0))
+    chat_panel.size = Vector2(chat_w, 163.0 if chat_expanded else 63.0)
+    chat_title.position = Vector2(9, 4)
+    chat_title.size = Vector2(chat_w - 86, 17)
+    chat_expand.position = Vector2(chat_w - 78, 3)
+    chat_expand.size = Vector2(70, 23)
+    chat_preview.position = Vector2(9, 26 if chat_expanded else 21)
+    chat_preview.size = Vector2(chat_w - 18, 88 if chat_expanded else 16)
+    chat_input.position = Vector2(8, 119 if chat_expanded else 39)
+    chat_input.size = Vector2(chat_w - 89, 29 if chat_expanded else 20)
+    chat_send.position = Vector2(chat_w - 76, 119 if chat_expanded else 36)
+    chat_send.size = Vector2(68, 29 if chat_expanded else 23)
+    var actions_w: float = clampf(w * 0.16, 120.0, 155.0)
+    action_panel.position = Vector2(15 + chat_w, bottom_y)
+    action_panel.size = Vector2(actions_w, bar_h)
+    warp_btn.position = Vector2(4, 5)
+    warp_btn.size = Vector2((actions_w - 14) * 0.5, 53)
+    base_btn.position = Vector2(10 + (actions_w - 14) * 0.5, 5)
+    base_btn.size = Vector2((actions_w - 14) * 0.5, 53)
+    target_btn.visible = false
+    weapon_panel.position = Vector2(action_panel.position.x + actions_w + 6, bottom_y)
+    weapon_panel.size = Vector2(maxf(220.0, w - weapon_panel.position.x - 9), bar_h)
+    var weapon_button_w: float = (weapon_panel.size.x - 14.0) / 6.0
     for i in range(5):
-        var ab: Button = [warp_btn, target_btn, drone_btn, aux_btn, base_btn][i]
-        ab.position = Vector2(5 + i * action_button_w, 4)
-        ab.size = Vector2(action_button_w - 3, action_h - 4)
-        ab.add_theme_font_size_override("font_size", 11 if compact else 12)
-    weapon_panel.position = Vector2(action_panel.position.x + action_panel.size.x + 7.0, bottom_y)
-    weapon_panel.size = Vector2(w - weapon_panel.position.x - 10.0, action_h + 4.0)
-    var weapon_button_w := (weapon_panel.size.x - 14.0) / 6.0
-    for i in range(5):
-        weapon_buttons[i].position = Vector2(5 + i * weapon_button_w, 4)
-        weapon_buttons[i].size = Vector2(weapon_button_w - 3.0, action_h - 4)
+        weapon_buttons[i].position = Vector2(5 + i * weapon_button_w, 6)
+        weapon_buttons[i].size = Vector2(weapon_button_w - 3, 51)
         weapon_buttons[i].add_theme_font_size_override("font_size", 10 if compact else 12)
-    fire_btn.position = Vector2(5 + 5 * weapon_button_w, 4)
-    fire_btn.size = Vector2(weapon_button_w - 3, action_h - 4)
+    fire_btn.position = Vector2(5 + 5 * weapon_button_w, 6)
+    fire_btn.size = Vector2(weapon_button_w - 3, 51)
     fire_btn.add_theme_font_size_override("font_size", 11 if compact else 13)
     notification_label.position = Vector2(w * 0.29, 56)
     notification_label.size = Vector2(w * 0.43, 26)
-    info_line.position = Vector2(12, h - 84)
-    info_line.size = Vector2(w - 25, 22)
+    info_line.position = Vector2(12, h - (189.0 if chat_expanded else 96.0))
+    info_line.size = Vector2(w - 25, 18)
     info_line.add_theme_font_size_override("font_size", 11 if compact else 12)
 
     modal_overlay.position = Vector2.ZERO
@@ -1123,6 +1255,10 @@ func relayout(view_size: Vector2) -> void:
     modal_box.size = Vector2(modal_w, modal_h)
     modal_backdrop.position = Vector2(3, 3)
     modal_backdrop.size = Vector2(modal_w - 6, modal_h - 6)
+    sector_strip.position = Vector2(14, 3)
+    sector_strip.size = Vector2(modal_w - 28, 3)
+    side_strip.position = Vector2(3, 6)
+    side_strip.size = Vector2(3, modal_h - 12)
     modal_title.position = Vector2(16, 8)
     modal_title.size = Vector2(modal_w - 160, 28)
     modal_info.position = Vector2(16, 37)

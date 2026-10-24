@@ -12,6 +12,7 @@ var drones_enabled := true
 var aux_enabled := true
 var elapsed := 0.0
 var drone_fire_clock := 1.2
+var installed_signature: String = ""
 
 func _ready() -> void:
     drones_root = Node3D.new()
@@ -20,21 +21,50 @@ func _ready() -> void:
     aux_root = Node3D.new()
     aux_root.name = "AUX9"
     add_child(aux_root)
-    for i in range(2):
-        var drone_id := "drone_a" if i == 0 else "drone_b"
-        var resource := load("res://assets/drones/%s.glb" % drone_id) as PackedScene
-        if resource != null:
-            var instance := resource.instantiate() as Node3D
+    # Kit inicial local: dois drones e AUX-9 ja equipados no save demonstrativo.
+    # Modelos somente aparecem se constarem no equipamento ativo.
+    _refresh_fleet_models(["Drone Alfa", "Drone Beta"], "AUX-9")
+
+func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String) -> void:
+    var signature: String = ",".join(PackedStringArray(equipped_drones)) + "|" + installed_aux
+    if signature == installed_signature:
+        return
+    installed_signature = signature
+    for child in drones_root.get_children():
+        drones_root.remove_child(child)
+        child.queue_free()
+    for child in aux_root.get_children():
+        aux_root.remove_child(child)
+        child.queue_free()
+    drone_models.clear()
+    aux_model = null
+    var ids: Dictionary = {"Drone Alfa":"drone_a", "Drone Beta":"drone_b", "Drone Gama":"drone_c", "Drone Delta":"drone_d", "Drone Epsilon":"drone_e", "Drone Comum":"drone_common", "Drone Elite":"drone_elite"}
+    for drone_name in equipped_drones:
+        var file_id: String = str(ids.get(drone_name, ""))
+        if file_id.is_empty():
+            continue
+        var model: PackedScene = load("res://assets/drones/%s.glb" % file_id) as PackedScene
+        if model != null:
+            var instance: Node3D = model.instantiate() as Node3D
             if instance != null:
                 drones_root.add_child(instance)
                 instance.scale = Vector3.ONE * 0.55
                 drone_models.append(instance)
-    var aux_asset := load("res://assets/aux/aux9.glb") as PackedScene
-    if aux_asset != null:
-        aux_model = aux_asset.instantiate() as Node3D
-        if aux_model != null:
-            aux_root.add_child(aux_model)
-            aux_model.scale = Vector3.ONE * 0.55
+    if installed_aux == "AUX-9":
+        var asset: PackedScene = load("res://assets/aux/aux9.glb") as PackedScene
+        if asset != null:
+            aux_model = asset.instantiate() as Node3D
+            if aux_model != null:
+                aux_root.add_child(aux_model)
+                aux_model.scale = Vector3.ONE * 0.55
+    drones_enabled = drone_models.size() > 0
+    aux_enabled = aux_model != null
+    snap_to_player()
+
+func apply_equipment(equipment) -> void:
+    if equipment == null:
+        return
+    _refresh_fleet_models(equipment.fitted_drones, equipment.fitted_aux)
 
 func _process(delta: float) -> void:
     if player_node == null:
@@ -57,12 +87,6 @@ func _process(delta: float) -> void:
         drone_fire_clock = 1.15
         if drones_enabled and combat_world != null and drone_models.size() > 0:
             combat_world.support_hit(drone_models[0].global_position, 175.0)
-
-func toggle_drones() -> void:
-    drones_enabled = not drones_enabled
-
-func toggle_aux() -> void:
-    aux_enabled = not aux_enabled
 
 func snap_to_player() -> void:
     if player_node == null:
