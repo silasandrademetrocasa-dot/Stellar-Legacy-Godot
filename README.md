@@ -1,3 +1,9 @@
+# Stellar Legacy Godot G0.4 — Tap & Combat Evolution
+
+**Offline experimental, sem alteração no projeto WEB, Render ou Supabase.**
+
+Leia `docs/G0.4-COMANDOS-E-TESTES.md` para controles e regressão.
+
 # Stellar Legacy — Godot G0.3 (Mundo Vivo)
 
 **Android primeiro, Godot 4.5.x, renderizador Compatibility.**

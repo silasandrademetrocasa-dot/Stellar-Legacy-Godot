@@ -5,22 +5,23 @@ extends Node3D
 signal incoming_damage(amount: float)
 
 const Enemy = preload("res://scripts/world/enemy_ship.gd")
+const NpcCatalog = preload("res://scripts/data/npc_catalog.gd")
 const LASER_RANGE := 78.0
 const LASER_INTERVAL := 0.42
 const NPC_POOL := [
-    ["streuner", "Streuner", 1000.0, 350.0, 175.0, 3.8],
-    ["recruitStreuner", "Recruta Streuner", 700.0, 200.0, 125.0, 4.2],
-    ["mordon", "Mordon", 1800.0, 550.0, 240.0, 3.1],
-    ["saimon", "Saimon", 2150.0, 700.0, 290.0, 3.3],
-    ["sibelon", "Sibelon", 2500.0, 950.0, 360.0, 2.7],
-    ["lordakia", "Lordakia", 2900.0, 1100.0, 410.0, 2.8],
-    ["devolarium", "Devolarium", 3100.0, 1200.0, 465.0, 3.0]
+    ["streuner", "Scavenger", 1000.0, 350.0, 175.0, 3.8],
+    ["recruitStreuner", "Scavenger Scout", 700.0, 200.0, 125.0, 4.2],
+    ["mordon", "Kharon", 1800.0, 550.0, 240.0, 3.1],
+    ["saimon", "Zyron", 2150.0, 700.0, 290.0, 3.3],
+    ["sibelon", "Colossar", 2500.0, 950.0, 360.0, 2.7],
+    ["lordakia", "Vrax", 2900.0, 1100.0, 410.0, 2.8],
+    ["devolarium", "Dreadnox", 3100.0, 1200.0, 465.0, 3.0]
 ]
 const ELITE_POOL := [
-    ["riftScout", "Rift Scout", 3100.0, 1400.0, 450.0, 4.5],
-    ["voidCorsair", "Void Corsair", 3900.0, 1700.0, 500.0, 3.3],
-    ["astralReaper", "Astral Reaper", 4600.0, 2100.0, 600.0, 3.1],
-    ["nexusWarden", "Nexus Warden", 5200.0, 2400.0, 680.0, 2.8]
+    ["riftScout", "Batedor da Fenda", 3100.0, 1400.0, 450.0, 4.5],
+    ["voidCorsair", "Corsário do Vazio", 3900.0, 1700.0, 500.0, 3.3],
+    ["astralReaper", "Ceifador Astral", 4600.0, 2100.0, 600.0, 3.1],
+    ["nexusWarden", "Guardião Nexus", 5200.0, 2400.0, 680.0, 2.8]
 ]
 
 var player_node: Node3D
@@ -30,6 +31,9 @@ var laser_clock := 0.0
 var kills := 0
 var map_kills := 0
 var effects: Array[Dictionary] = []
+var beam_pool: Array[MeshInstance3D] = []
+var beam_materials: Dictionary = {}
+const MAX_BEAMS := 18
 var loot_root: Node3D
 var enemy_root: Node3D
 var effects_root: Node3D
@@ -64,9 +68,10 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
             node.free()
     drops.clear()
     for item in effects:
-        var node: Node3D = item["node"]
+        var node: MeshInstance3D = item["node"]
         if is_instance_valid(node):
-            node.free()
+            node.visible = false
+            beam_pool.append(node)
     effects.clear()
     if map_id.begins_with("4-"):
         _message("4-X: PvP reservado. Sem NPC comum.")
@@ -93,7 +98,7 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
         enemy.name = "NPC_%d_%s" % [i, spec[0]]
         enemy_root.add_child(enemy)
         var factor := 1.0 + 0.13 * float(map_rank - 1)
-        enemy.setup(str(spec[0]), str(spec[1]), model, spawn, float(spec[2]) * factor, float(spec[3]) * factor, float(spec[4]) * factor, float(spec[5]))
+        enemy.setup(str(spec[0]), NpcCatalog.display_name(str(spec[0])), model, spawn, float(spec[2]) * factor, float(spec[3]) * factor, float(spec[4]) * factor, float(spec[5]))
         enemies.append(enemy)
     _message("NPCs locais carregados: %d" % enemies.size())
 
@@ -113,9 +118,10 @@ func _process(delta: float) -> void:
     for i in range(effects.size() - 1, -1, -1):
         effects[i]["time"] = float(effects[i]["time"]) - delta
         if float(effects[i]["time"]) <= 0.0:
-            var node: Node3D = effects[i]["node"]
+            var node: MeshInstance3D = effects[i]["node"]
             if is_instance_valid(node):
-                node.queue_free()
+                node.visible = false
+                beam_pool.append(node)
             effects.remove_at(i)
     for i in range(drops.size() - 1, -1, -1):
         drops[i]["time"] = float(drops[i]["time"]) - delta
@@ -143,6 +149,37 @@ func select_nearest() -> void:
     var next_index := 0 if index < 0 else (index + 1) % candidates.size()
     _set_selected(candidates[next_index])
 
+## Picking por posição projetada: não precisa carregar colisores físicos dos GLBs.
+## Prioridade para NPCs vivos, não seleciona naves atrás da câmera.
+func enemy_at_screen(screen_point: Vector2, camera: Camera3D) -> Node3D:
+    var best: Enemy = null
+    var best_score := INF
+    for enemy in enemies:
+        if not is_instance_valid(enemy) or not enemy.alive:
+            continue
+        var center: Vector3 = enemy.global_position + Vector3(0.0, 1.2, 0.0)
+        if camera.is_position_behind(center):
+            continue
+        var pixel: Vector2 = camera.unproject_position(center)
+        var distance_px := pixel.distance_to(screen_point)
+        var world_distance := camera.global_position.distance_to(center)
+        var hit_radius := clampf(960.0 / maxf(world_distance, 5.0), 30.0, 59.0)
+        if distance_px <= hit_radius and distance_px < best_score:
+            best_score = distance_px
+            best = enemy
+    return best
+
+func select_enemy(unit: Node3D) -> bool:
+    if not (unit is Enemy) or not is_instance_valid(unit) or not (unit as Enemy).alive:
+        return false
+    _set_selected(unit as Enemy)
+    return true
+
+func get_selected_enemy() -> Node3D:
+    if selected != null and is_instance_valid(selected) and selected.alive:
+        return selected
+    return null
+
 func _set_selected(unit: Enemy) -> void:
     if selected != null and is_instance_valid(selected):
         selected.set_targeted(false)
@@ -155,8 +192,7 @@ func fire_from_player() -> void:
     if player_node == null or laser_clock > 0.0:
         return
     if selected == null or not is_instance_valid(selected) or not selected.alive:
-        select_nearest()
-    if selected == null:
+        _message("Toque em um NPC antes de disparar")
         return
     if player_node.position.distance_to(selected.position) > LASER_RANGE:
         _message("FORA DE ALCANCE: aproxime-se do alvo")
@@ -198,27 +234,40 @@ func _spawn_local_drop(where: Vector3) -> void:
     box.scale = Vector3.ONE * 0.8
     drops.append({"node": box, "time": 18.0})
 
+## Reutiliza malhas de laser; evita alocar geometria/material a cada disparo.
+## Máximo 18 raios simultâneos de teste para proteger celulares modestos.
 func _draw_beam(a: Vector3, b: Vector3, tint: Color) -> void:
     var length := a.distance_to(b)
     if length < 0.1:
         return
-    var mesh := CylinderMesh.new()
-    mesh.top_radius = 0.07
-    mesh.bottom_radius = 0.07
-    mesh.height = length
-    mesh.radial_segments = 6
-    var mat := StandardMaterial3D.new()
-    mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-    mat.albedo_color = tint
-    mat.emission_enabled = true
-    mat.emission = tint
-    mesh.material = mat
-    var beam := MeshInstance3D.new()
-    beam.mesh = mesh
-    effects_root.add_child(beam)
+    var beam: MeshInstance3D = null
+    if beam_pool.size() > 0:
+        beam = beam_pool.pop_back()
+    elif effects.size() < MAX_BEAMS:
+        beam = MeshInstance3D.new()
+        var cylinder := CylinderMesh.new()
+        cylinder.top_radius = 0.065
+        cylinder.bottom_radius = 0.065
+        cylinder.height = 1.0
+        cylinder.radial_segments = 6
+        beam.mesh = cylinder
+        effects_root.add_child(beam)
+    if beam == null:
+        return
+    var material_key := tint.to_html(false)
+    if not beam_materials.has(material_key):
+        var mat := StandardMaterial3D.new()
+        mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+        mat.albedo_color = tint
+        mat.emission_enabled = true
+        mat.emission = tint
+        beam_materials[material_key] = mat
+    beam.material_override = beam_materials[material_key]
     beam.global_position = (a + b) * 0.5
     beam.quaternion = Quaternion(Vector3.UP, (b - a).normalized())
-    effects.append({"node": beam, "time": 0.14})
+    beam.scale = Vector3(1.0, length, 1.0)
+    beam.visible = true
+    effects.append({"node": beam, "time": 0.16})
 
 func enemy_positions() -> Array[Vector3]:
     var result: Array[Vector3] = []

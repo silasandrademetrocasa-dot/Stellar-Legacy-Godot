@@ -61,17 +61,26 @@ func tick(delta: float, player_pos: Vector3) -> void:
             _revive()
         return
     elapsed += delta
-    if aggressive and position.distance_to(player_pos) < 68.0:
+    var before := position
+    var want_heading := rotation.y
+    var facing_player := aggressive and position.distance_to(player_pos) < 75.0
+    if facing_player:
         var direction := player_pos - position
         direction.y = 0.0
         if direction.length() > 16.0:
             position += direction.normalized() * speed * delta
+        # Mesmo quando parado atacando, o NPC aponta para a nave do jogador.
+        if direction.length_squared() > 0.01:
+            want_heading = atan2(direction.x, direction.z)
     else:
         var drift := home + Vector3(sin(elapsed * 0.47 + float(get_instance_id() % 7)) * 7.0, 0.0, cos(elapsed * 0.35 + float(get_instance_id() % 11)) * 6.0)
         position = position.lerp(drift, minf(delta * 0.6, 1.0))
+        var move_vector := position - before
+        if move_vector.length_squared() > 0.00001:
+            want_heading = atan2(move_vector.x, move_vector.z)
     position.x = clampf(position.x, -112.0, 112.0)
     position.z = clampf(position.z, -82.0, 82.0)
-    rotation.y = sin(elapsed * 0.42) * 0.25
+    rotation.y = lerp_angle(rotation.y, want_heading, minf(delta * 4.3, 1.0))
     if aggressive:
         attack_clock -= delta
 
