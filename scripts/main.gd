@@ -13,6 +13,7 @@ const PilotProgress = preload("res://scripts/systems/pilot_progress.gd")
 const HubStore = preload("res://scripts/systems/stellar_hub.gd")
 const AstralTrials = preload("res://scripts/systems/astral_trials.gd")
 const AstralEnvironment = preload("res://scripts/world/astral_environment.gd")
+const FactionBase = preload("res://scripts/world/faction_base.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -33,6 +34,7 @@ var ship_visual: Node3D
 var game_camera: Camera3D
 var sky: WorldEnvironment
 var portal_root: Node3D
+var faction_base
 var astral_environment: Node3D
 var hud_layer: CanvasLayer
 var hud: Control
@@ -663,6 +665,7 @@ func _rebuild_portals() -> void:
         gate.add_child(label)
         portals.append({"dest": target, "pos": p, "node": gate})
     _build_relay_visual()
+    _build_faction_base()
     if astral_environment != null:
         astral_environment.reset_arena(current_map, graphics_quality)
     var bg := Color(0.018, 0.009, 0.045) if Routes.is_pvp(current_map) else (Color(0.006, 0.035, 0.055) if Routes.is_universe(current_map) else Color(0.008, 0.014, 0.036))
@@ -671,6 +674,26 @@ func _rebuild_portals() -> void:
     sky.environment.background_color = bg
     galaxy_map.set_route_view(faction, current_map)
     _refresh_ui()
+
+func _build_faction_base() -> void:
+    faction_base = null
+    if current_map != "%s-1" % faction:
+        return
+    faction_base = FactionBase.new()
+    faction_base.position = Vector3(0.0, 0.0, 44.0)
+    portal_root.add_child(faction_base)
+    faction_base.build(faction)
+    faction_base.set_quality(graphics_quality)
+
+func near_faction_base() -> bool:
+    return faction_base != null and is_instance_valid(faction_base) and ship_anchor != null and ship_anchor.global_position.distance_to(faction_base.global_position) < 28.0
+
+func open_faction_base() -> void:
+    if near_faction_base():
+        if ui_shell != null:
+            ui_shell._open_modal("HANGAR")
+    elif ui_shell != null:
+        ui_shell.show_notification("APROXIME-SE DA BASE DA FACCAO EM X-1")
 
 func _build_relay_visual() -> void:
     relay_visual = null
@@ -964,6 +987,8 @@ func set_graphics_quality(profile: String, persist: bool = true) -> void:
         starfield.visible = profile != "BAIXO" and (ui_shell == null or ui_shell.demo_starfield_visible)
     if afterburner != null:
         afterburner.visible = profile != "BAIXO"
+    if faction_base != null and is_instance_valid(faction_base):
+        faction_base.set_quality(profile)
     if astral_environment != null and Routes.is_astral(current_map):
         astral_environment.reset_arena(current_map,profile)
     if persist:

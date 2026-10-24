@@ -74,6 +74,12 @@ func _draw() -> void:
     for i in range(portal_points.size()):
         var col := Color(1, 0.83, 0.36) if i == focused_portal else Color(0.35, 0.85, 1)
         draw_circle(_to_screen(portal_points[i]), 4.2, col)
+    if current_map in ["1-1", "2-1", "3-1"]:
+        var base_point: Vector2 = _to_screen(Vector3(0.0, 0.0, 44.0))
+        var diamond := PackedVector2Array([base_point + Vector2(0, -7), base_point + Vector2(7, 0), base_point + Vector2(0, 7), base_point + Vector2(-7, 0)])
+        draw_colored_polygon(diamond, Color(0.12, 0.81, 1.0))
+        draw_circle(base_point, 2.0, Color(0.04, 0.09, 0.19))
+        draw_string(ThemeDB.fallback_font, base_point + Vector2(9, 4), "BASE", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(0.52, 0.91, 1.0))
     if current_map.begins_with("4-"):
         var relay_location: Vector2 = _to_screen(Vector3.ZERO)
         draw_arc(relay_location, 7.0, 0.0, TAU, 16, Color(0.24, 0.94, 1.0), 1.8)

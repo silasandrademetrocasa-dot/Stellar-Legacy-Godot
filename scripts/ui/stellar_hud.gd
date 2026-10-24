@@ -9,6 +9,7 @@ const C_GOLD := Color(1.0, 0.78, 0.35)
 const C_WHITE := Color(0.88, 0.96, 1.0)
 const C_MUTED := Color(0.5, 0.66, 0.78)
 const EquipCatalog = preload("res://scripts/data/equipment_catalog.gd")
+const EquipmentCommand = preload("res://scripts/ui/equipment_command.gd")
 const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
 const AstralCatalog = preload("res://scripts/systems/astral_trials.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
@@ -40,6 +41,7 @@ var nav_panel: Panel
 var minimap_caption: Label
 var info_line: Label
 var action_panel: Panel
+var base_btn: Button
 var warp_btn: Button
 var target_btn: Button
 var aux_btn: Button
@@ -66,6 +68,7 @@ var choose_btn: Button
 var category_row: HFlowContainer
 var modal_backdrop: TextureRect
 var equip_notice: Label
+var equipment_command
 var equip_presets: HBoxContainer
 var equip_remove: Button
 var equip_copy: Button
@@ -190,6 +193,8 @@ func _create_shell() -> void:
     aux_btn.pressed.connect(func() -> void:
         game._toggle_aux()
         refresh())
+    base_btn = _button(action_panel, "BASE", 12)
+    base_btn.pressed.connect(func() -> void: game.open_faction_base())
 
     weapon_panel = _panel(self)
     for i in range(WEAPON_NAMES.size()):
@@ -312,6 +317,11 @@ func _create_modal() -> void:
     equip_slots.add_theme_constant_override("v_separation", 3)
     modal_body.add_child(equip_slots)
     equip_notice = _label(modal_body, "Equipamentos de teste: sem transacoes online.", 11, C_GOLD)
+    equipment_command = EquipmentCommand.new()
+    equipment_command.name = "EstacaoEquipamentosG011"
+    equipment_command.visible = false
+    modal_body.add_child(equipment_command)
+    equipment_command.setup(game)
 
 func _preview_touch(event: InputEvent) -> void:
     if preview_mesh == null or not is_instance_valid(preview_mesh):
@@ -452,8 +462,12 @@ func _open_modal(kind: String) -> void:
     modal_kind = kind
     modal_overlay.visible = true
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.10  |  ARSENAL GLB, MATERIALIZADOR X-1 E HANGAR | OFFLINE"
-    var show_gallery: bool = kind in ["HANGAR", "LOJA", "EQUIPAMENTOS"]
+    modal_info.text = "G0.11  |  BASE X-1 E COMANDO DE EQUIPAMENTOS  |  OFFLINE"
+    var equipment_mode: bool = kind == "EQUIPAMENTOS"
+    equipment_command.visible = equipment_mode
+    if equipment_mode:
+        equipment_command.open_command()
+    var show_gallery: bool = kind in ["HANGAR", "LOJA"]
     var show_economy_3d: bool = kind in ["ASTRAL", "MERCADO", "LEILAO", "PREMIUM"]
     var show_preview: bool = show_gallery or show_economy_3d
     if not show_preview and preview_mesh != null and is_instance_valid(preview_mesh):
@@ -461,17 +475,17 @@ func _open_modal(kind: String) -> void:
         preview_mesh = null
     var hub_pages: Array[String] = ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "ASTRAL", "REFINARIA", "TITULOS"]
     category_row.visible = show_gallery or kind in hub_pages
-    list_scroll.visible = true
+    list_scroll.visible = not equipment_mode
     preview_wrap.visible = show_preview
     preview_title.visible = show_preview
     preview_note.visible = show_preview
-    choose_btn.visible = kind in ["HANGAR", "EQUIPAMENTOS"]
+    choose_btn.visible = kind == "HANGAR"
     choose_btn.text = "EQUIPAR NAVE" if kind == "HANGAR" else "EQUIPAR ITEM"
-    equip_presets.visible = kind == "EQUIPAMENTOS"
-    equip_slots.visible = kind == "EQUIPAMENTOS"
-    equip_remove.visible = kind == "EQUIPAMENTOS"
-    equip_copy.visible = kind == "EQUIPAMENTOS"
-    equip_notice.visible = kind == "EQUIPAMENTOS"
+    equip_presets.visible = false
+    equip_slots.visible = false
+    equip_remove.visible = false
+    equip_copy.visible = false
+    equip_notice.visible = false
 
     _clear_dynamic_rows()
     if kind in hub_pages:
@@ -1018,6 +1032,9 @@ func refresh() -> void:
         minimap_caption.text = "MAPA  %s  |  TOQUE PARA IR" % game.current_map
     var pidx: int = game._nearest_index()
     warp_btn.disabled = pidx < 0 or game.warp_cooldown > 0.0
+    base_btn.visible = game.current_map.ends_with("-1") and not game.current_map.begins_with("A-") and not game.current_map.begins_with("4-") and not game.current_map.begins_with("U-")
+    base_btn.disabled = not game.near_faction_base()
+    base_btn.text = "BASE" if not base_btn.disabled else "BASE..."
     drone_btn.text = "DRONES ON" if game.support_fleet.drones_enabled else "DRONES OFF"
     aux_btn.text = "AUX-9 ON" if game.support_fleet.aux_enabled else "AUX-9 OFF"
     fire_btn.text = "PARAR TIRO" if game.auto_fire_enabled else "ATACAR"
@@ -1075,10 +1092,10 @@ func relayout(view_size: Vector2) -> void:
     var action_h := 47.0
     var bottom_y := h - 60.0
     action_panel.position = Vector2(10, bottom_y)
-    action_panel.size = Vector2(minf(350.0, w * 0.40), action_h + 4.0)
-    var action_button_w := (action_panel.size.x - 16) / 4.0
-    for i in range(4):
-        var ab: Button = [warp_btn, target_btn, drone_btn, aux_btn][i]
+    action_panel.size = Vector2(minf(420.0, w * 0.44), action_h + 4.0)
+    var action_button_w := (action_panel.size.x - 16) / 5.0
+    for i in range(5):
+        var ab: Button = [warp_btn, target_btn, drone_btn, aux_btn, base_btn][i]
         ab.position = Vector2(5 + i * action_button_w, 4)
         ab.size = Vector2(action_button_w - 3, action_h - 4)
         ab.add_theme_font_size_override("font_size", 11 if compact else 12)
@@ -1114,6 +1131,8 @@ func relayout(view_size: Vector2) -> void:
     close_btn.size = Vector2(108, 37)
     modal_body.position = Vector2(12, 64)
     modal_body.size = Vector2(modal_w - 24, modal_h - 75)
+    equipment_command.position = Vector2.ZERO
+    equipment_command.relayout(modal_body.size)
     var body_w := modal_body.size.x
     var body_h := modal_body.size.y
     var hub_modal: bool = modal_kind in ["CENTRAL", "ASTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "REFINARIA", "TITULOS"]

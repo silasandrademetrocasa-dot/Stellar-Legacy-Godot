@@ -1,3 +1,33 @@
+# Stellar Legacy Godot G0.11 — Base & Equipment Command
+
+**Atualização incremental sobre a G0.10 aprovada no Android.** Cliente experimental inteiramente local: não altera a versão web, Render ou Supabase.
+
+## Novidades G0.11
+
+- **Estação de equipamentos em três colunas**: nave ativa e visualização 3D à esquerda, slots por categoria e configurações ao centro, inventário organizado em grade à direita.
+- **Sem miniaturas antigas na tela de equipamentos.** O inventário usa cartões de texto compactos (nome e quantidade), e a vitrine GLB animada só aparece quando um item é selecionado.
+- **Ações funcionais**: equipar, remover, tocar slots vazios/ocupados, copiar configuração e alternar CONF 1/CONF 2, preservando o intervalo de 5 s e os dados locais existentes.
+- **Base estelar 3D própria em X-1**: plataformas, anéis, torres, núcleo luminoso e cores das facções Terra/Marte/Júpiter; visível no minimapa como BASE.
+- **Interação com a base**: viaje até a marca BASE no minimapa, aproxime-se e toque BASE na barra inferior para abrir o hangar.
+- **Qualidade Baixo/Médio/Alto**: afeta iluminação e decoração da base; não simplifica modelos GLB de naves, drones, AUX-9 ou NPCs.
+
+## Testes prioritários no Android
+1. Em X-1, toque BASE no minimapa para chegar perto da estação; verifique a estrutura 3D e o botão BASE.
+2. Abra Equipamentos: esquerda = nave 3D; centro = slots; direita = inventário em grade sem miniaturas antigas.
+3. Selecione ARC-1 na grade: surge preview 3D; toque EQUIPAR e confirme mudança do slot.
+4. Toque slot ocupado para remover, depois um slot vazio da mesma categoria para equipar.
+5. Troque configurações 1/2 (aguarde intervalo), copie config e feche/abra o jogo para conferir salvamento.
+6. Troque Terra/Marte/Júpiter; confirme base apenas nos respectivos X-1 e manutenção de todos os portais.
+7. Teste toque e arraste para navegar, ataque em movimento, loja, refinaria e portais astrais.
+
+## Limites
+- A base 3D é uma estrutura local original criada com malhas e materiais Godot, sem colisão/PvP ou serviços reais.
+- Os itens e as duas configurações permanecem demonstrações locais em `user://`.
+- Nenhuma instalação desta versão cria direitos administrativos, créditos verdadeiros ou compras online.
+- O importador GitHub Actions valida os scripts Godot. A jogabilidade exige teste no aparelho.
+
+---
+
 # Stellar Legacy Godot G0.10 — Arsenal & Materializador X-1
 
 # STELLAR LEGACY — GODOT G0.9 | ASTRAL DOMINION

@@ -61,6 +61,22 @@ func equip(item_name: String) -> String:
             return "%s equipado no slot %d" % [item_name, i + 1]
     return "Slots de %s ocupados" % kind
 
+func equip_at(item_name: String, index: int) -> String:
+    var item: Dictionary = Catalog.get_item(item_name)
+    if item.is_empty():
+        return "Equipamento desconhecido"
+    var kind: String = str(item["category"])
+    var arr: Array = configurations[active_configuration][kind]
+    if index < 0 or index >= arr.size():
+        return "Slot invalido"
+    if str(arr[index]) != "":
+        return "Slot ja ocupado"
+    if free_amount(item_name) <= 0:
+        return "Nao ha unidades livres"
+    arr[index] = item_name
+    _save()
+    return "%s equipado no slot %d" % [item_name, index + 1]
+
 func remove_at(kind: String, index: int) -> String:
     if not Catalog.SLOTS.has(kind):
         return "Categoria invalida"
