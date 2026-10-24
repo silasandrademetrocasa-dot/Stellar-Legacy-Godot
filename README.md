@@ -1,52 +1,63 @@
-# Stellar Legacy - Godot G0.2 (Navigation Foundation)
+# Stellar Legacy — Godot G0.3 (Mundo Vivo)
 
-**Cliente Android experimental totalmente local**, independente da producao web.
+**Android primeiro, Godot 4.5.x, renderizador Compatibility.**
 
-Este projeto e uma migracao progressiva; NAO e ainda o MMORPG de producao. Os dados locais sao apenas preferencias do prototipo. Nao ha login, PvP real, economia real, chamadas Render ou SQL.
+> **Projeto experimental LOCAL. Não se conecta ao Render, ao Supabase ou ao servidor do jogo WEB.**
+> Todos os HPs, escudos, inimigos, lasers e eliminações são simulação local. Não existem STL, créditos, XP, drops resgatáveis ou inventário persistente.
 
-## Instalacao Android / GitHub
+## Resultado G0.2
 
-1. **Primeiro acesso no Godot**: na tela inicial do editor Android, escolha `Importar Projeto ZIP` e selecione `StellarLegacy_Godot_G0.2_COMPLETO.zip`.
-2. **Atualizar G0.1 ja importado no celular**: extraia o ZIP `G0.2_ATUALIZACAO` usando o instalador configurado para *mesclar na raiz do projeto Godot*. Nao remova a pasta `assets/ships`. Reabra o editor para importar portais GLB.
-3. **GitHub novo**: o repositorio esta vazio; seu instalador web atual NAO atende a Godot. Use o bootstrap do instalador Godot fornecido separadamente; depois coloque o ZIP completo na raiz do GitHub e execute o workflow **Instalador Godot - ZIP**.
+O usuário confirmou 7/7 testes no Android: movimentação, portais, X-1→X-2, minimapa, ROTAS, PvP 4-1 e persistência do mapa/nave. Tudo permanece neste projeto.
 
-## O que mudou desde G0.1
+## Novidades G0.3
 
-- Portais 3D (normal, PvP, universo) originais V53 importados em `assets/portals/`.
-- Navegacao fisica local X-1 ... X-8 por faccao, conexoes 4-X via X-1, U-1 via X-8, U-2 e U-3.
-- Posicoes dos portais dos mapas X e 4 espelhadas de `public/modules/portal-layout-v461.js` da WEB V64.
-- Mapas U usam coordenadas provisórias nesta versao; a geometria original sera sincronizada depois com o servidor.
-- Minimap mostra nave + portais do mapa inteiro; painel de mapa galactico orientativo (nao teleporta).
-- Seletor de faccao e de nave; controles de toque; botao Viajar aparece ativo apenas a 10 unidades de um portal.
-- Ao atravessar, nave surge afastada do portal de entrada com cooldown, evitando viagem de volta em loop.
-- Preferencias (`map`, `faction`, `ship`) salvas em `user://`, so offline.
+- **NPCs 3D** da versão web V64: Streuner, Recruta Streuner, Mordon, Saimon, Sibelon, Lordakia, Devolarium. Mapas U-X usam Rift Scout, Void Corsair, Astral Reaper e Nexus Warden.
+- **Mapas 4-X:** *nenhum NPC comum*, respeitando a regra de PvP.
+- **IA local:** NPC patrulha uma região próxima da origem e só reage/ataca após ser atingido. Após destruído, renasce em ~11 segundos.
+- **Alvos:** botão ALVO seleciona NPCs ativos em ordem de proximidade, alternando a cada toque.
+- **Combate:** segurar LASER atira a cada ~0,42 s, com alcance de 78 unidades; espaço no teclado também dispara.
+- **Escudo e HP:** barras da nave e do alvo, dano, resgate de nave para nova simulação ao chegar a zero, AUX-9 reparando escudo fora de combate.
+- **Drones:** dois modelos originais voam acompanhando a nave; ataque assistido quando há alvo em alcance, com botão de ligar/desligar.
+- **AUX-9:** modelo original seguindo a nave, botão para ligar/desligar o módulo de reparo experimental.
+- **Drops demonstrativos:** caixas GLB locais por 18 segundos após uma eliminação. Não são resgatáveis.
+- **Minimapa:** NPCs como pontos vermelhos; portais azuis/dourados e jogador verde.
+- **Navegação original G0.2:** 1-X, 2-X, 3-X, 4-X e U-X, portais físicos e perfil local preservados.
+- **HUD horizontal:** painel de HP/ESC e alvo, ALVO, LASER, DRONES, AUX-9.
 
-## Comandos
+## Instalação no GitHub pelo celular
 
-- Tela: setas `◀`/`▶`, `AVANCAR`, `PARAR`, `VIAJAR`, `ROTAS`.
-- Teclado: W/S (avancar/parar), A/D (girar), M (mapa), E (viajar), R (voltar ao centro, apenas debug).
-- Botao `VIAJAR` desabilitado se longe; entre no alcance do portal e toque.
+1. Para um repositório G0.2 com o instalador ativo, coloque somente `StellarLegacy_Godot_G0.3_ATUALIZACAO.zip` na raiz (não extrair).
+2. Abra **GitHub → Actions → Stellar Legacy Godot - Instalador ZIP → Run workflow**.
+3. Aguarde a execução concluir. O instalador extrai o ZIP, valida com Godot 4.5.2 e publica as mudanças.
+4. Para um projeto novo, importe `StellarLegacy_Godot_G0.3_COMPLETO.zip` diretamente no editor Godot Android.
+5. Não deixe vários `.zip` na raiz do repositório: o instalador atual exige **um só**.
 
-## Regras e seguranca
+## Controles Android
 
-- **Web/iPhone**: projeto de producao permanece inalterado.
-- **Supabase / Render**: nao sao consultados pelo prototipo.
-- **PvP**: somente um percurso demonstrativo, sem combate nem acesso validado a conta. Um cliente nao pode validar direitos de acesso sozinho.
-- `4-X`: portais dos mapas 4-X seguem o grafo canonico. O prototipo impede entrar em X-1 de outra faccao, mas a autorizacao real devera ocorrer no servidor.
-- `U-X`: posicoes de portais demonstrativas, nao copie essas coordenadas para o banco real.
+- `◀`, `▶`: girar;
+- `AVANCAR`, `PARAR`: movimentação;
+- `VIAJAR`: viajar ao estar próximo do portal;
+- `ROTAS`: visualizar mapa galáctico;
+- `ALVO`: selecionar próximo NPC ativo;
+- `LASER`: segurar para atirar, estando até 78 unidades;
+- `DRONES ON/OFF`, `AUX-9 ON/OFF`: alternar suporte.
 
-## Teste rapido
+## Testes de regressão G0.3
 
-1. Iniciar em `1-1` com nave PIONEER; rotacionar, acelerar, parar.
-2. Abrir ROTAS; conferir sequencia de X-1 a X-8, U1-U3 e 4-X; fechar.
-3. Ir ate `1-2` pela borda (portal BR da Terra); VIAJAR; volta em `1-2` proximo ao portal de `1-1`.
-4. Verificar que viaja de volta ao `1-1` sem loop instantaneo.
-5. No `1-1` usar portal central para `4-1` e voltar.
-6. Testar Marte (`2-1`) e Jupiter (`3-1`) trocando faccao e observar orientacao dos portais.
-7. Chegar em `X-8` e ir ate `U-1`, depois `U-2` e `U-3`.
-8. Fechar o jogo e abrir; verificar a preferencia local restaurada.
-9. Medir FPS, tempo de carregamento e consumo de memoria no Android.
+1. Abrir `1-1` em Android horizontal; mover, trocar nave e reabrir app; testar todos os 7 casos G0.2.
+2. Encontrar NPCs (pontos vermelhos) e selecionar ALVO. Confirmar barras e distância.
+3. Aproximar-se, segurar LASER; HP e escudo do alvo devem diminuir e o alvo reagir.
+4. Eliminar um NPC; a caixa aparece, contador sobe apenas localmente e o NPC renasce ~11 s depois.
+5. Testar drones ON/OFF e AUX ON/OFF (o AUX repara escudo após ~4 s sem danos).
+6. Trocar de mapa por um portal; NPCs do mapa anterior devem sumir, novos devem aparecer e os drones devem acompanhar.
+7. Entrar em `4-1`; **não devem aparecer NPCs comuns**, mesmo após permanecer por vários segundos.
+8. Visitar U-1: encontrar NPCs especiais e manter o painel ROTAS funcional.
+9. Testar FPS, tempo de carregamento, uso de memória e estabilidade por 10 minutos.
 
-## Limitacoes conhecidas
+## Limites conhecidos
 
-Godot Android 4.x em modo Compatibility recomendado. Nao foi validado no Godot Android desta sessao: teste na sua instalacao e compartilhe logs/prints de erros. GLBs podem exigir ajuste de escala/orientacao em aparelhos especificos. O script principal ainda orquestra varias funcoes; migracoes seguintes separarao jogadores/NPCs/HUD/combate em cenas e sistemas independentes.
+- Trata-se de uma **simulação de mecânicas**, não do combate online original. Números e IA são de prototipação e precisam ser calibrados depois.
+- Recursos da economia, missão, PvP multiplayer, Autopilot, clan relays, autenticacão e sincronização não são implementados nessa fase.
+- Cenas 3D, iluminação e escala dos GLBs precisam ser verificados visualmente no dispositivo; os modelos estão incluídos para importação local.
+- Não houve teste real de FPS no Android ou exportação APK nesta sessão. O workflow fará a validação de importação; o teste de jogo cabe ao editor Android.
+- Não altere banco SQL, Render ou a versão Web/iPhone para experimentar G0.3.

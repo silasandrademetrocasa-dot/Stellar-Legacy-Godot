@@ -6,12 +6,14 @@ var current_map := "1-1"
 var ship_pos := Vector3.ZERO
 var portal_points: Array[Vector3] = []
 var focused_portal := -1
+var enemy_points: Array[Vector3] = []
 
-func update_state(map_id: String, new_ship_pos: Vector3, points: Array[Vector3], selected: int) -> void:
+func update_state(map_id: String, new_ship_pos: Vector3, points: Array[Vector3], selected: int, enemies: Array[Vector3] = []) -> void:
     current_map = map_id
     ship_pos = new_ship_pos
     portal_points = points
     focused_portal = selected
+    enemy_points = enemies
     queue_redraw()
 
 func _to_screen(p: Vector3) -> Vector2:
@@ -28,4 +30,6 @@ func _draw() -> void:
     for i in range(portal_points.size()):
         var col := Color(1, 0.83, 0.36) if i == focused_portal else Color(0.35, 0.85, 1)
         draw_circle(_to_screen(portal_points[i]), 4.2, col)
+    for enemy in enemy_points:
+        draw_circle(_to_screen(enemy), 2.9, Color(1.0, 0.39, 0.4))
     draw_circle(_to_screen(ship_pos), 4.5, Color(0.46, 1, 0.55))

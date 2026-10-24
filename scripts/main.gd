@@ -1,10 +1,12 @@
 extends Node3D
-## Stellar Legacy Godot G0.2 - navegacao experimental local.
+## Stellar Legacy Godot G0.3 - Mundo Vivo; navegacao G0.2 preservada.
 ## NAO autentica, NAO consulta Render/Supabase, NAO altera producao.
 
 const Routes = preload("res://scripts/world_routes.gd")
 const MinimapUI = preload("res://scripts/ui/mini_map.gd")
 const GalaxyUI = preload("res://scripts/ui/galaxy_map.gd")
+const CombatWorld = preload("res://scripts/world/combat_world.gd")
+const FleetSupport = preload("res://scripts/world/fleet_support.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -53,6 +55,25 @@ var portals: Array[Dictionary] = []
 var nearest_portal := -1
 var ui_tick := 0.0
 var warp_cooldown := 0.0
+var combat_world
+var support_fleet
+var target_button: Button
+var fire_button: Button
+var drones_button: Button
+var aux_button: Button
+var combat_label: Label
+var target_label: Label
+var status_label: Label
+var hp_bar: ProgressBar
+var shield_bar: ProgressBar
+var target_hp_bar: ProgressBar
+var target_shield_bar: ProgressBar
+var firing_held := false
+var hp := 12000.0
+var shield := 8000.0
+const MAX_HP := 12000.0
+const MAX_SHIELD := 8000.0
+var combat_recovery_clock := 0.0
 
 func _ready() -> void:
     _read_local_profile()
@@ -60,6 +81,8 @@ func _ready() -> void:
     _create_hud()
     _set_ship(current_ship)
     _rebuild_portals()
+    _populate_local_world()
+    support_fleet.snap_to_player()
     _refresh_ui()
     get_viewport().size_changed.connect(_layout_hud)
     _layout_hud()
@@ -78,6 +101,11 @@ func _process(delta: float) -> void:
     ship_anchor.position += ship_anchor.global_transform.basis.z * speed * delta
     ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
     ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
+    if not galaxy_panel.visible and (firing_held or Input.is_key_pressed(KEY_SPACE)):
+        combat_world.fire_from_player()
+    combat_recovery_clock = maxf(0.0, combat_recovery_clock - delta)
+    if combat_recovery_clock <= 0.0 and aux_enabled():
+        shield = minf(MAX_SHIELD, shield + 85.0 * delta)
     var desired := ship_anchor.position + Vector3(0, 23, 19)
     game_camera.global_position = game_camera.global_position.lerp(desired, minf(delta * 5.0, 1.0))
     game_camera.look_at(ship_anchor.position, Vector3.UP)
@@ -125,6 +153,16 @@ func _create_world() -> void:
     portal_root = Node3D.new()
     portal_root.name = "Portals"
     add_child(portal_root)
+    combat_world = CombatWorld.new()
+    combat_world.name = "CombatWorld"
+    add_child(combat_world)
+    combat_world.player_node = ship_anchor
+    combat_world.incoming_damage.connect(_receive_local_damage)
+    support_fleet = FleetSupport.new()
+    support_fleet.name = "SupportFleet"
+    add_child(support_fleet)
+    support_fleet.player_node = ship_anchor
+    support_fleet.combat_world = combat_world
     _make_starfield()
     _make_border()
 
@@ -171,6 +209,25 @@ func _make_button(caption: String) -> Button:
     hud.add_child(btn)
     return btn
 
+func _make_combat_bar(tint: Color) -> ProgressBar:
+    var bar := ProgressBar.new()
+    bar.show_percentage = false
+    bar.max_value = 100.0
+    bar.value = 100.0
+    bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var fg := StyleBoxFlat.new()
+    fg.bg_color = tint
+    fg.corner_radius_top_left = 3
+    fg.corner_radius_top_right = 3
+    fg.corner_radius_bottom_left = 3
+    fg.corner_radius_bottom_right = 3
+    var bg := StyleBoxFlat.new()
+    bg.bg_color = Color(0.06, 0.09, 0.16, 0.93)
+    bar.add_theme_stylebox_override("fill", fg)
+    bar.add_theme_stylebox_override("background", bg)
+    hud.add_child(bar)
+    return bar
+
 func _make_label(value: String, font_size: int = 15) -> Label:
     var label := Label.new()
     label.text = value
@@ -187,8 +244,15 @@ func _create_hud() -> void:
     hud_layer.add_child(hud)
     header = _make_label("STELLAR LEGACY  |  GODOT", 17)
     telemetry = _make_label("", 14)
-    help_label = _make_label("OFFLINE  •  TESTE DE NAVEGACAO", 12)
+    help_label = _make_label("OFFLINE  •  COMBATE LOCAL  •  SEM SERVIDOR", 12)
     portal_hint = _make_label("", 14)
+    combat_label = _make_label("HP / ESC", 12)
+    target_label = _make_label("SEM ALVO", 13)
+    status_label = _make_label("NPCs e drones de teste", 12)
+    hp_bar = _make_combat_bar(Color(0.25, 0.9, 0.52))
+    shield_bar = _make_combat_bar(Color(0.26, 0.68, 1.0))
+    target_hp_bar = _make_combat_bar(Color(1.0, 0.38, 0.37))
+    target_shield_bar = _make_combat_bar(Color(0.8, 0.48, 1.0))
     ship_select = OptionButton.new()
     ship_select.tooltip_text = "Modelos GLB instalados localmente"
     for ship_id in SHIP_IDS:
@@ -204,6 +268,16 @@ func _create_hud() -> void:
     warp_button.pressed.connect(_travel_nearest)
     route_button = _make_button("ROTAS")
     route_button.pressed.connect(_toggle_galaxy)
+    target_button = _make_button("ALVO")
+    target_button.pressed.connect(func() -> void: combat_world.select_nearest())
+    fire_button = _make_button("LASER")
+    fire_button.button_down.connect(func() -> void: firing_held = true)
+    fire_button.button_up.connect(func() -> void: firing_held = false)
+    fire_button.mouse_exited.connect(func() -> void: firing_held = false)
+    drones_button = _make_button("DRONES ON")
+    drones_button.pressed.connect(_toggle_drones)
+    aux_button = _make_button("AUX-9 ON")
+    aux_button.pressed.connect(_toggle_aux)
     left_button = _make_button("◀")
     right_button = _make_button("▶")
     thrust_button = _make_button("AVANCAR")
@@ -251,12 +325,34 @@ func _layout_hud() -> void:
     ship_select.size = Vector2(185, 38)
     mini_map.position = Vector2(s.x - 208, 57)
     mini_map.size = Vector2(194, 129)
+    combat_label.position = Vector2(12, 86)
+    combat_label.size = Vector2(345, 19)
+    hp_bar.position = Vector2(12, 109)
+    hp_bar.size = Vector2(minf(305.0, s.x * 0.47), 9)
+    shield_bar.position = Vector2(12, 124)
+    shield_bar.size = hp_bar.size
+    target_label.position = Vector2(12, 149)
+    target_label.size = Vector2(minf(400.0, s.x * 0.6), 25)
+    target_hp_bar.position = Vector2(12, 176)
+    target_hp_bar.size = Vector2(minf(305.0, s.x * 0.47), 8)
+    target_shield_bar.position = Vector2(12, 190)
+    target_shield_bar.size = target_hp_bar.size
+    status_label.position = Vector2(12, 207)
+    status_label.size = Vector2(minf(420.0, s.x * 0.63), 30)
+    drones_button.position = Vector2(s.x - 205, 194)
+    drones_button.size = Vector2(100, 41)
+    aux_button.position = Vector2(s.x - 101, 194)
+    aux_button.size = Vector2(92, 41)
     portal_hint.position = Vector2(12, s.y - 143)
     portal_hint.size = Vector2(minf(s.x - 24, 550), 30)
     warp_button.position = Vector2(12, s.y - 107)
     warp_button.size = Vector2(113, 45)
     route_button.position = Vector2(132, s.y - 107)
     route_button.size = Vector2(93, 45)
+    target_button.position = Vector2(232, s.y - 107)
+    target_button.size = Vector2(93, 45)
+    fire_button.position = Vector2(332, s.y - 107)
+    fire_button.size = Vector2(100, 45)
     left_button.position = Vector2(12, s.y - 55)
     left_button.size = Vector2(80, 49)
     right_button.position = Vector2(98, s.y - 55)
@@ -334,7 +430,21 @@ func _refresh_ui() -> void:
     var points: Array[Vector3] = []
     for portal in portals:
         points.append(portal["pos"])
-    mini_map.update_state(current_map, ship_anchor.position, points, nearest_portal)
+    mini_map.update_state(current_map, ship_anchor.position, points, nearest_portal, combat_world.enemy_positions())
+    combat_label.text = "HP %d / %d   ESC %d / %d" % [roundi(hp), roundi(MAX_HP), roundi(shield), roundi(MAX_SHIELD)]
+    hp_bar.value = 100.0 * hp / MAX_HP
+    shield_bar.value = 100.0 * shield / MAX_SHIELD
+    var target: Dictionary = combat_world.target_status()
+    var has_target := not target.is_empty()
+    target_hp_bar.visible = has_target
+    target_shield_bar.visible = has_target
+    if has_target:
+        target_label.text = "%s  •  %dm" % [str(target["name"]), roundi(float(target["distance"]))]
+        target_hp_bar.value = 100.0 * float(target["hp"]) / maxf(1.0, float(target["max_hp"]))
+        target_shield_bar.value = 100.0 * float(target["shield"]) / maxf(1.0, float(target["max_shield"]))
+    else:
+        target_label.text = "SEM ALVO  •  toque ALVO para selecionar NPC"
+    status_label.text = "%s  |  KOs locais: %d" % [combat_world.status_message if combat_world.status_clock > 0.0 else "NPCs: %d ativos" % combat_world.enemy_positions().size(), combat_world.kills]
 
 func _travel_nearest() -> void:
     var selected := _nearest_index()
@@ -346,6 +456,7 @@ func _travel_nearest() -> void:
     var source := current_map
     current_map = target
     _rebuild_portals()
+    _populate_local_world()
     var entry := Vector3.ZERO
     for portal in portals:
         if str(portal["dest"]) == source:
@@ -358,6 +469,8 @@ func _travel_nearest() -> void:
     heading = atan2(toward_center.x, toward_center.z)
     ship_anchor.rotation.y = heading
     speed = 0.0
+    firing_held = false
+    support_fleet.snap_to_player()
     warp_cooldown = 1.5
     _write_local_profile()
     _refresh_ui()
@@ -365,6 +478,7 @@ func _travel_nearest() -> void:
 func _toggle_galaxy() -> void:
     galaxy_panel.visible = not galaxy_panel.visible
     if galaxy_panel.visible:
+        firing_held = false
         galaxy_map.set_route_view(faction, current_map)
         left_held = false
         right_held = false
@@ -382,7 +496,9 @@ func _on_faction_selected(index: int) -> void:
     faction = Routes.FACTIONS[index]
     current_map = "%s-1" % faction
     _return_to_center()
+    support_fleet.snap_to_player()
     _rebuild_portals()
+    _populate_local_world()
     _write_local_profile()
 
 func _on_ship_selected(index: int) -> void:
@@ -430,3 +546,32 @@ func _write_local_profile() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
         f.store_string(JSON.stringify({"faction": faction, "map": current_map, "ship": current_ship}))
+
+# Extensao G0.3: a navegacao G0.2 permanece intacta.
+func _populate_local_world() -> void:
+    var points: Array[Vector3] = []
+    for portal in portals:
+        points.append(portal["pos"])
+    combat_world.configure(current_map, points)
+
+func _receive_local_damage(amount: float) -> void:
+    combat_recovery_clock = 4.0
+    var absorbed := minf(shield, amount)
+    shield -= absorbed
+    hp = maxf(0.0, hp - (amount - absorbed))
+    if hp <= 0.0:
+        hp = MAX_HP
+        shield = MAX_SHIELD
+        _return_to_center()
+        combat_world._message("Nave recuperada para novos testes (sem custo)")
+
+func aux_enabled() -> bool:
+    return support_fleet != null and support_fleet.aux_enabled
+
+func _toggle_drones() -> void:
+    support_fleet.toggle_drones()
+    drones_button.text = "DRONES ON" if support_fleet.drones_enabled else "DRONES OFF"
+
+func _toggle_aux() -> void:
+    support_fleet.toggle_aux()
+    aux_button.text = "AUX-9 ON" if support_fleet.aux_enabled else "AUX-9 OFF"
