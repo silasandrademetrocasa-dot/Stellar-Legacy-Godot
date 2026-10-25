@@ -57,6 +57,7 @@ def main():
             raise SystemExit(1)
 
     run('static-assets', [sys.executable, str(ROOT / 'tools/audit_assets.py'), '--output', str(logs / 'asset-inventory.json')])
+    run('project-plan', [sys.executable, str(ROOT / 'tools/check_project_plan.py')])
     common = [godot, '--headless', '--audio-driver', 'Dummy', '--path', str(ROOT)]
     run('import', [*common, '--editor', '--import'], limit=600, engine=True)
     for source in sorted([*ROOT.glob('scripts/**/*.gd'), *ROOT.glob('tests/*.gd')]):
@@ -64,7 +65,7 @@ def main():
         run(label, [*common, '--check-only', '--script', 'res://' + source.relative_to(ROOT).as_posix()], engine=True)
     run('main-smoke', [*common, '--quit-after', '120'], engine=True)
     run('relay-demo-smoke', [*common, '--quit-after', '120', 'res://scenes/relays/demo_reles.tscn'], engine=True)
-    for test in ['aurora', 'fleet', 'assets', 'relays', 'effects']:
+    for test in ['aurora', 'fleet', 'assets', 'relays', 'effects', 'design_system']:
         run(f'test-{test}', [*common, '--script', f'res://tests/test_{test}.gd'], engine=True)
     if args.render:
         run('rendering', [godot, '--path', str(ROOT), '--audio-driver', 'Dummy', '--rendering-method',

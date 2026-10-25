@@ -1,0 +1,18 @@
+[
+  {
+    "family": "Oxanium",
+    "local": "assets/ui/design/fonts/Oxanium.ttf",
+    "license": "SIL Open Font License 1.1",
+    "license_file": "assets/ui/design/fonts/OFL-Oxanium.txt",
+    "source": "https://github.com/google/fonts/blob/main/ofl/oxanium/Oxanium%5Bwght%5D.ttf",
+    "sha256": "2ce01d946e1e1ffc8d7eecfffbda8623bedd63eaf811a20488c4b69af45babb0"
+  },
+  {
+    "family": "Rajdhani",
+    "local": "assets/ui/design/fonts/Rajdhani-Medium.ttf",
+    "license": "SIL Open Font License 1.1",
+    "license_file": "assets/ui/design/fonts/OFL-Rajdhani.txt",
+    "source": "https://github.com/google/fonts/blob/main/ofl/rajdhani/Rajdhani-Medium.ttf",
+    "sha256": "12ff7dcfe4c206e3875ac53b1762eab57de6a2fa7f5a86c26b97b88d6591eac2"
+  }
+]

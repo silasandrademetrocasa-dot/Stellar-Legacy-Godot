@@ -1,16 +1,17 @@
-# Atualização Codex — instalação pelo celular em duas partes
+# Stellar Legacy — plano mestre e fundação visual
 
-Entrega em ZIPs incrementais menores que 25 MB para o instalador já existente.
-Suba a **Parte 1 ASSETS**, execute o workflow e aguarde verde; só então suba a
-**Parte 2 CORREÇÕES** e execute novamente. Apenas um ZIP na raiz por execução.
+O desenvolvimento segue as etapas **00 a 11**, por critérios técnicos, testes e
+aprovação do proprietário, sem duração predeterminada.
 
-- [Instruções das duas partes](docs/audit/INSTALACAO_PARTES.md).
-- [Auditoria, gravidades, procedência e pendências](docs/audit/2026-10-25-GODOT.md).
-- [Testes executados e roteiro Godot Android](docs/audit/TESTES-E-ENTREGA.md).
+- [Roadmap oficial](docs/ROADMAP.md) e [estados do projeto](docs/PROJECT_STATUS.md).
+- [Mapa técnico e auditoria da Etapa 00](docs/ARCHITECTURE.md).
+- [Fundação visual proposta da Etapa 01](docs/design/FOUNDATION.md).
+- [Instalação do ZIP desta revisão](docs/DELIVERY_00_01.md).
 
-Aurora e frota com apresentação normalizada, movimento corrigido fora do ataque,
-armas HQ recuperadas do pacote local, relés HQ/LOD e efeitos limitados.
-Branch de trabalho local: `codex/godot-fleet-audit-20261025`.
+**Prévia no jogo:** CONFIG → DESIGN SYSTEM — PRÉVIA DA ETAPA 01.
+HUD, Hangar, modelos, combate, inventário e saves existentes foram preservados.
+Entrega incremental em um ZIP menor que 25 MB para o instalador já utilizado.
+Branch local: `codex/master-plan-design-system`. Sem publicação ou merge direto.
 
 As seções abaixo são o histórico das versões anteriores. Esta revisão não instala
 integralmente os antigos ZIPs e não altera produção.

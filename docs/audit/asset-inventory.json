@@ -1,0 +1,1754 @@
+{
+  "models": 147,
+  "categories": {
+    "astral": {
+      "models": 3,
+      "triangles": 78720,
+      "surfaces": 132
+    },
+    "aux": {
+      "models": 1,
+      "triangles": 129008,
+      "surfaces": 322
+    },
+    "drones": {
+      "models": 7,
+      "triangles": 201952,
+      "surfaces": 595
+    },
+    "equipment": {
+      "models": 61,
+      "triangles": 92552,
+      "surfaces": 882
+    },
+    "loot": {
+      "models": 2,
+      "triangles": 16024,
+      "surfaces": 298
+    },
+    "npcs": {
+      "models": 32,
+      "triangles": 407544,
+      "surfaces": 2078
+    },
+    "portals": {
+      "models": 3,
+      "triangles": 23966,
+      "surfaces": 17
+    },
+    "relays": {
+      "models": 12,
+      "triangles": 149720,
+      "surfaces": 1708
+    },
+    "resources": {
+      "models": 5,
+      "triangles": 61050,
+      "surfaces": 810
+    },
+    "ships": {
+      "models": 13,
+      "triangles": 598252,
+      "surfaces": 508
+    },
+    "weapons": {
+      "models": 8,
+      "triangles": 98124,
+      "surfaces": 571
+    }
+  },
+  "assets": [
+    {
+      "path": "assets/astral/portal_astral_aurora.glb",
+      "sha256": "2e1e4a19b995ccc2ef6b79585a16a4557109cb252c61b50c0de9557bf6b64f52",
+      "bytes": 280852,
+      "triangles": 26240,
+      "surfaces": 44,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/astral/portal_astral_eclipse.glb",
+      "sha256": "ffdce0670fac4416e462315c6ef395561affb5ea7784509597b02acccee1d15d",
+      "bytes": 280844,
+      "triangles": 26240,
+      "surfaces": 44,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/astral/portal_astral_nexus.glb",
+      "sha256": "ccfae979a513611cc3579277e718afeb06de749d1046da77fc65fba877f8b125",
+      "bytes": 280828,
+      "triangles": 26240,
+      "surfaces": 44,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/aux/aux9.glb",
+      "sha256": "92996d0797be426e38430f0b86d193fe8a7a177a84029f8652353eaaf5c69291",
+      "bytes": 8422316,
+      "triangles": 129008,
+      "surfaces": 322,
+      "materials": 12,
+      "images": 12,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_a.glb",
+      "sha256": "4baa49dec5c63b5c323d28c61de99839f472e4189c6abcb2e15c2c651e1992a2",
+      "bytes": 252652,
+      "triangles": 30404,
+      "surfaces": 89,
+      "materials": 6,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_b.glb",
+      "sha256": "43350cd5ec15554da6ce8477e7528546535bd4b3d5156ff8d5bf27d25ea60f48",
+      "bytes": 263736,
+      "triangles": 32668,
+      "surfaces": 80,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_c.glb",
+      "sha256": "a9e39194145195dd90adecef97617099b017be6345f74d04a1fa24b07c1730ab",
+      "bytes": 215040,
+      "triangles": 24132,
+      "surfaces": 84,
+      "materials": 6,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_common.glb",
+      "sha256": "84651736878939357d4ad7db2619aea8e905d4a55bed5e086752cd90c0060b7a",
+      "bytes": 209264,
+      "triangles": 24080,
+      "surfaces": 76,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_d.glb",
+      "sha256": "5906f0de24432149e2d33f3097da6f096ee6902f50dd9de9634c94eb4f3470b8",
+      "bytes": 260180,
+      "triangles": 31204,
+      "surfaces": 93,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_e.glb",
+      "sha256": "76b24ecd325df920272ed1473aeb8b2bebc79c4aa15a2f2e333a0aa02287b81a",
+      "bytes": 262100,
+      "triangles": 31844,
+      "surfaces": 89,
+      "materials": 8,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/drones/drone_elite.glb",
+      "sha256": "f9f16ab93150311bb4a3cfc3af5c30548a822d55f6f4b7521aa3206f895aa4c6",
+      "bytes": 234236,
+      "triangles": 27620,
+      "surfaces": 84,
+      "materials": 6,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/arc-1.glb",
+      "sha256": "f734185d4a4d320fe4da30e79486fe06a6f9cfa16f81506e159c5824484baa7e",
+      "bytes": 20788,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/arc-2.glb",
+      "sha256": "97d0d952e0b133cb8adceabe1a2f191c31ede722976d82d98308244f22cacb94",
+      "bytes": 20788,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/arc-3.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/arc-4.glb",
+      "sha256": "d3e449689fea9af896d44738314ecb1a6f4a125df29a6194d8b26c8c9bc8b8bb",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/arc-p1.glb",
+      "sha256": "97d0d952e0b133cb8adceabe1a2f191c31ede722976d82d98308244f22cacb94",
+      "bytes": 20788,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/arc-q.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/auto-aim.glb",
+      "sha256": "88e812db04bacac961d26c5e5095df5bf7c5ebe640ee7c22a408e7fb55a54e40",
+      "bytes": 16236,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/aux-box.glb",
+      "sha256": "a976c5d8db9084003245baa45b52fcac18d7200e9dd2559fb15d175aeac29a54",
+      "bytes": 18104,
+      "triangles": 844,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/aux-guard.glb",
+      "sha256": "2b049a2cac3eb7ce551b037e4b226c8612a6cdfa80bb37341c99bca6eb641ef6",
+      "bytes": 16240,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/aux-kami.glb",
+      "sha256": "2fe4781619e6c8050d9e5e7a07b28e48569c285642c87c5cc9c62b71bf186e1d",
+      "bytes": 16240,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/aux-ore.glb",
+      "sha256": "a976c5d8db9084003245baa45b52fcac18d7200e9dd2559fb15d175aeac29a54",
+      "bytes": 18104,
+      "triangles": 844,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/aux-repair.glb",
+      "sha256": "2b049a2cac3eb7ce551b037e4b226c8612a6cdfa80bb37341c99bca6eb641ef6",
+      "bytes": 16240,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/brasa.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/cataclismo.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/cmt-1.glb",
+      "sha256": "5c1f7baaf0d2fe1c1910e8ad51b2a170d4351041baa8731ecc336768f132a618",
+      "bytes": 23900,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/cmt-2.glb",
+      "sha256": "2fb7727b7528b052a33782edd5dd25269fc13569d2e85a95619860e1f7ec013c",
+      "bytes": 23900,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/cmt-3.glb",
+      "sha256": "92eb7e3680a9ed76f22ce837171380a19155572d7b5c544cb2e8515aadb72bb9",
+      "bytes": 23904,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/cmt-4.glb",
+      "sha256": "146a5e02b082f6395180d661a9ef70b0ce0534130ee20c4585acf59ccb011df2",
+      "bytes": 23904,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/expansor-extras-comum.glb",
+      "sha256": "6a28099000fd4e045e5fc705e2be539892dad729b1cacadec22490cf74a7cbbb",
+      "bytes": 16236,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/expansor-extras-elite.glb",
+      "sha256": "2fe4781619e6c8050d9e5e7a07b28e48569c285642c87c5cc9c62b71bf186e1d",
+      "bytes": 16240,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/falcao.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/fs-01.glb",
+      "sha256": "d358c815d111b2c142b13ee5b25781dc219ccd4b2137d85ba52a604efb915445",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/fs-02.glb",
+      "sha256": "d358c815d111b2c142b13ee5b25781dc219ccd4b2137d85ba52a604efb915445",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/fs-03.glb",
+      "sha256": "0f7bd09a7930d3be8b0f3aad99bc165df15882c7ede79f1f56ff4dae09b2ebe3",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/fs-04.glb",
+      "sha256": "0f7bd09a7930d3be8b0f3aad99bc165df15882c7ede79f1f56ff4dae09b2ebe3",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/lancador-autonomo.glb",
+      "sha256": "6a28099000fd4e045e5fc705e2be539892dad729b1cacadec22490cf74a7cbbb",
+      "bytes": 16236,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/mira-autonoma.glb",
+      "sha256": "6a28099000fd4e045e5fc705e2be539892dad729b1cacadec22490cf74a7cbbb",
+      "bytes": 16236,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/modulo-porao-comum.glb",
+      "sha256": "3153b05930c85d3da25bf4c47e6553a241e4e60e7374f2b7ea7bcee7af3a71ee",
+      "bytes": 18096,
+      "triangles": 844,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/modulo-porao-elite.glb",
+      "sha256": "8ad3df8b3e05f96b18e6caa2bc28279dda78e7972a5978be8c893c72cf9e765d",
+      "bytes": 18104,
+      "triangles": 844,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/nanobot-reparo-elite.glb",
+      "sha256": "2bfb131b132ffb594eac0b997c01d7a968872ce171f3600a467a4ccba6806004",
+      "bytes": 17536,
+      "triangles": 832,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/nanobot_rep-2.glb",
+      "sha256": "73c592159d8ca65086b727b936c603869e48b7fa9063f6b0b49fd629b1c55f24",
+      "bytes": 17536,
+      "triangles": 832,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/pls-1.glb",
+      "sha256": "dcffca2501cee7be4de6e394051e96ccd7ab4b4857d16355e84ebfd9eccb699a",
+      "bytes": 23904,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/pls-2.glb",
+      "sha256": "3ea32f24248d2805203bc34590ddf330e9a9f337b05701b3387b48444e26b8b3",
+      "bytes": 23904,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/pls-3.glb",
+      "sha256": "d98948d0063f32d15b38244bef8c60ee65aadf599400bf743b9ae1038256d4a3",
+      "bytes": 23908,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/pls-4.glb",
+      "sha256": "8d85dd9b791fda1ead1f300e4aef466aaee8b9705b138959247c84886ef36d60",
+      "bytes": 23908,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/propulsor-recarga.glb",
+      "sha256": "852556d94efff67c77ad59f61ed1a3b9555f2711ef69655d67b4309a0385d2c1",
+      "bytes": 20092,
+      "triangles": 920,
+      "surfaces": 12,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/pulsar-7.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/raio-celeste.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/reload_booster.glb",
+      "sha256": "563a0a44e2169adb096ba98240f996311fd9e38018a9fdde1df496bc57036db3",
+      "bytes": 20084,
+      "triangles": 920,
+      "surfaces": 12,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/reparador-comum.glb",
+      "sha256": "88e812db04bacac961d26c5e5095df5bf7c5ebe640ee7c22a408e7fb55a54e40",
+      "bytes": 16236,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/repositor-automatico.glb",
+      "sha256": "6a28099000fd4e045e5fc705e2be539892dad729b1cacadec22490cf74a7cbbb",
+      "bytes": 16236,
+      "triangles": 808,
+      "surfaces": 11,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/sg-1.glb",
+      "sha256": "0f7bd09a7930d3be8b0f3aad99bc165df15882c7ede79f1f56ff4dae09b2ebe3",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/sg-2.glb",
+      "sha256": "652081493943f0559acfdac3b27920e01d977f5cad8d9c5b6ab9cf2006a1407c",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/sg-3.glb",
+      "sha256": "d358c815d111b2c142b13ee5b25781dc219ccd4b2137d85ba52a604efb915445",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/sip-2.glb",
+      "sha256": "8d85dd9b791fda1ead1f300e4aef466aaee8b9705b138959247c84886ef36d60",
+      "bytes": 23908,
+      "triangles": 1344,
+      "surfaces": 22,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/sussurro.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/terminal-mercante-remoto.glb",
+      "sha256": "29ac05494132ecd7166e2ac6ab88d01443b52f497cb2dfff67936cec7a3a9207",
+      "bytes": 18356,
+      "triangles": 872,
+      "surfaces": 12,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/thr-1.glb",
+      "sha256": "738cb6fcbcd8de3601298bc525f81648f86739ad5b3c1b2b082d2d87d9210bbf",
+      "bytes": 27168,
+      "triangles": 1432,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/thr-2.glb",
+      "sha256": "feae65cf12ef02733fc899d807f155057f7eefb605aa561a613e9104e30e3bd4",
+      "bytes": 27168,
+      "triangles": 1432,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/thr-3.glb",
+      "sha256": "45cc84ad07e7e4af1b0a254e3913ecf7d2a44b90f29e701d5df21a950a638e4a",
+      "bytes": 27176,
+      "triangles": 1432,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/thr-4.glb",
+      "sha256": "feae65cf12ef02733fc899d807f155057f7eefb605aa561a613e9104e30e3bd4",
+      "bytes": 27168,
+      "triangles": 1432,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/thr-5.glb",
+      "sha256": "45cc84ad07e7e4af1b0a254e3913ecf7d2a44b90f29e701d5df21a950a638e4a",
+      "bytes": 27176,
+      "triangles": 1432,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/thr-6.glb",
+      "sha256": "fa1ed5f4cd8c6d384137432ae39125ce61bb44b3d91215478b8fd1ebc1a081be",
+      "bytes": 27176,
+      "triangles": 1432,
+      "surfaces": 13,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vortex-x.glb",
+      "sha256": "2b9bf55d07e01c52c4f4ab267a49f1da7fb7f181c3533c3c797ee2201a2280dd",
+      "bytes": 20792,
+      "triangles": 752,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-0.glb",
+      "sha256": "d358c815d111b2c142b13ee5b25781dc219ccd4b2137d85ba52a604efb915445",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-1.glb",
+      "sha256": "0f7bd09a7930d3be8b0f3aad99bc165df15882c7ede79f1f56ff4dae09b2ebe3",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-2.glb",
+      "sha256": "0f7bd09a7930d3be8b0f3aad99bc165df15882c7ede79f1f56ff4dae09b2ebe3",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-3.glb",
+      "sha256": "652081493943f0559acfdac3b27920e01d977f5cad8d9c5b6ab9cf2006a1407c",
+      "bytes": 54312,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-4.glb",
+      "sha256": "d358c815d111b2c142b13ee5b25781dc219ccd4b2137d85ba52a604efb915445",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-5.glb",
+      "sha256": "f7e50fd40d8a35cc725b9bdabc630ef78eb4bf60884b8b7a370dca3517f68ca9",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/equipment/vsh-6.glb",
+      "sha256": "f7e50fd40d8a35cc725b9bdabc630ef78eb4bf60884b8b7a370dca3517f68ca9",
+      "bytes": 54316,
+      "triangles": 3304,
+      "surfaces": 14,
+      "materials": 0,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/loot/box_bonus.glb",
+      "sha256": "4492276878b61d605e3674a4b25d879b1b13c0ccf9424a5f32afa69ec455ff4d",
+      "bytes": 1906224,
+      "triangles": 8156,
+      "surfaces": 150,
+      "materials": 35,
+      "images": 4,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/loot/box_loot.glb",
+      "sha256": "2b57963c3d13179cf56d94bec17271e2dda25b972682be1a1a8148b8e9ddadea",
+      "bytes": 1903968,
+      "triangles": 7868,
+      "surfaces": 148,
+      "materials": 37,
+      "images": 4,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/batedor_fenda.glb",
+      "sha256": "bc5a88913b05a7ae377b9da0c86ba541dd8f43e05106fa6cb97488e2146741ee",
+      "bytes": 116600,
+      "triangles": 11348,
+      "surfaces": 59,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/ceifador_astral.glb",
+      "sha256": "9796371530423eac51ccbcc62e98a523b67685727bb22b3838d93b8b8bb61732",
+      "bytes": 121356,
+      "triangles": 11988,
+      "surfaces": 61,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/ceifador_astral_prime.glb",
+      "sha256": "69d5cac83edb4208165d7403783b2c4a44b3798f71841943bee8e09b4f25b0c6",
+      "bytes": 134916,
+      "triangles": 13528,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/colossar.glb",
+      "sha256": "f6c1df5242c3831ca0b6b9bc201ce9d130d79839df9bd6c586c83593112b1b5d",
+      "bytes": 121348,
+      "triangles": 11988,
+      "surfaces": 61,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/colossar_prime.glb",
+      "sha256": "774212d7cbd22696a236c86a7693216c31f0fcc0fd360d478e83820e8b55d3b6",
+      "bytes": 134904,
+      "triangles": 13528,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/corsario_vazio.glb",
+      "sha256": "4800fa33af821c7d8489e3c02320f5c752d4074b55f8792817b0b2e2d43e3b65",
+      "bytes": 137388,
+      "triangles": 14208,
+      "surfaces": 70,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/dreadnox.glb",
+      "sha256": "06280425a05781220ca6df1450d577aa609ea94b240f8f56b21c4d53b39a2a0b",
+      "bytes": 133268,
+      "triangles": 13600,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/guardiao_nexus.glb",
+      "sha256": "ff13dac0afd256d2fbe1b903e5b3aa62e0cf6853a544f28abfdcfb70aa9ea3c8",
+      "bytes": 133264,
+      "triangles": 13600,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/kharon.glb",
+      "sha256": "91d3708d79b8330a4b3a157257a187b466db36d776f78d1b404e8b65cbe92840",
+      "bytes": 118764,
+      "triangles": 11872,
+      "surfaces": 60,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/kharon_prime.glb",
+      "sha256": "5a436f804b80d5f561f8eb5df633cb0c699c559b3717b4ceb1c132d7153535d6",
+      "bytes": 132272,
+      "triangles": 13412,
+      "surfaces": 68,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_aiderStreuner.glb",
+      "sha256": "30f3392db85c284d2a246f56f0a82e5b69629eaa89d97290a129013a27514f94",
+      "bytes": 130660,
+      "triangles": 13084,
+      "surfaces": 66,
+      "materials": 12,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_astralReaper.glb",
+      "sha256": "9796371530423eac51ccbcc62e98a523b67685727bb22b3838d93b8b8bb61732",
+      "bytes": 121356,
+      "triangles": 11988,
+      "surfaces": 61,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_bossAstralReaper.glb",
+      "sha256": "69d5cac83edb4208165d7403783b2c4a44b3798f71841943bee8e09b4f25b0c6",
+      "bytes": 134916,
+      "triangles": 13528,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_bossMordon.glb",
+      "sha256": "5a436f804b80d5f561f8eb5df633cb0c699c559b3717b4ceb1c132d7153535d6",
+      "bytes": 132272,
+      "triangles": 13412,
+      "surfaces": 68,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_bossSibelon.glb",
+      "sha256": "774212d7cbd22696a236c86a7693216c31f0fcc0fd360d478e83820e8b55d3b6",
+      "bytes": 134904,
+      "triangles": 13528,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_bossStreuner.glb",
+      "sha256": "7480bef7346326b23a49758daf02db4c09fa554b524a7964162d953ec5bb0e3d",
+      "bytes": 130140,
+      "triangles": 12888,
+      "surfaces": 67,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_devolarium.glb",
+      "sha256": "06280425a05781220ca6df1450d577aa609ea94b240f8f56b21c4d53b39a2a0b",
+      "bytes": 133268,
+      "triangles": 13600,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_lordakia.glb",
+      "sha256": "7b2aa3e4fdbc5088d1d8ec2ffdbf583dddfe7d536b75fe4a50b1699df0f9efac",
+      "bytes": 137372,
+      "triangles": 14208,
+      "surfaces": 70,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_mordon.glb",
+      "sha256": "91d3708d79b8330a4b3a157257a187b466db36d776f78d1b404e8b65cbe92840",
+      "bytes": 118764,
+      "triangles": 11872,
+      "surfaces": 60,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_nexusWarden.glb",
+      "sha256": "ff13dac0afd256d2fbe1b903e5b3aa62e0cf6853a544f28abfdcfb70aa9ea3c8",
+      "bytes": 133264,
+      "triangles": 13600,
+      "surfaces": 69,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_recruitStreuner.glb",
+      "sha256": "89d096f9e160b32dee90b921ea7f8e853c08e4630ad3328f8b17dbe0e9d3d82f",
+      "bytes": 121548,
+      "triangles": 11872,
+      "surfaces": 63,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_riftScout.glb",
+      "sha256": "bc5a88913b05a7ae377b9da0c86ba541dd8f43e05106fa6cb97488e2146741ee",
+      "bytes": 116600,
+      "triangles": 11348,
+      "surfaces": 59,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_saimon.glb",
+      "sha256": "12dbe3d83eb56623de16e11502d9dcf87f645217518a7cf0e5c30774d5be89c6",
+      "bytes": 114732,
+      "triangles": 11300,
+      "surfaces": 59,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_sibelon.glb",
+      "sha256": "f6c1df5242c3831ca0b6b9bc201ce9d130d79839df9bd6c586c83593112b1b5d",
+      "bytes": 121348,
+      "triangles": 11988,
+      "surfaces": 61,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_streuner.glb",
+      "sha256": "999aadf9966903781e06e1af900b38009ec73c2048b07461b1753cd3df8680cf",
+      "bytes": 116588,
+      "triangles": 11348,
+      "surfaces": 59,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/npc_voidCorsair.glb",
+      "sha256": "4800fa33af821c7d8489e3c02320f5c752d4074b55f8792817b0b2e2d43e3b65",
+      "bytes": 137388,
+      "triangles": 14208,
+      "surfaces": 70,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/scavenger.glb",
+      "sha256": "999aadf9966903781e06e1af900b38009ec73c2048b07461b1753cd3df8680cf",
+      "bytes": 116588,
+      "triangles": 11348,
+      "surfaces": 59,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/scavenger_prime.glb",
+      "sha256": "7480bef7346326b23a49758daf02db4c09fa554b524a7964162d953ec5bb0e3d",
+      "bytes": 130140,
+      "triangles": 12888,
+      "surfaces": 67,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/scavenger_scout.glb",
+      "sha256": "89d096f9e160b32dee90b921ea7f8e853c08e4630ad3328f8b17dbe0e9d3d82f",
+      "bytes": 121548,
+      "triangles": 11872,
+      "surfaces": 63,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/scavenger_support.glb",
+      "sha256": "30f3392db85c284d2a246f56f0a82e5b69629eaa89d97290a129013a27514f94",
+      "bytes": 130660,
+      "triangles": 13084,
+      "surfaces": 66,
+      "materials": 12,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/vrax.glb",
+      "sha256": "7b2aa3e4fdbc5088d1d8ec2ffdbf583dddfe7d536b75fe4a50b1699df0f9efac",
+      "bytes": 137372,
+      "triangles": 14208,
+      "surfaces": 70,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/npcs/zyron.glb",
+      "sha256": "12dbe3d83eb56623de16e11502d9dcf87f645217518a7cf0e5c30774d5be89c6",
+      "bytes": 114732,
+      "triangles": 11300,
+      "surfaces": 59,
+      "materials": 11,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/portals/portal_normal.glb",
+      "sha256": "53c0ef899af78bceed9a70e74b0d7e0bda7ffa3b4c4503b02bfbc6a7693f23f6",
+      "bytes": 145556,
+      "triangles": 7734,
+      "surfaces": 6,
+      "materials": 6,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/portals/portal_pvp.glb",
+      "sha256": "2a7bd43b09742b05b4542874b91ef833ca430cf3ca51bf2983100a2e1ecc4745",
+      "bytes": 143960,
+      "triangles": 7694,
+      "surfaces": 5,
+      "materials": 5,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/portals/portal_universe.glb",
+      "sha256": "f6d18b158fac02810f2bd7373e2a524b735a30ed82ba4d0eae932122ef9177d4",
+      "bytes": 160064,
+      "triangles": 8538,
+      "surfaces": 6,
+      "materials": 6,
+      "images": 0,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/modulo_anel.glb",
+      "sha256": "b8d68df3417d376ca4b3166e271cd12f2ddb232d3cebfe75746735942b0b6500",
+      "bytes": 806048,
+      "triangles": 4752,
+      "surfaces": 14,
+      "materials": 3,
+      "images": 4,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/modulo_escudo.glb",
+      "sha256": "f9c619c28f33014af24944c9b445cb49917bc7b89264503f79b2a969faec3f7b",
+      "bytes": 1499868,
+      "triangles": 1512,
+      "surfaces": 9,
+      "materials": 6,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/modulo_laser.glb",
+      "sha256": "7c6c63ef32f865c553fd3094e57ba10c7246eef3da692e18aa94e9ff65a6089e",
+      "bytes": 1108864,
+      "triangles": 164,
+      "surfaces": 8,
+      "materials": 5,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/modulo_missil.glb",
+      "sha256": "12f819c87ea04694c32e31da292a6fa27f79bea70dbf3d5765f5a9e6f420ee85",
+      "bytes": 1110000,
+      "triangles": 188,
+      "surfaces": 10,
+      "materials": 5,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/modulo_nucleo.glb",
+      "sha256": "92c32353dbbd67017a6cd929c7aae9c16a93065882fe56aec10c0f58cffe195c",
+      "bytes": 1563968,
+      "triangles": 10476,
+      "surfaces": 40,
+      "materials": 6,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/modulo_suporte.glb",
+      "sha256": "704d71f4dbd5b7a03f2ea397d1fa49104cc319a3169690099c55bb4de1eab259",
+      "bytes": 1474580,
+      "triangles": 168,
+      "surfaces": 8,
+      "materials": 5,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/rele_lv1.glb",
+      "sha256": "5d573721d053a72878c1bc338c5d50feb90fa616b42ad0aeb015bb50fa01effe",
+      "bytes": 1856340,
+      "triangles": 26068,
+      "surfaces": 165,
+      "materials": 6,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/rele_lv1_lod.glb",
+      "sha256": "e473a55514ea1f52ba4b089f8f78d5ee7cdb5a3605f190a99d24586f4b1f026b",
+      "bytes": 1664884,
+      "triangles": 10652,
+      "surfaces": 77,
+      "materials": 6,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/rele_lv2.glb",
+      "sha256": "cbccf552d285859b29bb2f469feb39ea68590440cec4a7d32e92d04c15ca0194",
+      "bytes": 1999076,
+      "triangles": 31800,
+      "surfaces": 368,
+      "materials": 7,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/rele_lv2_lod.glb",
+      "sha256": "978f3a7344707b1d8ac58b2f32e8c24f8114387ae3ba9cb1dbed70a540e4095e",
+      "bytes": 1733576,
+      "triangles": 12444,
+      "surfaces": 181,
+      "materials": 6,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/rele_lv3.glb",
+      "sha256": "74c7d2903a9298c76eca58959f7316a53a94591edb0246ec308cb52ad5c1d65a",
+      "bytes": 2131824,
+      "triangles": 37516,
+      "surfaces": 555,
+      "materials": 7,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/relays/rele_lv3_lod.glb",
+      "sha256": "fadc25aeae37eea34f6912021fb5aaad3391f3102246261c23b408e440d78368",
+      "bytes": 1791964,
+      "triangles": 13980,
+      "surfaces": 273,
+      "materials": 6,
+      "images": 8,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/resources/minerio_ciano.glb",
+      "sha256": "f0ca105009573dcece944c80dad444099a8f1017c852b833bbf281dfc020ddb9",
+      "bytes": 1083032,
+      "triangles": 12210,
+      "surfaces": 162,
+      "materials": 7,
+      "images": 2,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/resources/minerio_esmeralda.glb",
+      "sha256": "14a1b4320dab5f936e28d3863ee30e7f6c2a4a19e21b70763f7306eb076c5ab6",
+      "bytes": 1086544,
+      "triangles": 12210,
+      "surfaces": 162,
+      "materials": 7,
+      "images": 2,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/resources/minerio_ouro.glb",
+      "sha256": "ac363add0ab6cff629c310306522f242196da333a97e5eadeab308aa76e04096",
+      "bytes": 1080668,
+      "triangles": 12210,
+      "surfaces": 162,
+      "materials": 7,
+      "images": 2,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/resources/minerio_plasma.glb",
+      "sha256": "8bec2a7ac0d8716d52ac7221567a636be0988934cf1a6a8625b16e76c01105bf",
+      "bytes": 1082036,
+      "triangles": 12210,
+      "surfaces": 162,
+      "materials": 7,
+      "images": 2,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/resources/minerio_violeta.glb",
+      "sha256": "f8e525524f36e31c7a213db1d97ea164e414aa2bd53ae6af3800d611f4581e9d",
+      "bytes": 1081352,
+      "triangles": 12210,
+      "surfaces": 162,
+      "materials": 7,
+      "images": 2,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/ships/SL_AURORA_FINAL.glb",
+      "sha256": "72a02a4c0a5747df7431e05336441579c5ae9448066fecded868c862fff32b06",
+      "bytes": 3209932,
+      "triangles": 24152,
+      "surfaces": 36,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -7.438775539398193,
+          -0.62117999792099,
+          -9.285981178283691
+        ],
+        "max": [
+          8.100000381469727,
+          1.4904872179031372,
+          9.114018440246582
+        ],
+        "size": [
+          15.53877592086792,
+          2.111667215824127,
+          18.399999618530273
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_BASTION_FINAL.glb",
+      "sha256": "790afa6aa850d34cb7c1eed0cdc5e706dd315cdaab9cddae1281e2b99dc0878e",
+      "bytes": 3107556,
+      "triangles": 26956,
+      "surfaces": 44,
+      "materials": 8,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -10.027999877929688,
+          -1.4447799921035767,
+          -16.34336280822754
+        ],
+        "max": [
+          10.899999618530273,
+          3.232966661453247,
+          16.056636810302734
+        ],
+        "size": [
+          20.92799949645996,
+          4.677746653556824,
+          32.39999961853027
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_BULWARK_FINAL.glb",
+      "sha256": "03bf2661a3e8ef26330d85b86688a8e2bad6b8a59e6fd457c39470e7b6042b4a",
+      "bytes": 4142068,
+      "triangles": 45956,
+      "surfaces": 44,
+      "materials": 8,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -9.895522117614746,
+          -1.2403299808502197,
+          -14.188124656677246
+        ],
+        "max": [
+          9.383999824523926,
+          2.7705469131469727,
+          13.306875228881836
+        ],
+        "size": [
+          19.279521942138672,
+          4.010876893997192,
+          27.494999885559082
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_KENSEI_FINAL.glb",
+      "sha256": "87386667eb6e2a3e28d3dec39ab05a8e2124aef650262aaea5f238e7981f699b",
+      "bytes": 6069244,
+      "triangles": 90764,
+      "surfaces": 40,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -8.199999809265137,
+          -0.7064400315284729,
+          -8.805288314819336
+        ],
+        "max": [
+          8.199999809265137,
+          1.6999993324279785,
+          9.85240364074707
+        ],
+        "size": [
+          16.399999618530273,
+          2.4064393639564514,
+          18.657691955566406
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_LEVIATHAN_FINAL.glb",
+      "sha256": "858ed1f4ac0d365a37d2c9f262e26bc99813287e27ead88a95a7b5aee9a55c3f",
+      "bytes": 6500952,
+      "triangles": 99924,
+      "surfaces": 40,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -11.050000190734863,
+          -1.0109400749206543,
+          -12.564055442810059
+        ],
+        "max": [
+          11.050000190734863,
+          2.383089542388916,
+          14.134562492370605
+        ],
+        "size": [
+          22.100000381469727,
+          3.3940296173095703,
+          26.698617935180664
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_LYNX_FINAL.glb",
+      "sha256": "7e8eb8c1e028287705d19ef22e8a475ed747306b6ab6aa22992cc5b72fe3a1f9",
+      "bytes": 3162516,
+      "triangles": 29324,
+      "surfaces": 36,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -8.399999618530273,
+          -0.7795199751853943,
+          -10.887096405029297
+        ],
+        "max": [
+          8.399999618530273,
+          1.6104000806808472,
+          10.712903022766113
+        ],
+        "size": [
+          16.799999237060547,
+          2.3899200558662415,
+          21.59999942779541
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_MERIDIAN_FINAL.glb",
+      "sha256": "257684c068ab4740d4e738dbf1524a37c4c28fe802daad95e2baa71a808d9068",
+      "bytes": 3985184,
+      "triangles": 42684,
+      "surfaces": 40,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -8.550000190734863,
+          -0.6820799708366394,
+          -9.724230766296387
+        ],
+        "max": [
+          8.550000190734863,
+          1.474484920501709,
+          9.575769424438477
+        ],
+        "size": [
+          17.100000381469727,
+          2.1565648913383484,
+          19.300000190734863
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_PATHFINDER_FINAL.glb",
+      "sha256": "5d06d9d8394c3f851d7eb013de1e67d72561d16252d0d26dcc088aefc2b04817",
+      "bytes": 3020208,
+      "triangles": 30520,
+      "surfaces": 36,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -9.300000190734863,
+          -0.8525999784469604,
+          -12.134859085083008
+        ],
+        "max": [
+          9.300000190734863,
+          1.8195013999938965,
+          11.965141296386719
+        ],
+        "size": [
+          18.600000381469727,
+          2.672101378440857,
+          24.100000381469727
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_PHANTOM_FINAL.glb",
+      "sha256": "785a7b4c9dd34b583786800f81179461d3e47e56dcddbb305deae3e2468fcafc",
+      "bytes": 3431360,
+      "triangles": 30588,
+      "surfaces": 36,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -8.550000190734863,
+          -0.7551599740982056,
+          -11.93525218963623
+        ],
+        "max": [
+          8.550000190734863,
+          1.8086761236190796,
+          11.764748573303223
+        ],
+        "size": [
+          17.100000381469727,
+          2.563836097717285,
+          23.700000762939453
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_PIONEER_FINAL.glb",
+      "sha256": "ea2f0a17020ffe5291cfcac2bf8f5b0f09449e9f98553018d523e1ae9b95071c",
+      "bytes": 3044648,
+      "triangles": 25220,
+      "surfaces": 36,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -7.800000190734863,
+          -0.5968199968338013,
+          -8.977391242980957
+        ],
+        "max": [
+          7.800000190734863,
+          1.2329624891281128,
+          8.822608947753906
+        ],
+        "size": [
+          15.600000381469727,
+          1.829782485961914,
+          17.800000190734863
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_RAPTOR_FINAL.glb",
+      "sha256": "5d18da7ff29032832b9ba6c19d79649b2cec2459e7d4008b78165c55e430b123",
+      "bytes": 3524768,
+      "triangles": 29780,
+      "surfaces": 36,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -8.399999618530273,
+          -0.6455399990081787,
+          -9.523255348205566
+        ],
+        "max": [
+          8.399999618530273,
+          1.5018929243087769,
+          9.376744270324707
+        ],
+        "size": [
+          16.799999237060547,
+          2.1474329233169556,
+          18.899999618530273
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_SERAPH_FINAL.glb",
+      "sha256": "9a2a9ec4ce5fd5d752df5506283427342e008999d219f3bdff1dc0ad17a7c310",
+      "bytes": 4321992,
+      "triangles": 45396,
+      "surfaces": 46,
+      "materials": 8,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -8.399999618530273,
+          -1.0086199045181274,
+          -12.380921363830566
+        ],
+        "max": [
+          8.399999618530273,
+          2.8232240676879883,
+          12.21907901763916
+        ],
+        "size": [
+          16.799999237060547,
+          3.8318439722061157,
+          24.600000381469727
+        ]
+      }
+    },
+    {
+      "path": "assets/ships/SL_VALKYRIE_FINAL.glb",
+      "sha256": "727de17eacd2678987da97ed729ad5bb60c22a0bc1ea0e512a9e559d24ee5d4a",
+      "bytes": 5148752,
+      "triangles": 76988,
+      "surfaces": 38,
+      "materials": 7,
+      "images": 5,
+      "animation_clips": 0,
+      "authored_bounds": {
+        "min": [
+          -7.599999904632568,
+          -0.62117999792099,
+          -8.345540046691895
+        ],
+        "max": [
+          7.599999904632568,
+          2.1725358963012695,
+          8.758685111999512
+        ],
+        "size": [
+          15.199999809265137,
+          2.7937158942222595,
+          17.104225158691406
+        ]
+      }
+    },
+    {
+      "path": "assets/weapons/SL_ARMA_ARC_HQ.glb",
+      "sha256": "38183dcd10f14db5956c5ec6fd9f0e917708d7b8ba78ece4a23fb56400ceec33",
+      "bytes": 1527364,
+      "triangles": 13516,
+      "surfaces": 76,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_CANHAO_GAUSS_HQ.glb",
+      "sha256": "384a23bd9989e1e6d4650a65b3da65f600d0e48f5713799dc74e011fedd8c804",
+      "bytes": 1470656,
+      "triangles": 6148,
+      "surfaces": 73,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_CANHAO_ION_HQ.glb",
+      "sha256": "dcec6fccc85023ce6bb036104f8141f44cf89ac3e6df198dfc71e1549b972f7a",
+      "bytes": 1549744,
+      "triangles": 18740,
+      "surfaces": 72,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_CANHAO_PLASMA_HQ.glb",
+      "sha256": "ceb875c460623bc210d5f868c8efaa1f06aed431ddf8b7b6a91de9fd9409e54a",
+      "bytes": 1521484,
+      "triangles": 13908,
+      "surfaces": 70,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_DESINTEGRADOR_HQ.glb",
+      "sha256": "d4f019e97cc55a43c4a53c655b44d8a8b935f547b707a2ed8f1e0adf9eda639e",
+      "bytes": 1569800,
+      "triangles": 17620,
+      "surfaces": 72,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_LANCA_PARTICULAS_HQ.glb",
+      "sha256": "51bc8fc5192b4bf90c21aa163d93a2d920d813b61677ffa2134f4d5464253b96",
+      "bytes": 1548104,
+      "triangles": 15228,
+      "surfaces": 66,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_LASER_BEAM_HQ.glb",
+      "sha256": "588bf1f041f0b5c080006ef77564a19f9b466fe2297e781586b673d9d9f6e8f3",
+      "bytes": 1472728,
+      "triangles": 6584,
+      "surfaces": 72,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    },
+    {
+      "path": "assets/weapons/SL_LASER_PULSE_HQ.glb",
+      "sha256": "881ece5d85cb4dfa2d2f3d2ffa7958cf669a3dedc0578072b34f140d5c3d56b7",
+      "bytes": 1471592,
+      "triangles": 6380,
+      "surfaces": 70,
+      "materials": 8,
+      "images": 6,
+      "animation_clips": 0
+    }
+  ],
+  "broken_literal_paths": []
+}

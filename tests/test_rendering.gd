@@ -54,5 +54,28 @@ func run() -> void:
     game.game_camera.look_at(Vector3(0, 0, 59))
     await capture("astral-portal")
     game.free()
-    print("RENDERING: 7 Compatibility scenarios completed")
+    for dimensions in [Vector2i(960, 540), Vector2i(640, 360), Vector2i(360, 740)]:
+        var viewport := SubViewport.new()
+        viewport.size = dimensions
+        viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+        root.add_child(viewport)
+        var preview = load("res://scenes/ui/design_system_preview.tscn").instantiate()
+        preview.reduced_motion = true
+        viewport.add_child(preview)
+        for frame in range(5):
+            await process_frame
+        await RenderingServer.frame_post_draw
+        if not output_dir.is_empty():
+            viewport.get_texture().get_image().save_png(output_dir.path_join("design-%dx%d.png" % [dimensions.x, dimensions.y]))
+        if dimensions.x == 960:
+            preview.scroll.scroll_vertical = 100000
+            await process_frame
+            await RenderingServer.frame_post_draw
+            if not output_dir.is_empty():
+                viewport.get_texture().get_image().save_png(output_dir.path_join("design-controls.png"))
+            preview.set_low_effects(true)
+            await process_frame
+            await RenderingServer.frame_post_draw
+        viewport.free()
+    print("RENDERING: 7 gameplay and 5 design Compatibility scenarios completed")
     quit()

@@ -113,6 +113,7 @@ var catalogue: Array[Dictionary] = []
 var active_category := ""
 var demo_starfield_visible := true
 var layout_size := Vector2(960, 540)
+var design_preview: Control
 
 func setup(root, minimap: Control) -> void:
     game = root
@@ -578,6 +579,7 @@ func _apply_sector_skin(kind: String) -> void:
         modal_backdrop.modulate = Color(0.65, 0.77, 0.96, 0.68)
 
 func _open_modal(kind: String) -> void:
+    _release_design_preview()
     modal_kind = kind
     modal_overlay.visible = true
     _apply_sector_skin(kind)
@@ -1133,6 +1135,7 @@ func _build_hub_page(kind: String) -> void:
             _hub_text("NENHUMA ALTERACAO NO RENDER OU SUPABASE ATUAIS.")
 
 func _build_settings_menu() -> void:
+    _add_menu_row("DESIGN SYSTEM — PREVIA DA ETAPA 01", _open_design_preview)
     _hub_text("QUALIDADE GRAFICA  |  %s" % game.graphics_quality, true)
     _hub_text("Naves, NPCs, drones e AUX-9 permanecem com seus GLBs FULL em todos os perfis.")
     for preset in ["BAIXO","MEDIO","ALTO"]:
@@ -1162,6 +1165,26 @@ func _build_settings_menu() -> void:
         close_modal()
     )
 
+func _open_design_preview() -> void:
+    if is_instance_valid(design_preview):
+        return
+    var preview_script := load("res://scripts/ui/design/design_preview.gd") as GDScript
+    design_preview = preview_script.new()
+    design_preview.low_effects = game.graphics_quality == "BAIXO"
+    design_preview.closed.connect(_close_design_preview)
+    add_child(design_preview)
+    design_preview.move_to_front()
+
+func _release_design_preview() -> void:
+    if is_instance_valid(design_preview):
+        remove_child(design_preview)
+        design_preview.queue_free()
+    design_preview = null
+
+func _close_design_preview() -> void:
+    _release_design_preview()
+    _open_modal("CONFIG")
+
 func _apply_quality_setting(preset: String) -> void:
     game.set_graphics_quality(preset)
     _open_modal("CONFIG")
@@ -1171,6 +1194,7 @@ func _pick_ammo(index: int) -> void:
     refresh()
 
 func close_modal() -> void:
+    _release_design_preview()
     modal_overlay.visible = false
     hangar_premium.close_preview()
     equipment_command.close_preview()

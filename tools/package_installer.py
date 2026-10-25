@@ -20,9 +20,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base', default='ed7158b792cb021b7f56955e244c4bd105a517a4')
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--single', action='store_true', help='Put assets and code in one self-contained update when it fits')
+    parser.add_argument('--label', default='StellarLegacy_Codex')
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
+    if not args.label or PurePosixPath(args.label).name != args.label or "\\" in args.label:
+        raise SystemExit('Label must be a filename stem')
     base, head = git('rev-parse', args.base), git('rev-parse', 'HEAD')
     groups = [[], []]
     excluded = []
@@ -39,7 +43,11 @@ def main():
         if (ROOT / name).is_symlink():
             raise SystemExit('Symlinks are not supported: ' + name)
         groups[0 if path.parts[0] == 'assets' else 1].append(name)
-    names = ['StellarLegacy_Codex_PARTE_1_ASSETS.zip', 'StellarLegacy_Codex_PARTE_2_CORRECOES.zip']
+    if args.single:
+        groups = [groups[0] + groups[1]]
+        names = [args.label + '_ATUALIZACAO.zip']
+    else:
+        names = [args.label + '_PARTE_1_ASSETS.zip', args.label + '_PARTE_2_CORRECOES.zip']
     parts = []
     for index, (name, files) in enumerate(zip(names, groups), start=1):
         target = output / name
