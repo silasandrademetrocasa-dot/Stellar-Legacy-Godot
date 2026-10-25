@@ -1,5 +1,5 @@
 extends RefCounted
-## Rotas locais Stellar Legacy: X-1 abre os tres portais astrais. 4-X e U-X permanecem isolados.
+## Rotas locais G0.18: setores 720 x 540 unidades, portais nas bordas distantes. 4-X e U-X permanecem isolados.
 ## Preview offline: NAO concede acesso no servidor; o servidor prevalecera.
 
 const FACTIONS := ["1", "2", "3"]
@@ -7,7 +7,7 @@ const FACTIONS := ["1", "2", "3"]
 const ASTRAL_MAPS := ["A-AURORA", "A-NEXUS", "A-ECLIPSE"]
 const ASTRAL_COLORS := {"A-AURORA": Color(0.12, 0.86, 0.95), "A-NEXUS": Color(0.60, 0.36, 0.98), "A-ECLIPSE": Color(1.0, 0.32, 0.38)}
 const FACTION_NAMES := {"1": "TERRA", "2": "MARTE", "3": "JUPITER"}
-const BOUNDS := Vector2(120.0, 90.0)
+const BOUNDS := Vector2(360.0, 270.0)
 const SLOTS := {
     "TL": Vector2(-0.89, -0.83),
     "TR": Vector2(0.89, -0.83),

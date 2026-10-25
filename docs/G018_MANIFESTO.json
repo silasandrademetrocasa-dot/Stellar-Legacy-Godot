@@ -1,0 +1,84 @@
+{
+  "project": "Stellar Legacy Godot",
+  "version": "G0.18",
+  "base": "G0.17_RECURSOS_HQ",
+  "size_policy": "single incremental under 25MB",
+  "source_zips": [
+    "STELLAR_LEGACY_13_NAVES_GLB_HQ_GODOT.zip",
+    "STELLAR_LEGACY_AUX9_3D_HQ_GODOT_GITHUB.zip"
+  ],
+  "runtime_assets": {
+    "ships_hq": 13,
+    "aux_hq": 1,
+    "aux_lod_included": false,
+    "ships_runtime_path": "assets/ships/SL_*_FINAL.glb",
+    "aux_runtime_path": "assets/aux/aux9.glb"
+  },
+  "sector_bounds": {
+    "x": [
+      -360,
+      360
+    ],
+    "z": [
+      -270,
+      270
+    ],
+    "width": 720,
+    "height": 540,
+    "area_factor": 9
+  },
+  "radar": {
+    "resource_detection_radius": 112,
+    "applies_to": [
+      "ores",
+      "bonus_boxes",
+      "npc_loot_boxes"
+    ]
+  },
+  "save_migration": "G0.17 resource positions scaled once without wallet/inventory reset",
+  "production_backend_modified": false,
+  "changed_count": 41,
+  "changed_files": [
+    "assets/aux/aux9.glb",
+    "assets/ships/SL_AURORA_FINAL.glb",
+    "assets/ships/SL_BASTION_FINAL.glb",
+    "assets/ships/SL_BULWARK_FINAL.glb",
+    "assets/ships/SL_KENSEI_FINAL.glb",
+    "assets/ships/SL_LEVIATHAN_FINAL.glb",
+    "assets/ships/SL_LYNX_FINAL.glb",
+    "assets/ships/SL_MERIDIAN_FINAL.glb",
+    "assets/ships/SL_PATHFINDER_FINAL.glb",
+    "assets/ships/SL_PHANTOM_FINAL.glb",
+    "assets/ships/SL_PIONEER_FINAL.glb",
+    "assets/ships/SL_RAPTOR_FINAL.glb",
+    "assets/ships/SL_SERAPH_FINAL.glb",
+    "assets/ships/SL_VALKYRIE_FINAL.glb",
+    "assets/ui/g018_mesh_previews/SL_AURORA_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_BASTION_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_BULWARK_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_KENSEI_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_LEVIATHAN_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_LYNX_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_MERIDIAN_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_PATHFINDER_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_PHANTOM_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_PIONEER_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_RAPTOR_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_SERAPH_FINAL.png",
+    "assets/ui/g018_mesh_previews/SL_VALKYRIE_FINAL.png",
+    "assets/ui/g018_mesh_previews/aux9.png",
+    "docs/G018_MANIFESTO.json",
+    "docs/G018_MAPAS_HQ_RADAR.md",
+    "project.godot",
+    "scripts/main.gd",
+    "scripts/ui/equipment_command.gd",
+    "scripts/ui/mini_map.gd",
+    "scripts/ui/stellar_hangar_premium.gd",
+    "scripts/ui/stellar_store.gd",
+    "scripts/world/combat_world.gd",
+    "scripts/world/enemy_ship.gd",
+    "scripts/world/fleet_support.gd",
+    "scripts/world/resource_field.gd",
+    "scripts/world_routes.gd"
+  ]
+}

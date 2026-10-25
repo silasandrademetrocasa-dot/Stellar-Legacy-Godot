@@ -6,8 +6,8 @@ signal ore_collected(resource_name: String, amount: int)
 signal bonus_collected(reward: Dictionary)
 
 const SAVE_PATH: String = "user://stellar_g017_resources_demo.json"
-const BONUS_NORMAL: int = 20
-const BONUS_PVP: int = 30
+const BONUS_NORMAL: int = 34
+const BONUS_PVP: int = 40
 const BONUS_MIN_WAIT: float = 40.0
 const BONUS_MAX_WAIT: float = 70.0
 const ORE_MIN_WAIT: float = 5.0
@@ -69,7 +69,7 @@ func _save_state() -> void:
         map_states[current_map] = current_state
     var f: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"version":1, "maps":map_states}))
+        f.store_string(JSON.stringify({"version":2, "maps":map_states}))
 
 func _bonus_target(map_id: String) -> int:
     if map_id.begins_with("A-"):
@@ -86,7 +86,7 @@ func _ore_target(map_id: String) -> int:
     # Jogo web usa mais nodes porque seus setores sao muito maiores.
     # Aqui mantemos o mesmo ciclo de coleta, limitado a 10-14 GLBs HQ no Android.
     var tier: int = _tier(map_id)
-    return mini(14, 9 + tier)
+    return mini(36, 27 + tier)
 
 func _tier(map_id: String) -> int:
     var parts: PackedStringArray = map_id.split("-")
@@ -116,7 +116,16 @@ func configure(map_id: String, portals: Array[Vector3]) -> void:
     if restored is Dictionary and restored.has("bonus") and restored.has("ores"):
         current_state = restored
     else:
-        current_state = {"bonus":[], "ores":[], "bonus_pending":[], "ore_pending":[], "counter":0}
+        current_state = {"bonus":[], "ores":[], "bonus_pending":[], "ore_pending":[], "counter":0, "sector_scale":3}
+    # Migracao local unica: espelha recursos salvos da area antiga 240 x 180 na area 720 x 540.
+    if int(current_state.get("sector_scale", 1)) < 3:
+        for key in ["bonus", "ores"]:
+            for row in current_state.get(key, []):
+                if row is Dictionary and row.has("pos"):
+                    var coords: Array = row["pos"]
+                    if coords.size() >= 2:
+                        row["pos"] = [clampf(float(coords[0]) * 3.0, -345.0, 345.0), clampf(float(coords[1]) * 3.0, -255.0, 255.0)]
+        current_state["sector_scale"] = 3
     _replenish()
     _refresh_visible()
     _save_state()
@@ -127,8 +136,9 @@ func _next_id(prefix: String) -> String:
 
 func _where() -> Array:
     for attempt in range(60):
-        var x: float = rng.randf_range(-109.0, 109.0)
-        var z: float = rng.randf_range(-79.0, 79.0)
+        var wide: bool = rng.randf() < 0.73
+        var x: float = rng.randf_range(-341.0, 341.0) if wide else rng.randf_range(-125.0, 125.0)
+        var z: float = rng.randf_range(-251.0, 251.0) if wide else rng.randf_range(-88.0, 88.0)
         var point: Vector3 = Vector3(x, 0.0, z)
         if point.length() < 19.0:
             continue
@@ -141,7 +151,7 @@ func _where() -> Array:
                 break
         if safe:
             return [x, z]
-    return [rng.randf_range(-100.0, -80.0), rng.randf_range(-70.0, 70.0)]
+    return [rng.randf_range(-336.0, -285.0), rng.randf_range(-248.0, 248.0)]
 
 func _spawn_bonus() -> void:
     var row: Dictionary = {"id":_next_id("bonus"), "pos":_where()}

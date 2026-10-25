@@ -256,7 +256,7 @@ func _load_ship() -> void:
     ship_loaded = ship_id
     var st: Dictionary = Ships.get_ship(ship_id)
     ship_caption.text = "%s • HP %s • VEL %d • PORAO %d • ARM %d / GER %d / EXT %d" % [ship_id, str(st.get("hp",0)), int(st.get("speed",0)), int(st.get("cargo",0)), int(st.get("lasers",1)), int(st.get("generators",1)), int(st.get("extras",1))]
-    ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 0.85)
+    ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 1.12)
 
 func open_command() -> void:
     visible = true

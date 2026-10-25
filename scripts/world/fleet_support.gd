@@ -56,7 +56,7 @@ func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String
             aux_model = asset.instantiate() as Node3D
             if aux_model != null:
                 aux_root.add_child(aux_model)
-                aux_model.scale = Vector3.ONE * 0.55
+                aux_model.scale = Vector3.ONE * 0.70
     drones_enabled = drone_models.size() > 0
     aux_enabled = aux_model != null
     snap_to_player()

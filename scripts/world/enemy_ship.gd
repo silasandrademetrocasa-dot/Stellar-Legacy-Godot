@@ -1,4 +1,5 @@
 extends Node3D
+const Routes = preload("res://scripts/world_routes.gd")
 ## G0.3: NPC 3D local. Não representa entidades reais do servidor.
 
 var npc_id := ""
@@ -121,8 +122,8 @@ func tick(delta: float, player_pos: Vector3) -> void:
         var move_vector := position - before
         if move_vector.length_squared() > 0.00001:
             want_heading = atan2(move_vector.x, move_vector.z)
-    position.x = clampf(position.x, -112.0, 112.0)
-    position.z = clampf(position.z, -82.0, 82.0)
+    position.x = clampf(position.x, -Routes.BOUNDS.x + 8.0, Routes.BOUNDS.x - 8.0)
+    position.z = clampf(position.z, -Routes.BOUNDS.y + 8.0, Routes.BOUNDS.y - 8.0)
     rotation.y = lerp_angle(rotation.y, want_heading, minf(delta * 5.2, 1.0))
     if aggressive:
         attack_clock -= delta

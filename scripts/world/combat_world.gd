@@ -96,16 +96,18 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
         return
     var pool := ELITE_POOL if map_id.begins_with("U-") else NPC_POOL
     var map_rank := 3 if map_id.begins_with("U-") else (int(map_id.split("-")[1]) if map_id.split("-").size() > 1 else 1)
-    var amount := 4 if map_id.begins_with("U-") else mini(6 + map_rank / 3, 9)
+    var amount: int = 6 if map_id.begins_with("U-") else mini(12 + int(map_rank / 2), 17)
     var rng := RandomNumberGenerator.new()
     rng.seed = int(abs(hash("npc-spawn:" + map_id)))
     for i in range(amount):
         var spawn := Vector3.ZERO
         for attempt in range(30):
-            spawn = Vector3(rng.randf_range(-97, 97), 0.0, rng.randf_range(-69, 69))
-            var good := spawn.length() > 27.0
+            spawn = Vector3(rng.randf_range(-330.0, 330.0), 0.0, rng.randf_range(-238.0, 238.0))
+            var good: bool = spawn.length() > 36.0
+            if map_id.ends_with("-1") and spawn.distance_to(Vector3(0.0, 0.0, 44.0)) < 35.0:
+                good = false
             for portal in portal_positions:
-                if spawn.distance_to(portal) < 17.0:
+                if spawn.distance_to(portal) < 20.0:
                     good = false
                     break
             if good:

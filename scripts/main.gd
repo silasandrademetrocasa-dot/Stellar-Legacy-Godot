@@ -210,8 +210,8 @@ func _process(delta: float) -> void:
     speed = move_toward(speed, desired_speed if not blocked else 0.0, (ACCELERATION if desired_speed > speed else DECELERATION) * delta)
     ship_anchor.position += movement_vector * speed * delta
     _animate_engine(delta)
-    ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
-    ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
+    ship_anchor.position.x = clampf(ship_anchor.position.x, -Routes.BOUNDS.x + 2.0, Routes.BOUNDS.x - 2.0)
+    ship_anchor.position.z = clampf(ship_anchor.position.z, -Routes.BOUNDS.y + 2.0, Routes.BOUNDS.y - 2.0)
     combat_world.collect_nearby(ship_anchor.global_position, resource_cargo, current_ship, equipment_state)
     resource_field.collect_nearby(ship_anchor.global_position, resource_cargo, current_ship, equipment_state)
     if hub_store != null and Routes.is_pvp(current_map):
@@ -259,7 +259,7 @@ func _clear_autonavigation() -> void:
         marker.visible = false
 
 func _set_destination(point: Vector3) -> void:
-    destination = Vector3(clampf(point.x, -118.0, 118.0), 0.0, clampf(point.z, -88.0, 88.0))
+    destination = Vector3(clampf(point.x, -Routes.BOUNDS.x + 2.0, Routes.BOUNDS.x - 2.0), 0.0, clampf(point.z, -Routes.BOUNDS.y + 2.0, Routes.BOUNDS.y - 2.0))
     destination_active = true
     chase_target = false
     # A nave mantém o tiro ativo e o NPC selecionado ao receber novo destino.
@@ -482,11 +482,11 @@ func _make_starfield() -> void:
     var multi := MultiMesh.new()
     multi.transform_format = MultiMesh.TRANSFORM_3D
     multi.mesh = sphere
-    multi.instance_count = 360
+    multi.instance_count = 720
     var rng := RandomNumberGenerator.new()
     rng.seed = 50464
     for i in range(multi.instance_count):
-        multi.set_instance_transform(i, Transform3D(Basis(), Vector3(rng.randf_range(-210, 210), -5.0, rng.randf_range(-210, 210))))
+        multi.set_instance_transform(i, Transform3D(Basis(), Vector3(rng.randf_range(-410, 410), -5.0, rng.randf_range(-310, 310))))
     var instance := MultiMeshInstance3D.new()
     instance.name = "Starfield"
     instance.multimesh = multi
@@ -501,10 +501,10 @@ func _make_border() -> void:
         var wall := MeshInstance3D.new()
         wall.name = "WorldLimit%d" % edge
         var mesh := BoxMesh.new()
-        mesh.size = Vector3(240.0, 0.07, 0.25) if edge < 2 else Vector3(0.25, 0.07, 180.0)
+        mesh.size = Vector3(Routes.BOUNDS.x * 2.0, 0.07, 0.25) if edge < 2 else Vector3(0.25, 0.07, Routes.BOUNDS.y * 2.0)
         mesh.material = mat
         wall.mesh = mesh
-        wall.position = Vector3(0, -0.15, -90.0 if edge == 0 else 90.0) if edge < 2 else Vector3(-120.0 if edge == 2 else 120.0, -0.15, 0)
+        wall.position = Vector3(0, -0.15, -Routes.BOUNDS.y if edge == 0 else Routes.BOUNDS.y) if edge < 2 else Vector3(-Routes.BOUNDS.x if edge == 2 else Routes.BOUNDS.x, -0.15, 0)
         add_child(wall)
 
 func _make_navigation_marker() -> void:
@@ -631,8 +631,8 @@ func _layout_hud() -> void:
     faction_select.size = Vector2(130, 38)
     ship_select.position = Vector2(s.x - 199, 7)
     ship_select.size = Vector2(185, 38)
-    mini_map.position = Vector2(s.x - 208, 57)
-    mini_map.size = Vector2(194, 129)
+    mini_map.position = Vector2(s.x - 251, 57)
+    mini_map.size = Vector2(237, 157)
     combat_label.position = Vector2(12, 86)
     combat_label.size = Vector2(345, 19)
     hp_bar.position = Vector2(12, 109)
@@ -942,6 +942,8 @@ func _set_ship(ship_id: String) -> void:
     ship_visual = inst
     ship_visual.name = ship_id
     ship_anchor.add_child(ship_visual)
+    # G0.18: escala apenas de cena; o GLB HQ mantem sua malha e texturas integrais.
+    ship_visual.scale = Vector3.ONE * 1.38
     current_ship = ship_id
     equipment_state.set_active_ship(ship_id)
     var profile: Dictionary = ShipBalance.get_ship(ship_id)

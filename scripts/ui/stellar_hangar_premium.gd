@@ -303,7 +303,10 @@ func _rank_color(rarity: String) -> Color:
 func _icon_for_path(model_path: String) -> Texture2D:
     if model_path.is_empty():
         return null
-    var img_path: String = "res://assets/ui/g016_mesh_previews/%s.png" % model_path.get_file().get_basename()
+    var stem: String = model_path.get_file().get_basename()
+    var img_path: String = "res://assets/ui/g018_mesh_previews/%s.png" % stem
+    if not ResourceLoader.exists(img_path):
+        img_path = "res://assets/ui/g016_mesh_previews/%s.png" % stem
     return load(img_path) as Texture2D if ResourceLoader.exists(img_path) else null
 
 func _refresh_loadout() -> void:
@@ -397,7 +400,7 @@ func _set_preview_ship(ship_id: String) -> void:
         hero_pivot.add_child(hero_model)
         hero_model.position = Vector3.ZERO
         hero_model.rotation_degrees = Vector3(0, 10, 0)
-        hero_model.scale = Vector3.ONE * 1.12
+        hero_model.scale = Vector3.ONE * 1.65
         hero_model.visible = true
     hero_camera.position = Vector3(6.7, 5.1, 10.6) if ship_id in ["LEVIATHAN", "BULWARK"] else Vector3(5.5, 4.3, 9.0)
     hero_camera.look_at(Vector3(0.0, 0.1, 0.0), Vector3.UP)

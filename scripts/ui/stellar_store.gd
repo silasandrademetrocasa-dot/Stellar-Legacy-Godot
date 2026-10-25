@@ -238,7 +238,7 @@ func _refresh_ship() -> void:
     # Dados do balanceamento oficial; carteira e compras sao apenas demonstrativas.
     if name != last_ship:
         last_ship = name
-        ship_mesh = _set_model(ship_pivot, "res://assets/ships/SL_%s_FINAL.glb" % name, 0.9)
+        ship_mesh = _set_model(ship_pivot, "res://assets/ships/SL_%s_FINAL.glb" % name, 1.18)
     balance_label.text = "LOJA ESTELAR  |  %s CR   •   %s STL   |   VALORES OFICIAIS / SALDO LOCAL" % [_fmt(game.wallet.credits), _fmt(game.wallet.stellarium)]
 
 func _tint(rarity: String) -> Color:
@@ -302,7 +302,9 @@ func _create_product_card(product: Dictionary) -> void:
     var thumb: String = Equip.thumbnail_path(name)
     var model_path: String = str(product["path"])
     var base_name: String = model_path.get_file().get_basename()
-    var glb_thumb: String = "res://assets/ui/g015_models/%s.png" % base_name
+    var glb_thumb: String = "res://assets/ui/g018_mesh_previews/%s.png" % base_name
+    if not ResourceLoader.exists(glb_thumb):
+        glb_thumb = "res://assets/ui/g015_models/%s.png" % base_name
     if not ResourceLoader.exists(glb_thumb):
         glb_thumb = "res://assets/ui/g014_models/%s.png" % base_name
     if ResourceLoader.exists(glb_thumb):

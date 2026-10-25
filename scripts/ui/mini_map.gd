@@ -3,7 +3,9 @@ extends Control
 
 signal destination_requested(world_pos: Vector3)
 
-const WORLD_HALF := Vector2(120.0, 90.0)
+const WORLD_HALF := Vector2(360.0, 270.0) # mesmo limite de Routes.BOUNDS
+# Somente recursos proximos aparecem no radar; alcance fixo independente dos graficos.
+const RESOURCE_RADAR_RADIUS: float = 112.0
 var current_map := "1-1"
 var ship_pos := Vector3.ZERO
 var portal_points: Array[Vector3] = []
@@ -71,7 +73,7 @@ func _gui_input(event: InputEvent) -> void:
 func _draw() -> void:
     draw_rect(Rect2(Vector2.ZERO, size), Color(0.018, 0.038, 0.085, 0.9), true)
     draw_rect(Rect2(Vector2.ZERO, size), Color(0.22, 0.42, 0.68), false, 1.4)
-    draw_string(ThemeDB.fallback_font, Vector2(9, 17), "MAPA %s" % current_map, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.8, 0.93, 1.0))
+    draw_string(ThemeDB.fallback_font, Vector2(9, 17), "MAPA %s  |  RADAR" % current_map, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.8, 0.93, 1.0))
     var mid := _to_screen(Vector3.ZERO)
     draw_line(Vector2(mid.x, 25), Vector2(mid.x, size.y - 7), Color(0.14, 0.25, 0.39, 0.9), 1)
     draw_line(Vector2(7, mid.y), Vector2(size.x - 7, mid.y), Color(0.14, 0.25, 0.39, 0.9), 1)
@@ -90,14 +92,29 @@ func _draw() -> void:
         draw_circle(relay_location, 2.6, Color(0.95, 0.72, 0.23))
     for enemy in enemy_points:
         draw_circle(_to_screen(enemy), 2.9, Color(1.0, 0.39, 0.4))
+    # Recursos estao ocultos fora do sensor, mesmo que seus dados existam no mapa offline.
+    var ship_pixel: Vector2 = _to_screen(ship_pos)
+    var screen_radius_x: float = RESOURCE_RADAR_RADIUS * (size.x - 14.0) / (WORLD_HALF.x * 2.0)
+    var screen_radius_y: float = RESOURCE_RADAR_RADIUS * (size.y - 32.0) / (WORLD_HALF.y * 2.0)
+    var radar_curve: PackedVector2Array = PackedVector2Array()
+    for i in range(49):
+        var angle: float = TAU * float(i) / 48.0
+        radar_curve.append(ship_pixel + Vector2(cos(angle) * screen_radius_x, sin(angle) * screen_radius_y))
+    draw_polyline(radar_curve, Color(0.25, 0.77, 0.89, 0.55), 1.0)
     for box in loot_points:
+        if box.distance_to(ship_pos) > RESOURCE_RADAR_RADIUS:
+            continue
         var pixel: Vector2 = _to_screen(box)
         draw_rect(Rect2(pixel - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), Color(1.0, 0.83, 0.27), true)
     for ore in ore_points:
+        if ore.distance_to(ship_pos) > RESOURCE_RADAR_RADIUS:
+            continue
         var pix: Vector2 = _to_screen(ore)
         var crystal: PackedVector2Array = PackedVector2Array([pix + Vector2(0,-3.5),pix + Vector2(3.5,0),pix + Vector2(0,3.5),pix + Vector2(-3.5,0)])
         draw_colored_polygon(crystal, Color(0.23, 0.91, 0.98))
     for bonus in bonus_points:
+        if bonus.distance_to(ship_pos) > RESOURCE_RADAR_RADIUS:
+            continue
         var pix: Vector2 = _to_screen(bonus)
         draw_rect(Rect2(pix - Vector2(3.1, 3.1), Vector2(6.2, 6.2)), Color(1.0, 0.68, 0.22), true)
         draw_circle(pix, 1.8, Color(1.0, 0.98, 0.62))
