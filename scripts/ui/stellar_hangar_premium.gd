@@ -304,7 +304,11 @@ func _icon_for_path(model_path: String) -> Texture2D:
     if model_path.is_empty():
         return null
     var stem: String = model_path.get_file().get_basename()
-    var img_path: String = "res://assets/ui/g018_mesh_previews/%s.png" % stem
+    var img_path: String = "res://assets/ui/g019_shields/%s.png" % stem
+    if not ResourceLoader.exists(img_path):
+        img_path = "res://assets/ui/g020_ship_previews/%s.png" % stem
+    if not ResourceLoader.exists(img_path):
+        img_path = "res://assets/ui/g018_mesh_previews/%s.png" % stem
     if not ResourceLoader.exists(img_path):
         img_path = "res://assets/ui/g016_mesh_previews/%s.png" % stem
     return load(img_path) as Texture2D if ResourceLoader.exists(img_path) else null

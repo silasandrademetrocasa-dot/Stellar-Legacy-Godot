@@ -302,7 +302,11 @@ func _create_product_card(product: Dictionary) -> void:
     var thumb: String = Equip.thumbnail_path(name)
     var model_path: String = str(product["path"])
     var base_name: String = model_path.get_file().get_basename()
-    var glb_thumb: String = "res://assets/ui/g018_mesh_previews/%s.png" % base_name
+    var glb_thumb: String = "res://assets/ui/g019_shields/%s.png" % base_name
+    if not ResourceLoader.exists(glb_thumb):
+        glb_thumb = "res://assets/ui/g020_ship_previews/%s.png" % base_name
+    if not ResourceLoader.exists(glb_thumb):
+        glb_thumb = "res://assets/ui/g018_mesh_previews/%s.png" % base_name
     if not ResourceLoader.exists(glb_thumb):
         glb_thumb = "res://assets/ui/g015_models/%s.png" % base_name
     if not ResourceLoader.exists(glb_thumb):
@@ -319,7 +323,7 @@ func _create_product_card(product: Dictionary) -> void:
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     var currency: String = str(product.get("currency", "credits"))
     var for_sale: bool = bool(product.get("shop_visible", false)) and int(product.get("cost", 0)) > 0
-    var price_text: String = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if for_sale else "EXCLUSIVO / EVENTO"
+    var price_text: String = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if for_sale else ("VISUAL HQ / SEM PRECO" if str(product.get("kind", "")) == "shield_concept" else "EXCLUSIVO / EVENTO")
     var price: Label = _label(inner, price_text, 12, GOLD if currency == "credits" else Color(0.75, 0.4, 1.0))
     price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     var inspect: Button = _button(inner, "VER MODELO 3D", accent)
@@ -332,11 +336,13 @@ func _select_product(product: Dictionary) -> void:
     var name: String = str(product["name"])
     item_label.text = name
     description.text = str(product.get("desc", ""))
+    if str(product.get("category", "")) == "ESCUDOS":
+        description.text += "  |  " + str(product.get("hq_visual", "GLB integral G0.19"))
     if str(product.get("category", "")) == "NAVES":
         description.text = "%s  |  %s HP  |  VEL %d  |  PORAO %d  |  LASER %d / GER %d / EXTRA %d" % [name, str(product.get("hp", 0)), int(product.get("speed", 0)), int(product.get("cargo", 0)), int(product.get("lasers", 0)), int(product.get("generators", 0)), int(product.get("extras", 0))]
     var currency: String = str(product.get("currency", "credits"))
     var marketable: bool = bool(product.get("shop_visible", false)) and int(product.get("cost", 0)) > 0
-    cost_label.text = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else "EXCLUSIVO / EVENTO"
+    cost_label.text = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else ("MODELO HQ / AINDA NAO VENDIDO" if str(product.get("kind", "")) == "shield_concept" else "EXCLUSIVO / EVENTO")
     var owned: int = 0
     match str(product["category"]):
         "NAVES": owned = 1 if game.equipment_state.owns_ship(name) else 0
@@ -347,7 +353,7 @@ func _select_product(product: Dictionary) -> void:
     buy_button.disabled = not marketable or game.wallet.balance(currency) < int(product["cost"])
     if str(product["category"]) == "NAVES" and owned > 0:
         buy_button.disabled = true
-    buy_button.text = "ADQUIRIDO" if str(product["category"]) == "NAVES" and owned > 0 else ("COMPRAR | %s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else "NAO DISPONIVEL")
+    buy_button.text = "ADQUIRIDO" if str(product["category"]) == "NAVES" and owned > 0 else ("COMPRAR | %s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else ("MODELO HQ • SEM VENDA" if str(product.get("kind", "")) == "shield_concept" else "NAO DISPONIVEL"))
     item_mesh = _set_model(item_pivot, str(product["path"]), 1.25 if str(product["category"]) != "NAVES" else 0.85)
 
 func _buy_selected() -> void:
