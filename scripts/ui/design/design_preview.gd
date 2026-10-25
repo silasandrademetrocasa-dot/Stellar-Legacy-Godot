@@ -5,6 +5,10 @@ const Design = preload("res://scripts/ui/design/galactic_theme.gd")
 const GalacticPanel = preload("res://scripts/ui/design/galactic_panel.gd")
 const Emblem = preload("res://scripts/ui/design/galactic_emblem.gd")
 const HOLOGRAM = preload("res://shaders/galactic_hologram.gdshader")
+const Tabs = preload("res://scripts/ui/design/galactic_tabs.gd")
+const ItemListComponent = preload("res://scripts/ui/design/galactic_item_list.gd")
+const TextField = preload("res://scripts/ui/design/galactic_text_field.gd")
+const Ships = preload("res://scripts/data/ship_balance.gd")
 var low_effects := false
 var reduced_motion := false
 var backdrop: ColorRect
@@ -21,6 +25,14 @@ var disabled_button: Button
 var return_button: Button
 var motion_toggle: CheckButton
 var entry_tween: Tween
+var page_tabs
+var browser_tabs
+var records_list
+var form_field
+var identity_section: VBoxContainer
+var components_section: VBoxContainer
+var selection_feedback: Label
+var form_feedback: Label
 
 func _ready() -> void:
     name = "DesignSystemPreview"
@@ -52,6 +64,8 @@ func _ready() -> void:
     _label(identity, "NÚCLEO DE IDENTIDADE  /  ETAPA 01", "GalacticCaption")
     return_button = _button(header, "VOLTAR", "GalacticSecondaryButton")
     return_button.pressed.connect(request_close)
+    page_tabs = Tabs.new()
+    column.add_child(page_tabs)
     scroll = ScrollContainer.new()
     scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
     scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -63,17 +77,26 @@ func _ready() -> void:
     content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     content.add_theme_constant_override("separation", 16)
     scroll.add_child(content)
+    identity_section = VBoxContainer.new()
+    identity_section.add_theme_constant_override("separation", 16)
+    content.add_child(identity_section)
     _build_hero()
     cards = GridContainer.new()
     cards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     cards.add_theme_constant_override("h_separation", 12)
     cards.add_theme_constant_override("v_separation", 12)
-    content.add_child(cards)
+    identity_section.add_child(cards)
     _swatch("ION", "Navegação e ação principal", Design.ION)
     _swatch("AMBER", "Atenção e foco de navegação", Design.AMBER)
     _swatch("ASTRAL", "Descoberta e energia profunda", Design.VIOLET)
+    components_section = VBoxContainer.new()
+    components_section.add_theme_constant_override("separation", 16)
+    content.add_child(components_section)
     _build_controls()
-    _label(content, "PROPOSTA VISUAL  •  A identidade será consolidada após sua revisão.", "GalacticCaption")
+    _build_patterns()
+    _label(content, "DIREÇÃO VISUAL APROVADA  •  Novos componentes em revisão.", "GalacticCaption")
+    page_tabs.tab_changed.connect(_on_page_selected)
+    page_tabs.set_tabs([{"id":"identity", "label":"IDENTIDADE"}, {"id":"components", "label":"COMPONENTES"}])
     resized.connect(_layout)
     _layout()
     set_low_effects(low_effects)
@@ -114,7 +137,7 @@ func _panel(parent: Node, accent: Color) -> VBoxContainer:
     return column
 
 func _build_hero() -> void:
-    var hero := _panel(content, Design.ION)
+    var hero := _panel(identity_section, Design.ION)
     _label(hero, "SINAL 01  /  FUNDAÇÃO GALÁCTICA", "GalacticCaption")
     hero_row = BoxContainer.new()
     hero_row.add_theme_constant_override("separation", 20)
@@ -126,7 +149,7 @@ func _build_hero() -> void:
     var title := _label(words, "O LEGADO COMEÇA\nENTRE ESTRELAS.", "GalacticTitle")
     title.add_theme_font_size_override("font_size", 34)
     _label(words, "Linhas orbitais interrompidas, luz de navegação e metal profundo. Uma linguagem própria para explorar a galáxia.")
-    var badge := _label(words, "PRÉVIA PARA REVISÃO", "GalacticCaption")
+    var badge := _label(words, "DIREÇÃO VISUAL APROVADA", "GalacticCaption")
     badge.add_theme_color_override("font_color", Design.AMBER)
     var emblem := Emblem.new()
     emblem.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -145,7 +168,7 @@ func _swatch(title: String, description: String, color: Color) -> void:
     _label(box, "#" + color.to_html(false).to_upper(), "GalacticCaption")
 
 func _build_controls() -> void:
-    var box := _panel(content, Design.VIOLET)
+    var box := _panel(components_section, Design.VIOLET)
     _label(box, "COMANDOS E ESTADOS", "GalacticCaption")
     var buttons := HFlowContainer.new()
     buttons.add_theme_constant_override("h_separation", 12)
@@ -174,6 +197,50 @@ func _build_controls() -> void:
     motion_toggle.button_pressed = reduced_motion
     motion_toggle.toggled.connect(set_reduced_motion)
     box.add_child(motion_toggle)
+
+func _build_patterns() -> void:
+    var browser := _panel(components_section, Design.ION)
+    _label(browser, "REGISTROS E SELEÇÃO", "GalacticCaption")
+    _label(browser, "Catálogo de demonstração. Selecionar aqui não equipa nem compra itens.")
+    browser_tabs = Tabs.new()
+    browser.add_child(browser_tabs)
+    records_list = ItemListComponent.new()
+    browser.add_child(records_list)
+    selection_feedback = _label(browser, "Selecione um registro para comparar o estado ativo.")
+    records_list.selection_changed.connect(_on_record_selected)
+    browser_tabs.tab_changed.connect(_load_records)
+    browser_tabs.set_tabs([{"id":"fleet", "label":"FROTA"}, {"id":"systems", "label":"SISTEMAS"}, {"id":"locked", "label":"EM BREVE", "enabled":false}])
+    var form := _panel(components_section, Design.AMBER)
+    _label(form, "ENTRADA E VALIDAÇÃO", "GalacticCaption")
+    _label(form, "Exemplo de formulário. O valor confirmado fica apenas nesta prévia.")
+    form_field = TextField.new()
+    form.add_child(form_field)
+    form_feedback = _label(form, "Nenhum identificador confirmado.")
+    form_field.value_submitted.connect(_on_form_submitted)
+
+func _on_page_selected(id: String) -> void:
+    identity_section.visible = id == "identity"
+    components_section.visible = id == "components"
+    scroll.scroll_vertical = 0
+
+func _load_records(id: String) -> void:
+    records_list.set_filter("")
+    var items: Array[Dictionary] = []
+    if id == "fleet":
+        for ship_id in Ships.SHIPS:
+            var ship := Ships.get_ship(ship_id)
+            items.append({"id":ship_id, "title":str(ship.get("label", ship_id)), "detail":"Catálogo · seleção de demonstração"})
+    elif id == "systems":
+        items = [{"id":"engine", "title":"Propulsão", "detail":"Exemplo de sistema disponível"}, {"id":"shield", "title":"Escudo", "detail":"Exemplo de campo energético"}, {"id":"sensors", "title":"Sensores", "detail":"Indisponível neste exemplo", "enabled":false}]
+    records_list.set_items(items)
+    selection_feedback.text = "Selecione um registro para comparar o estado ativo."
+
+func _on_record_selected(_id: String) -> void:
+    var item: Dictionary = records_list.get_selected_item()
+    selection_feedback.text = "SELECIONADO · " + str(item["title"]) if not item.is_empty() else "Nenhum registro selecionado."
+
+func _on_form_submitted(value: String) -> void:
+    form_feedback.text = "Confirmado na prévia: " + value
 
 func _show_feedback(text: String, color: Color) -> void:
     feedback.text = text

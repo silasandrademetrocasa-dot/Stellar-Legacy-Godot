@@ -1,10 +1,11 @@
-# Fundação do Design System galáctico — proposta da Etapa 01
+# Fundação do Design System galáctico — Etapa 01
 
-Estado: **EM DESENVOLVIMENTO**. Paleta, tipografia e emblema abaixo são uma proposta
-para revisão do proprietário. Não substituem uma identidade aprovada nem tornam
-a Etapa 01 concluída por si só.
+A direção visual da fundação foi **aprovada pelo proprietário**, conforme
+`../APPROVALS.md`. Paleta, fontes e motivo orbital abaixo são a referência aceita
+para a continuidade. Os componentes adicionais desta revisão estão em
+**AGUARDANDO APROVAÇÃO**; isso não aprova automaticamente toda a etapa.
 
-## Direção visual proposta
+## Direção visual aprovada
 
 Metal profundo e luz de navegação, com órbitas interrompidas e pequenos pontos de
 registro. As formas usam uma referência orbital comum em vez de aplicar efeitos
@@ -55,15 +56,15 @@ editor. A cena tem suporte de layout para paisagem e retrato na revisão; isso n
 muda a orientação configurada do jogo. Capturas em `previews/` são renderizações
 da própria UI, não mockups de uma funcionalidade supostamente pronta.
 
-## Critérios e próxima tarefa
+## Componentes adicionais e continuidade
 
-Fundação: fontes locais/licenciadas, componentes reutilizáveis, estados/foco,
-contraste em painel opaco, movimento reduzido, fallback de qualidade e abertura/
-fechamento sem alterar dados do jogador. 305 verificações automatizadas da prévia passaram; a renderização Compatibility
-real também passou. Evidências em `../audit/foundation-validation-results.json`. Contraste medido em cores opacas não garante
-legibilidade sobre qualquer cena futura nem substitui revisão visual.
+Abas, listas e campos de entrada foram acrescentados sem substituir a direção
+aprovada. Contratos e limites: [COMPONENTS.md](COMPONENTS.md). Na prévia, use
+**IDENTIDADE** para a fundação aprovada e **COMPONENTES** para os controles novos.
+O registro de teste inicial (305 verificações) permanece como histórico; a suíte
+atual da UI contém 545 verificações e a validação completa passou em 56 comandos.
 
-Próxima tarefa disponível: componentes de abas, listas, campos de entrada e
-mensagens de validação no mesmo protótipo. Após revisar a identidade e completar
-o conjunto, aplicar às telas da Etapa 02 em alterações separadas, preservando os
-fluxos existentes. Aprovação visual e testes físicos Android permanecem pendentes.
+Contraste em cores opacas não garante legibilidade sobre qualquer cenário futuro.
+A revisão física em Android e a aprovação dos controles novos continuam pendentes.
+Após a revisão do conjunto, a próxima aplicação será planejada na Etapa 02,
+preservando o funcionamento do HUD, menus e Hangar até suas entregas específicas.

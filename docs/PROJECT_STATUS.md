@@ -9,8 +9,8 @@ Estados permitidos: **PENDENTE**, **EM DESENVOLVIMENTO**, **PRONTO PARA TESTES**
 
 | Etapa | Nome | Estado | Evidência / próximo marco |
 |---|---|---|---|
-| 00 | Auditoria e segurança | AGUARDANDO APROVAÇÃO | Auditoria, inventário, mapa de sistemas e 53 comandos de validação concluídos; revisão do proprietário pendente. |
-| 01 | Design System galáctico | EM DESENVOLVIMENTO | Fundação implementada, 305 verificações e renderização da prévia passaram; identidade e conjunto completo de componentes ainda em desenvolvimento. |
+| 00 | Auditoria e segurança | APROVADO | Aprovação explícita do proprietário registrada em APPROVALS.md; auditoria e evidências preservadas. |
+| 01 | Design System galáctico | AGUARDANDO APROVAÇÃO | Direção visual aprovada; abas/listas/campos/validação adicionados com 545 verificações de UI e renderização. Revisão dos componentes novos pendente. |
 | 02 | UI principal e Hangar | PENDENTE | HUD/Hangar atuais preservados; reconstrução depende da identidade aprovada. |
 | 03 | Menus e sistemas | PENDENTE | Menus locais existentes; aplicar design e revisar fluxos sem perda de funcionalidades. |
 | 04 | Frota 3D | PENDENTE | 13 modelos existentes com orientação/escala testadas; fidelidade artística e LOD por nave ainda exigem revisão. |
@@ -24,34 +24,40 @@ Estados permitidos: **PENDENTE**, **EM DESENVOLVIMENTO**, **PRONTO PARA TESTES**
 
 ## Entrega atual
 
-Branch local: `codex/master-plan-design-system`. Base instalada lida do GitHub:
-`0c861a72152e2bf1b1bb45d55f893314b3582d60`. As duas partes da entrega anterior
-estão instaladas, com código/assets coincidentes. Nenhuma aprovação visual ou de
-etapa foi presumida desse fato. Não houve escrita direta do Codex na principal.
+Branch local: `codex/design-system-components`. Base instalada conferida no GitHub:
+`d84f5f355c4278a4a310e31c07fd3e4b0a98274c`. A fundação anterior já foi instalada pelo workflow do proprietário.
+A Etapa 00 e a direção visual apresentada receberam aprovação explícita, registrada
+em [APPROVALS.md](APPROVALS.md). Isso não presume aprovação de código novo ou de
+outras etapas. Nenhum push/merge direto do Codex foi realizado.
 
-Entregas desta revisão: roadmap oficial, plano de migração atualizado, inventário,
-mapa técnico, fundação visual e prévia acessível por CONFIG → DESIGN SYSTEM.
-Resultado: 53 comandos de validação, 17.226 verificações de regressão e renderização
-Compatibility real sem erros. Os 1.354 arquivos de assets instalados foram
-comparados por hash e preservados. Evidências em `audit/foundation-validation-results.json`
-e `design/previews/`. Testes Android físicos não foram executados.
+Etapa 01: componentes adicionais implementados e testados na prévia isolada.
+Abas IDENTIDADE/COMPONENTES, abas por categoria, lista com busca/seleção/estado
+vazio, registros indisponíveis e campo com validação e confirmação em memória.
+Cores, fontes e motivo orbital aprovados foram preservados; HUD/Hangar e regras
+do jogo não foram reconstruídos nesta revisão.
 
-O pacote é incremental sobre a base instalada, em um único ZIP menor que 25 MB,
-para o workflow existente. Instruções e escopo: [DELIVERY_00_01.md](DELIVERY_00_01.md).
+Resultado: **56 comandos** de validação, **17.466 verificações**, incluindo 545 da
+UI; renderização Compatibility de sete cenários de jogo e doze da prévia. Logs em
+`audit/components-validation-results.json`, capturas em `design/components-previews/`.
+A instalação incremental é conferida pelo extrator do workflow e pela suíte em um
+checkout limpo da base. Instruções: [DELIVERY_01_COMPONENTS.md](DELIVERY_01_COMPONENTS.md).
 
 ## Impedimentos e decisões abertas
 
-- **Referências V3:** originais/hashes e artes aprovadas por nave ainda precisam de
-  confirmação para certificar fidelidade; os 13 GLBs atuais estão preservados.
-- **Android:** não há aparelho físico disponível nesta sessão; não declarar FPS,
-  temperatura, toque físico, memória de GPU nem aprovação mobile sem esse teste.
-- **Identidade:** paleta e tipografia propostas ainda não são arte oficial aprovada.
-- **Produção:** nenhum serviço de produção, banco ou sistema financeiro autorizado.
+- **Referências V3:** confirmar originais/hashes e artes por nave antes de certificar
+  fidelidade. Os GLBs atuais permanecem intactos.
+- **Android:** não há aparelho físico na sessão. Viewports e IME simulados não
+  comprovam toque, teclado virtual físico, FPS, temperatura ou memória de GPU.
+- **Identidade:** direção visual da fundação aprovada; novos componentes aguardam
+  revisão. Alterações futuras nas artes aprovadas exigem validação.
+- **Produção:** nenhum serviço de produção, banco ou serviço financeiro autorizado.
 
 ## Continuidade
 
-A Etapa 00 está tecnicamente pronta para revisão. A fundação da 01 está testada
-e disponível para feedback visual; a etapa completa não foi declarada concluída.
-Próxima tarefa técnica disponível: abas, listas, campos de entrada e mensagens de
-validação no protótipo da 01. Consolidar a identidade após feedback antes de
-reconstruir telas da 02. Nenhuma etapa está marcada APROVADO.
+A Etapa 00 está **APROVADO**. A Etapa 01 fica **AGUARDANDO APROVAÇÃO** do conjunto
+adicional desta entrega. Nenhuma aprovação automática por teste ou instalação.
+
+Próxima tarefa técnica: planejar a aplicação do Design System na Etapa 02,
+começando pela estrutura de navegação/menu principal e HUD, em mudanças isoladas
+que mantenham os fluxos existentes. O início da aplicação visual depende da
+revisão desta biblioteca. Retopologia/novos GLBs e economia não integram esta entrega.

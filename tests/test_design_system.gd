@@ -36,11 +36,16 @@ func run() -> void:
         viewport.add_child(preview)
         for frame in range(5):
             await process_frame
+        preview.page_tabs.select_tab("components")
+        for frame in range(3):
+            await process_frame
         check(preview.size.is_equal_approx(Vector2(dimensions)), "Preview fills test viewport")
         check(preview.cards.columns == (1 if dimensions.x < 760 else 3), "Responsive palette columns")
         check(preview.shell.modulate.a == 1.0, "Reduced motion skips entry fade")
         for node in preview.find_children("*", "Control", true, false):
             var control := node as Control
+            if not control.is_visible_in_tree():
+                continue
             check(control.size.x <= float(dimensions.x) + 1, "Control fits viewport width: " + control.name)
             if node is Button:
                 check(control.size.y >= 48.0, "Button meets logical touch height: " + control.name)
@@ -67,6 +72,62 @@ func run() -> void:
         check(preview.backdrop.material == null, "Low graphics uses solid background")
         preview.set_low_effects(false)
         check(float(preview.background_material.get_shader_parameter("motion_strength")) == 0.0, "Quality switch preserves motion preference")
+        # Tab keyboard navigation skips disabled entries and wraps by stable ID.
+        var tabs = preview.browser_tabs
+        (tabs.buttons["fleet"] as Button).grab_focus()
+        var arrow := InputEventKey.new()
+        arrow.keycode = KEY_RIGHT
+        arrow.pressed = true
+        viewport.push_input(arrow, true)
+        await process_frame
+        check(tabs.selected_id == "systems", "Right arrow selects next enabled tab")
+        viewport.push_input(arrow, true)
+        await process_frame
+        check(tabs.selected_id == "fleet", "Arrow wraps past disabled tab")
+        check(not tabs.select_tab("locked"), "Disabled tab cannot be selected")
+        check(not tabs.set_tabs([{"id":"a"}, {"id":"a"}]) and tabs.selected_id == "fleet", "Duplicate tab IDs fail without replacing existing tabs")
+
+        var records = preview.records_list
+        check(records.get_visible_ids().size() == 13, "Fleet list reads 13 catalog records without loading models")
+        records.set_filter("  RAPTOR  ")
+        check(records.get_visible_ids() == ["RAPTOR"], "Filter normalizes whitespace and case")
+        check(records.select_item("RAPTOR"), "Visible list item can be selected")
+        var selected: Dictionary = records.get_selected_item()
+        selected["title"] = "changed"
+        check(records.get_selected_item()["title"] == "Raptor", "Selection getter does not expose mutable source data")
+        records.set_filter("zz-no-results")
+        check(records.empty_label.visible and not records.scroll.visible, "Empty result state is readable")
+        check(records.selected_id == "RAPTOR", "Filtering preserves selection by ID")
+        records.set_filter("")
+        check((records.row_buttons["RAPTOR"] as Button).button_pressed, "Clearing filter restores selected row")
+        check(not records.set_items([{"id":"x"},{"id":"x"}]), "Duplicate list IDs fail atomically")
+        check(records.get_visible_ids().size() == 13, "Invalid list update preserves previous records")
+        preview.browser_tabs.select_tab("systems")
+        check(records.selected_id.is_empty(), "Changing data clears a removed selection")
+        check(not records.select_item("sensors"), "Disabled list record cannot be selected")
+        for query in ["escudo", "propulsão", "", "ausente", ""]:
+            records.set_filter(query)
+            check(records.rows.get_child_count() == records.get_visible_ids().size(), "Filter rebuild does not retain stale rows")
+            await process_frame
+
+        var field = preview.form_field
+        var submitted: Array[String] = []
+        field.value_submitted.connect(func(value: String) -> void: submitted.append(value))
+        check(not field.submit() and field.state == "error", "Empty value gives explicit validation error")
+        check(field.message.text.begins_with("ERRO"), "Error is communicated by text, not color alone")
+        field.input.text = "  Esquadrão Órion  "
+        field.input.text_changed.emit(field.input.text)
+        check(field.state == "ready" and submitted.is_empty(), "Editing repairs error without submitting")
+        field.input.text_submitted.emit(field.input.text)
+        check(submitted == ["Esquadrão Órion"] and field.state == "confirmed", "IME submit preserves accents and trims outer whitespace")
+        field.set_value("A".repeat(25))
+        check(not field.submit() and submitted.size() == 1, "Overlong value does not emit a submission")
+        field.set_editable(false)
+        check(not field.input.editable and field.submit_button.disabled and not field.submit(), "Read-only field cannot submit")
+        field.set_editable(true)
+        field.set_value("XYZ")
+        check(field.submit() and submitted.size() == 2, "Re-enabled field accepts minimum-length valid value")
+        check(field.input_row.vertical == (field.size.x < 480), "Field stacks controls on compact width")
         viewport.free()
     var game = load("res://scenes/main.tscn").instantiate()
     game.process_mode = Node.PROCESS_MODE_DISABLED
@@ -80,6 +141,11 @@ func run() -> void:
         game.ui_shell._open_design_preview()
         check(game.ui_shell.modal_open(), "Game navigation remains blocked by modal")
         game.ui_shell.design_preview.set_reduced_motion(true)
+        game.ui_shell.design_preview.page_tabs.select_tab("components")
+        game.ui_shell.design_preview.records_list.set_filter("aurora")
+        game.ui_shell.design_preview.records_list.select_item("AURORA")
+        game.ui_shell.design_preview.form_field.set_value("Esquadrão Órion")
+        game.ui_shell.design_preview.form_field.submit()
         game.ui_shell.design_preview.return_button.pressed.emit()
         await process_frame
         check(game.ui_shell.design_preview == null and game.ui_shell.modal_kind == "CONFIG", "Back releases preview and restores settings")

@@ -1,0 +1,341 @@
+{
+  "godot": "4.5.2.stable.official.6ce3de25a",
+  "results": [
+    {
+      "check": "static-assets",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.67
+    },
+    {
+      "check": "project-plan",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.039
+    },
+    {
+      "check": "import",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 7.111
+    },
+    {
+      "check": "parse-scripts-data-equipment_catalog",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.172
+    },
+    {
+      "check": "parse-scripts-data-npc_catalog",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.17
+    },
+    {
+      "check": "parse-scripts-data-ship_balance",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.165
+    },
+    {
+      "check": "parse-scripts-data-store_catalog",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.163
+    },
+    {
+      "check": "parse-scripts-data-weapon_art",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.165
+    },
+    {
+      "check": "parse-scripts-main",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.538
+    },
+    {
+      "check": "parse-scripts-relays-demo_reles",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.261
+    },
+    {
+      "check": "parse-scripts-relays-relay_controller",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.259
+    },
+    {
+      "check": "parse-scripts-systems-astral_trials",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.167
+    },
+    {
+      "check": "parse-scripts-systems-equipment_state",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.172
+    },
+    {
+      "check": "parse-scripts-systems-pilot_progress",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.176
+    },
+    {
+      "check": "parse-scripts-systems-resource_cargo",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.163
+    },
+    {
+      "check": "parse-scripts-systems-stellar_hub",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.165
+    },
+    {
+      "check": "parse-scripts-systems-stellar_wallet",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.176
+    },
+    {
+      "check": "parse-scripts-ui-design-design_preview",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.255
+    },
+    {
+      "check": "parse-scripts-ui-design-galactic_emblem",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.271
+    },
+    {
+      "check": "parse-scripts-ui-design-galactic_item_list",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.173
+    },
+    {
+      "check": "parse-scripts-ui-design-galactic_panel",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.176
+    },
+    {
+      "check": "parse-scripts-ui-design-galactic_tabs",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.162
+    },
+    {
+      "check": "parse-scripts-ui-design-galactic_text_field",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.261
+    },
+    {
+      "check": "parse-scripts-ui-design-galactic_theme",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.161
+    },
+    {
+      "check": "parse-scripts-ui-equipment_command",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.299
+    },
+    {
+      "check": "parse-scripts-ui-galaxy_map",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.176
+    },
+    {
+      "check": "parse-scripts-ui-mini_map",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.364
+    },
+    {
+      "check": "parse-scripts-ui-stellar_hangar_premium",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.267
+    },
+    {
+      "check": "parse-scripts-ui-stellar_hud",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.454
+    },
+    {
+      "check": "parse-scripts-ui-stellar_store",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.273
+    },
+    {
+      "check": "parse-scripts-world-astral_environment",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.28
+    },
+    {
+      "check": "parse-scripts-world-combat_world",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.318
+    },
+    {
+      "check": "parse-scripts-world-enemy_ship",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.177
+    },
+    {
+      "check": "parse-scripts-world-faction_base",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.326
+    },
+    {
+      "check": "parse-scripts-world-fleet_support",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.201
+    },
+    {
+      "check": "parse-scripts-world-model_presentation",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.201
+    },
+    {
+      "check": "parse-scripts-world-portal_animation",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.193
+    },
+    {
+      "check": "parse-scripts-world-resource_field",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.271
+    },
+    {
+      "check": "parse-scripts-world-ship_presentation",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.344
+    },
+    {
+      "check": "parse-scripts-world_routes",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.254
+    },
+    {
+      "check": "parse-tests-test_assets",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.662
+    },
+    {
+      "check": "parse-tests-test_aurora",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.188
+    },
+    {
+      "check": "parse-tests-test_design_system",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.66
+    },
+    {
+      "check": "parse-tests-test_effects",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.278
+    },
+    {
+      "check": "parse-tests-test_fleet",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.178
+    },
+    {
+      "check": "parse-tests-test_relays",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.266
+    },
+    {
+      "check": "parse-tests-test_rendering",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.271
+    },
+    {
+      "check": "main-smoke",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 1.853
+    },
+    {
+      "check": "relay-demo-smoke",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 1.101
+    },
+    {
+      "check": "test-aurora",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 1.017
+    },
+    {
+      "check": "test-fleet",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 6.641
+    },
+    {
+      "check": "test-assets",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 3.624
+    },
+    {
+      "check": "test-relays",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 2.79
+    },
+    {
+      "check": "test-effects",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 0.368
+    },
+    {
+      "check": "test-design_system",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 1.889
+    },
+    {
+      "check": "rendering",
+      "passed": true,
+      "exit_code": 0,
+      "seconds": 4.573
+    }
+  ]
+}

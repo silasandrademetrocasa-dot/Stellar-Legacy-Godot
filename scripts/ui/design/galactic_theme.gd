@@ -1,5 +1,5 @@
 extends RefCounted
-## Proposed identity tokens. No existing gameplay theme is replaced.
+## Approved foundation tokens; new component variants remain reviewable.
 const DISPLAY_FONT = preload("res://assets/ui/design/fonts/Oxanium.ttf")
 const BODY_FONT = preload("res://assets/ui/design/fonts/Rajdhani-Medium.ttf")
 const VOID := Color("040811")
@@ -74,6 +74,23 @@ static func build() -> Theme:
     _button_variant(theme, "GalacticPrimaryButton", ION, true)
     _button_variant(theme, "GalacticSecondaryButton", ION, false)
     _button_variant(theme, "GalacticAlertButton", DANGER, false)
+    for variant in ["GalacticTabButton", "GalacticActiveTabButton", "GalacticListButton", "GalacticSelectedListButton"]:
+        _button_variant(theme, variant, ION, false)
+    for variant in ["GalacticActiveTabButton", "GalacticSelectedListButton"]:
+        theme.set_stylebox("normal", variant, _button_style(PANEL_RAISED, ION))
+        theme.set_color("font_color", variant, ION)
+    theme.set_stylebox("normal", "LineEdit", _button_style(VOID, BORDER))
+    var field_focus := _button_style(Color.TRANSPARENT, AMBER)
+    field_focus.draw_center = false
+    field_focus.set_border_width_all(2)
+    theme.set_stylebox("focus", "LineEdit", field_focus)
+    theme.set_stylebox("read_only", "LineEdit", _button_style(PANEL, BORDER))
+    theme.set_color("font_color", "LineEdit", TEXT)
+    theme.set_color("font_uneditable_color", "LineEdit", DISABLED)
+    theme.set_color("font_placeholder_color", "LineEdit", MUTED)
+    theme.set_color("caret_color", "LineEdit", ION)
+    theme.set_color("selection_color", "LineEdit", Color(ION, 0.22))
+    theme.set_color("font_selected_color", "LineEdit", TEXT)
     theme.set_stylebox("focus", "CheckButton", theme.get_stylebox("focus", "GalacticSecondaryButton"))
     theme.set_stylebox("background", "ProgressBar", _button_style(VOID, BORDER))
     var fill := StyleBoxFlat.new()

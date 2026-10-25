@@ -1,17 +1,18 @@
-# Stellar Legacy — plano mestre e fundação visual
+# Stellar Legacy — Design System e continuidade por etapas
 
-O desenvolvimento segue as etapas **00 a 11**, por critérios técnicos, testes e
-aprovação do proprietário, sem duração predeterminada.
+Plano oficial: [ROADMAP](docs/ROADMAP.md), [PROJECT_STATUS](docs/PROJECT_STATUS.md)
+e [aprovações do proprietário](docs/APPROVALS.md). Sem duração predeterminada.
 
-- [Roadmap oficial](docs/ROADMAP.md) e [estados do projeto](docs/PROJECT_STATUS.md).
-- [Mapa técnico e auditoria da Etapa 00](docs/ARCHITECTURE.md).
-- [Fundação visual proposta da Etapa 01](docs/design/FOUNDATION.md).
-- [Instalação do ZIP desta revisão](docs/DELIVERY_00_01.md).
+- **00 APROVADO**; direção visual da fundação 01 aprovada.
+- **01 AGUARDANDO APROVAÇÃO** dos componentes adicionais desta entrega.
+- [Instalação do ZIP incremental](docs/DELIVERY_01_COMPONENTS.md) e
+  [contratos dos componentes](docs/design/COMPONENTS.md).
+- [Fundação visual preservada](docs/design/FOUNDATION.md).
 
-**Prévia no jogo:** CONFIG → DESIGN SYSTEM — PRÉVIA DA ETAPA 01.
-HUD, Hangar, modelos, combate, inventário e saves existentes foram preservados.
-Entrega incremental em um ZIP menor que 25 MB para o instalador já utilizado.
-Branch local: `codex/master-plan-design-system`. Sem publicação ou merge direto.
+**CONFIG → DESIGN SYSTEM:** abas IDENTIDADE e COMPONENTES. Abas, listas com busca,
+seleção e campos com validação podem ser avaliados sem alterar dados do jogador.
+HUD/Hangar, modelos, combate, inventário e saves existentes foram preservados.
+Branch local: `codex/design-system-components`. Entrega em ZIP de até 25 MB.
 
 As seções abaixo são o histórico das versões anteriores. Esta revisão não instala
 integralmente os antigos ZIPs e não altera produção.

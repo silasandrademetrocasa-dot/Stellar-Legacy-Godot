@@ -96,3 +96,13 @@ aparelho, export/assinatura Android, escopo da candidata e aprovação da identi
 A documentação da auditoria anterior preserva os riscos ainda aplicáveis. O plano
 mestre define as próximas entregas; sistemas existentes não são considerados
 completos para a nova etapa apenas porque já existem no cliente.
+
+
+## Continuidade da biblioteca de interface
+
+A base instalada da revisão de componentes é `d84f5f355c4278a4a310e31c07fd3e4b0a98274c`.
+`galactic_tabs.gd`, `galactic_item_list.gd` e `galactic_text_field.gd` acrescentam
+controles isolados, com IDs estáveis e sinais sem persistência. As variantes de
+tema são adições; paleta/fontes aprovadas continuam iguais. Detalhes em
+[design/COMPONENTS.md](design/COMPONENTS.md). A aprovação da 00 e da direção visual
+foi registrada em [APPROVALS.md](APPROVALS.md).

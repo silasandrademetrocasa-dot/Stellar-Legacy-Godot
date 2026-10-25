@@ -3,6 +3,7 @@ extends SceneTree
 ## Pass a directory after `--` to save review screenshots. Not an Android benchmark.
 const Relay = preload("res://scripts/relays/relay_controller.gd")
 var output_dir := ""
+var design_scenarios := 0
 func _initialize() -> void:
     call_deferred("run")
 func capture(label: String) -> void:
@@ -15,6 +16,16 @@ func capture(label: String) -> void:
         if error != OK:
             push_error("Screenshot failed: " + label)
             quit(1)
+func capture_design(viewport: SubViewport, label: String) -> void:
+    for frame in range(3):
+        await process_frame
+    await RenderingServer.frame_post_draw
+    if not output_dir.is_empty():
+        var error := viewport.get_texture().get_image().save_png(output_dir.path_join(label + ".png"))
+        if error != OK:
+            push_error("Design screenshot failed: " + label)
+            quit(1)
+    design_scenarios += 1
 func run() -> void:
     if DisplayServer.get_name() == "headless":
         push_error("test_rendering requires a real Compatibility display, not headless")
@@ -62,20 +73,25 @@ func run() -> void:
         var preview = load("res://scenes/ui/design_system_preview.tscn").instantiate()
         preview.reduced_motion = true
         viewport.add_child(preview)
-        for frame in range(5):
-            await process_frame
-        await RenderingServer.frame_post_draw
-        if not output_dir.is_empty():
-            viewport.get_texture().get_image().save_png(output_dir.path_join("design-%dx%d.png" % [dimensions.x, dimensions.y]))
+        await capture_design(viewport, "design-%dx%d" % [dimensions.x, dimensions.y])
+        preview.page_tabs.select_tab("components")
+        await capture_design(viewport, "design-components-%dx%d" % [dimensions.x, dimensions.y])
         if dimensions.x == 960:
+            preview.browser_tabs.select_tab("systems")
+            var record_y: float = preview.records_list.get_global_rect().position.y - preview.scroll.get_global_rect().position.y
+            preview.scroll.scroll_vertical = maxi(0, int(record_y) - 80)
+            await capture_design(viewport, "design-list")
             preview.scroll.scroll_vertical = 100000
-            await process_frame
-            await RenderingServer.frame_post_draw
-            if not output_dir.is_empty():
-                viewport.get_texture().get_image().save_png(output_dir.path_join("design-controls.png"))
+            preview.form_field.submit()
+            await capture_design(viewport, "design-validation-error")
+            preview.form_field.set_value("  Esquadrão Órion  ")
+            preview.form_field.submit()
+            await capture_design(viewport, "design-validation-success")
             preview.set_low_effects(true)
-            await process_frame
-            await RenderingServer.frame_post_draw
+            await capture_design(viewport, "design-low")
+        else:
+            preview.scroll.scroll_vertical = 100000
+            await capture_design(viewport, "design-form-%dx%d" % [dimensions.x, dimensions.y])
         viewport.free()
-    print("RENDERING: 7 gameplay and 5 design Compatibility scenarios completed")
+    print("RENDERING: 7 gameplay and %d design Compatibility scenarios completed" % design_scenarios)
     quit()
