@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/relays/relay_controller.gd" id="1_controller"]
+
+[node name="RelayLV3" type="Node3D"]
+script = ExtResource("1_controller")
+relay_level = 3
+
+[node name="ModelRoot" type="Node3D" parent="."]
+
+[node name="CorePivot" type="Node3D" parent="."]
+
+[node name="RingPivotA" type="Node3D" parent="."]
+
+[node name="RingPivotB" type="Node3D" parent="."]
+
+[node name="ShieldMesh" type="MeshInstance3D" parent="."]
+visible = false
+
+[node name="BeamMesh" type="MeshInstance3D" parent="."]
+visible = false
+
+[node name="ParticleRoot" type="Node3D" parent="."]
+
+[node name="CombatLights" type="Node3D" parent="."]
+visible = false
+
+[node name="EnergyLight" type="OmniLight3D" parent="."]
+light_energy = 1.5
+omni_range = 10.0
+shadow_enabled = false
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

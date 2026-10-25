@@ -581,7 +581,7 @@ func _open_modal(kind: String) -> void:
     modal_overlay.visible = true
     _apply_sector_skin(kind)
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.16  |  HANGAR PREMIUM / GLBs ORIGINAIS / SALVO LOCAL" if kind == "HANGAR" else "G0.16  |  PREÇOS DE REFERÊNCIA / SIMULAÇÃO LOCAL"
+    modal_info.text = "G0.19  |  HANGAR PREMIUM / ESCUDOS 3D HQ / SALVO LOCAL" if kind == "HANGAR" else "G0.19  |  PREÇOS DE REFERÊNCIA / SIMULAÇÃO LOCAL"
     var hangar_mode: bool = kind == "HANGAR"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
     hangar_premium.visible = hangar_mode
@@ -1053,8 +1053,17 @@ func _build_hub_page(kind: String) -> void:
                 var progress_text: String = ""
                 if game.current_map == map_id:
                     progress_text = " | CAPTURA %d%%" % roundi(hub.capture_ratio(map_id) * 100.0)
-                _hub_text("%s — %s%s" % [map_id, hub.relay_text(map_id), progress_text])
+                _hub_text("%s | LV%d — %s%s" % [map_id, hub.relay_level(map_id), hub.relay_text(map_id), progress_text])
             _hub_text("LOCALIZACAO: %s | DOMINIOS TOTAIS: %d" % [game.current_map, hub.relay_captures])
+            _hub_text("FASES: LV1 AZUL > LV2 RUBI > LV3 ESMERALDA | HQ 3D")
+            _hub_text("Controle de fases e escudos apenas em simulacao local.")
+            if HubCatalog.RELAY_MAPS.has(game.current_map):
+                _add_menu_row("EVOLUIR RELE (TESTE LOCAL)", func() -> void:
+                    _toast_and_refresh(game.upgrade_relay_local(), "RELES")
+                )
+                _add_menu_row("TESTAR ESCUDO / IMPACTO (LOCAL)", func() -> void:
+                    _toast_and_refresh(game.simulate_relay_shield_hit(), "RELES")
+                )
             _hub_text("Viaje pelos PORTAIS. Nao existe teleporte por menu.")
             _add_menu_row("VOLTAR AO MAPA / PILOTAR", func() -> void: close_modal())
         "MISSOES":
@@ -1185,7 +1194,7 @@ func refresh() -> void:
         if game.hub_store.capture_ratio(game.current_map) > 0.0:
             minimap_caption.text = "CAPTURA %s | %d%%" % [game.current_map, roundi(game.hub_store.capture_ratio(game.current_map) * 100.0)]
         else:
-            minimap_caption.text = "RELE %s | %s" % [game.current_map, game.hub_store.relay_text(game.current_map)]
+            minimap_caption.text = "RELE LV%d | %s" % [game.hub_store.relay_level(game.current_map), game.hub_store.relay_text(game.current_map)]
     else:
         minimap_caption.text = "MAPA  %s  |  TOQUE PARA IR" % game.current_map
     var pidx: int = game._nearest_index()

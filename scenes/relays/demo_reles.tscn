@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/relays/demo_reles.gd" id="1_demo"]
+
+[node name="RelayDemo" type="Node3D"]
+script = ExtResource("1_demo")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Controls" type="Label" parent="CanvasLayer"]
+offset_left = 22.0
+offset_top = 20.0
+offset_right = 930.0
+offset_bottom = 96.0
+theme_override_colors/font_color = Color(0.67,0.89,1,1)
+theme_override_font_sizes/font_size = 16
+text = "STELLAR LEGACY - RELES"

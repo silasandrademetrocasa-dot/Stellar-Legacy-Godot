@@ -59,6 +59,8 @@ var bonus_credits: int = 450
 var spent_credits: int = 0
 var purchases: Array[String] = []
 var relay_owners: Dictionary = {"4-1": "", "4-2": "", "4-3": ""}
+# G0.21: fases dos relés persistidas no MESMO save, sem resetar capturas anteriores.
+var relay_levels: Dictionary = {"4-1": 1, "4-2": 1, "4-3": 1}
 var capture_progress: float = 0.0
 var capture_map: String = ""
 var contract_claims: Dictionary = {}
@@ -99,6 +101,11 @@ func _load() -> void:
         for map_id in RELAY_MAPS:
             var owner: String = str(loaded.get(map_id, ""))
             relay_owners[map_id] = owner if owner in ["", "1", "2", "3"] else ""
+    # Dados novos sao opcionais: arquivos de G0.20 continuam validos.
+    var levels_saved: Variant = data.get("relay_levels", {})
+    if levels_saved is Dictionary:
+        for map_id in RELAY_MAPS:
+            relay_levels[map_id] = clampi(int(levels_saved.get(map_id, 1)), 1, 3)
     for pair in [["contract_claims", contract_claims], ["pass_claims", pass_claims], ["auction_bids", auction_bids]]:
         var source: Variant = data.get(str(pair[0]), {})
         if source is Dictionary:
@@ -114,7 +121,7 @@ func _save() -> void:
     var payload: Dictionary = {"version": VERSION, "callsign": callsign, "title": title,
         "alliance": alliance, "alliance_tag": alliance_tag, "bonus_credits": bonus_credits,
         "spent_credits": spent_credits, "purchases": purchases,
-        "relay_owners": relay_owners, "relay_captures": relay_captures,
+        "relay_owners": relay_owners, "relay_levels": relay_levels, "relay_captures": relay_captures,
         "contract_claims": contract_claims, "pass_claims": pass_claims,
         "auction_bids": auction_bids}
     file.store_string(JSON.stringify(payload))
@@ -251,6 +258,27 @@ func simulate_bid(lot: int) -> String:
     auction_bids[key] = current + 50
     _save()
     return "Lance de teste: %d (sem pagamento, sem leilao online)" % int(auction_bids[key])
+
+func relay_level(map_id: String) -> int:
+    if not RELAY_MAPS.has(map_id):
+        return 1
+    return clampi(int(relay_levels.get(map_id, 1)), 1, 3)
+
+func upgrade_relay_local(map_id: String, faction: String, near_center: bool) -> String:
+    # Teste local: evolucao permitida somente se a faccao domina E o piloto esta no rele.
+    # Nao representa administracao de cla nem permissao no servidor multiplayer.
+    if not RELAY_MAPS.has(map_id):
+        return "Evolucao disponivel nos mapas PvP 4-X"
+    if str(relay_owners.get(map_id, "")) != faction:
+        return "Capture primeiro o rele com sua faccao"
+    if not near_center:
+        return "Aproxime-se do centro do rele (19 unidades)"
+    var level: int = relay_level(map_id)
+    if level >= 3:
+        return "Rele %s ja esta na fase maxima LV3" % map_id
+    relay_levels[map_id] = level + 1
+    _save()
+    return "RELE %s EVOLUINDO LV%d > LV%d (SIMULACAO LOCAL)" % [map_id, level, level + 1]
 
 func relay_text(map_id: String) -> String:
     if not RELAY_MAPS.has(map_id):
