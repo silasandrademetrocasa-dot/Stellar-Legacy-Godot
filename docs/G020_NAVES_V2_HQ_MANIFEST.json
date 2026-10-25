@@ -1,0 +1,374 @@
+{
+  "version": "G0.20",
+  "title": "Frota V2 HQ definitiva",
+  "baseline": "G0.19 ESCUDOS HQ",
+  "new_ship_models": 13,
+  "total_parts": 2,
+  "distribution": "Two sequential ZIPs, one at a time in the universal GitHub installer; each <25 MB",
+  "source_files_sha256_and_integration": [
+    {
+      "ship": "AURORA",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_01.zip",
+      "source_file": "SL_AURORA_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_AURORA_FINAL.glb",
+      "source_sha256": "86bc88ebc6b4eba9758476a66c25a322c0237796ab74429fcb48e0981b0a5f1b",
+      "godot_sha256": "7c3a495a260d53a122196f4303d915fc1157e30d625b8b3b6f3ccda34b7c21a3",
+      "source_size_bytes": 3208284,
+      "godot_size_bytes": 3208572,
+      "source_mesh_count": 36,
+      "source_images_embedded": 5,
+      "faces_unchanged": 24152,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.23260871,
+      "old_dimensions": [
+        4.28,
+        1.868,
+        2.274
+      ],
+      "new_dimensions_after_root_transform": [
+        4.28,
+        1.17,
+        3.614
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "PIONEER",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_01.zip",
+      "source_file": "SL_PIONEER_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_PIONEER_FINAL.glb",
+      "source_sha256": "340ece2889f99e1fa0798f19cb19484cdfe7d66a886c7408f7efd4426e56abd7",
+      "godot_sha256": "1e2985f6ce52325f15bcda8ad8ebffcf56902a275b7640b70b7b0a2c43a7b2be",
+      "source_size_bytes": 3043016,
+      "godot_size_bytes": 3043280,
+      "source_mesh_count": 36,
+      "source_images_embedded": 5,
+      "faces_unchanged": 25220,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.24606741,
+      "old_dimensions": [
+        4.38,
+        0.86,
+        1.32
+      ],
+      "new_dimensions_after_root_transform": [
+        4.38,
+        1.066,
+        3.839
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "RAPTOR",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_01.zip",
+      "source_file": "SL_RAPTOR_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_RAPTOR_FINAL.glb",
+      "source_sha256": "7ebd5e7b641898963dcfe007c900860f849b74ed16cd60fea2f66223481f12f5",
+      "godot_sha256": "bb2be9ffda822bc573ae5aa3393244f1288d2e3af8e01011ebbebe575f342cc2",
+      "source_size_bytes": 3523116,
+      "godot_size_bytes": 3523388,
+      "source_mesh_count": 36,
+      "source_images_embedded": 5,
+      "faces_unchanged": 29780,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.22666667,
+      "old_dimensions": [
+        4.284,
+        1.248,
+        1.86
+      ],
+      "new_dimensions_after_root_transform": [
+        4.284,
+        1.159,
+        3.808
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "MERIDIAN",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_02.zip",
+      "source_file": "SL_MERIDIAN_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_MERIDIAN_FINAL.glb",
+      "source_sha256": "345e3c1bc897d64280bd6c708628016af1edb26cfbba53dd17de108fac84bc9c",
+      "godot_sha256": "37da0e77dcb0d2e45aacae518194d1db31d2149ecb6577ed3d64b6bb75ce6e1d",
+      "source_size_bytes": 3974528,
+      "godot_size_bytes": 3974800,
+      "source_mesh_count": 40,
+      "source_images_embedded": 5,
+      "faces_unchanged": 42684,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.19590673,
+      "old_dimensions": [
+        3.781,
+        2.947,
+        2.746
+      ],
+      "new_dimensions_after_root_transform": [
+        3.781,
+        1.006,
+        3.35
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "BASTION",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_02.zip",
+      "source_file": "SL_BASTION_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_BASTION_FINAL.glb",
+      "source_sha256": "e45f45bc43f6018c7bf87834c7968ad6a3369210f0efadca1e72c3f005e2915b",
+      "godot_sha256": "756ed036863cec939750a98d30fe7a3995f5669d5a47d384450b358c6cf20519",
+      "source_size_bytes": 3105504,
+      "godot_size_bytes": 3105792,
+      "source_mesh_count": 44,
+      "source_images_embedded": 5,
+      "faces_unchanged": 26956,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.11496914,
+      "old_dimensions": [
+        3.725,
+        0.99,
+        1.96
+      ],
+      "new_dimensions_after_root_transform": [
+        3.725,
+        1.144,
+        2.406
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "LYNX",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_02.zip",
+      "source_file": "SL_LYNX_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_LYNX_FINAL.glb",
+      "source_sha256": "89c08d7e1fa0530aa1bd4eb584b5247ad91d30607b0ad014f3c4ad34ba6562a6",
+      "godot_sha256": "99c69b8b15bb64d3f4c79eb8438c90755779d9c9b90a96aec2b0b3e2cf02c8a9",
+      "source_size_bytes": 3160892,
+      "godot_size_bytes": 3161164,
+      "source_mesh_count": 36,
+      "source_images_embedded": 5,
+      "faces_unchanged": 29324,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.19120371,
+      "old_dimensions": [
+        4.13,
+        1.135,
+        1.56
+      ],
+      "new_dimensions_after_root_transform": [
+        4.13,
+        1.082,
+        3.212
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "PHANTOM",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_03.zip",
+      "source_file": "SL_PHANTOM_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_PHANTOM_FINAL.glb",
+      "source_sha256": "cc588bd035f3cb0019ab6ce9d23a97e76c4533338ec3a6d46ea3b6d6b2901001",
+      "godot_sha256": "0efcbe2608dfb9ce62937e6fc1217a0827b90c18f90ae6a994ec73b01e8f6846",
+      "source_size_bytes": 3429720,
+      "godot_size_bytes": 3429992,
+      "source_mesh_count": 36,
+      "source_images_embedded": 5,
+      "faces_unchanged": 30588,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.17848101,
+      "old_dimensions": [
+        4.23,
+        0.929,
+        1.39
+      ],
+      "new_dimensions_after_root_transform": [
+        4.23,
+        1.09,
+        3.052
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "PATHFINDER",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_03.zip",
+      "source_file": "SL_PATHFINDER_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_PATHFINDER_FINAL.glb",
+      "source_sha256": "4ef3e389eafc7998bb511945d7877f4bc6de0a04467295b1613fb80fb001b5d1",
+      "godot_sha256": "e024f7ac670b3648e985a393d8a1667c06da6cbc2aec64753c1f8c92cec8a33c",
+      "source_size_bytes": 3018568,
+      "godot_size_bytes": 3018844,
+      "source_mesh_count": 36,
+      "source_images_embedded": 5,
+      "faces_unchanged": 30520,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.18749377,
+      "old_dimensions": [
+        4.519,
+        0.935,
+        1.64
+      ],
+      "new_dimensions_after_root_transform": [
+        4.519,
+        1.193,
+        3.487
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 1
+    },
+    {
+      "ship": "KENSEI",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_04.zip",
+      "source_file": "SL_KENSEI_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_KENSEI_FINAL.glb",
+      "source_sha256": "8eaf1ade58285d282520c857c67905454b0be0e411d6497f93fc5ca6f95b2100",
+      "godot_sha256": "a19cefe861fc5157b0d3e83bb7689aacc08520310bf73ff554d7ada60e461443",
+      "source_size_bytes": 6058616,
+      "godot_size_bytes": 6058892,
+      "source_mesh_count": 40,
+      "source_images_embedded": 5,
+      "faces_unchanged": 90764,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.20431788,
+      "old_dimensions": [
+        3.812,
+        2.496,
+        2.11
+      ],
+      "new_dimensions_after_root_transform": [
+        3.812,
+        1.171,
+        3.351
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 2
+    },
+    {
+      "ship": "VALKYRIE",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_05.zip",
+      "source_file": "SL_VALKYRIE_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_VALKYRIE_FINAL.glb",
+      "source_sha256": "8de3b6e2d709614eed085c762d09f9c81c04725cacadfa26b78c7deb22a5e601",
+      "godot_sha256": "97c2af2880d8054bbb1ab1eac31116e0b0d2fb46700eb44b6ed78800c3c93ffb",
+      "source_size_bytes": 5147016,
+      "godot_size_bytes": 5147288,
+      "source_mesh_count": 38,
+      "source_images_embedded": 5,
+      "faces_unchanged": 76988,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.25023057,
+      "old_dimensions": [
+        4.28,
+        0.966,
+        1.84
+      ],
+      "new_dimensions_after_root_transform": [
+        4.28,
+        1.27,
+        3.804
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 2
+    },
+    {
+      "ship": "LEVIATHAN",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_05.zip",
+      "source_file": "SL_LEVIATHAN_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_LEVIATHAN_FINAL.glb",
+      "source_sha256": "a7ae42ddae9f944b61bb8eca3696092734163f57f076c50da127513d6d691130",
+      "godot_sha256": "967b031bab12c8905dcbd176f3c5c9295954d1441702076379389b1be5f877dc",
+      "source_size_bytes": 6490324,
+      "godot_size_bytes": 6490596,
+      "source_mesh_count": 40,
+      "source_images_embedded": 5,
+      "faces_unchanged": 99924,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.16908741,
+      "old_dimensions": [
+        4.514,
+        3.493,
+        2.554
+      ],
+      "new_dimensions_after_root_transform": [
+        4.514,
+        1.366,
+        3.737
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 2
+    },
+    {
+      "ship": "SERAPH",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_06.zip",
+      "source_file": "SL_SERAPH_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_SERAPH_FINAL.glb",
+      "source_sha256": "15078537a94f891b15fa8217bf889f49b36e8ed8b4d0465c41a324a1afe2639a",
+      "godot_sha256": "25dcb2ba05e0fe57694328a12dbaf72c31bad845eaf726d6a358fabf53ccdc5c",
+      "source_size_bytes": 4319864,
+      "godot_size_bytes": 4320136,
+      "source_mesh_count": 46,
+      "source_images_embedded": 5,
+      "faces_unchanged": 45396,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.19009756,
+      "old_dimensions": [
+        4.676,
+        0.733,
+        1.75
+      ],
+      "new_dimensions_after_root_transform": [
+        4.676,
+        1.375,
+        3.194
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 2
+    },
+    {
+      "ship": "BULWARK",
+      "source_zip": "STELLAR_V2_NAVES_HQ_PARTE_06.zip",
+      "source_file": "SL_BULWARK_HQ_FIEL.glb",
+      "godot_path": "assets/ships/SL_BULWARK_FINAL.glb",
+      "source_sha256": "0dfa399c9974796b016d6bcef162ddcec97ccb5714afb07d4c054d745731e7b8",
+      "godot_sha256": "27a4b82880ec853bc22ab763bed0cb380bcb2848c5e93336fff462529f29dc9f",
+      "source_size_bytes": 4140048,
+      "godot_size_bytes": 4140336,
+      "source_mesh_count": 44,
+      "source_images_embedded": 5,
+      "faces_unchanged": 45956,
+      "root_yaw_degrees": -90,
+      "root_uniform_scale": 0.13002364,
+      "old_dimensions": [
+        3.575,
+        0.71,
+        2.42
+      ],
+      "new_dimensions_after_root_transform": [
+        3.575,
+        1.11,
+        2.507
+      ],
+      "mesh_material_texture_binary_identical": true,
+      "part": 2
+    }
+  ],
+  "preserved": [
+    "shop prices",
+    "ship stats",
+    "owned ships",
+    "equipment",
+    "shields G0.19",
+    "AUX-9 HQ",
+    "resources G0.17",
+    "sector dimensions and minimap G0.18",
+    "local saves"
+  ],
+  "production_services_modified": false,
+  "note": "Root scale and yaw are the only changes to GLB scene descriptions. Embedded GLB binary chunks (meshes/material textures) are byte-identical to uploaded V2 sources."
+}

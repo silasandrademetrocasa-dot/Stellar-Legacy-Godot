@@ -1,3 +1,15 @@
+# G0.20 — Naves V2 HQ definitivas
+
+- 13 naves definitivas V2 HQ substituem os protótipos G0.18, sem mudar nomes, atributos, preços, desbloqueios nem inventário.
+- Materiais, texturas e malhas originais preservados; apenas escala e orientação de nó GLB corrigidas para a cena Godot.
+- Miniaturas derivadas das novas malhas e texturas para Hangar e Loja.
+- Instalação GitHub universal **em duas etapas** (cada ZIP menor que 25 MB); consulte `docs/G020_INSTALACAO_DUAS_ETAPAS.md`.
+- Cliente offline; nenhuma alteração no Supabase, Render ou jogo web.
+
+# G0.19 — Escudos GLB HQ
+
+Integrados 8 escudos GLB HQ com visualizacoes renderizadas diretamente das malhas na loja, inventario e hangar. Sem alterar moedas, precos existentes, save local nem atributos. Detalhes: `docs/G019_ESCUDOS_HQ.md`.
+
 ## G0.17 — Minérios HQ e Caixas Estelares (Godot Android)
 
 - GLBs HQ originais do pacote enviado: minérios (ciano, violeta, esmeralda, ouro e plasma), BOX BÔNUS e BOX LOOT NPC.
