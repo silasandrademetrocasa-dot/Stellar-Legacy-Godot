@@ -5,10 +5,20 @@ extends Node3D
 signal incoming_damage(amount: float)
 signal enemy_destroyed(enemy_name: String, map_id: String, position: Vector3)
 signal loot_collected(map_id: String)
+signal loot_resources_collected(map_id: String, resource_name: String, amount: int)
 signal astral_wave_finished(wave_number: int)
 
 const Enemy = preload("res://scripts/world/enemy_ship.gd")
 const NpcCatalog = preload("res://scripts/data/npc_catalog.gd")
+const NPC_DROP_RESOURCES: Dictionary = {
+    "scavenger":{"Ferron":10,"Virel":10},
+    "scavenger_scout":{"Ferron":12,"Virel":12},
+    "vrax":{"Ferron":20,"Virel":20,"Cryon":20},
+    "zyron":{"Ferron":40,"Virel":40,"Cryon":40,"Ferrite":2,"Duracite":2},
+    "kharon":{"Ferron":80,"Virel":80,"Cryon":80,"Ferrite":8,"Duracite":8,"Solarium":1},
+    "dreadnox":{"Ferron":100,"Virel":100,"Cryon":100,"Ferrite":16,"Duracite":16,"Solarium":2},
+    "colossar":{"Ferron":200,"Virel":200,"Cryon":200,"Ferrite":32,"Duracite":32,"Solarium":4}
+}
 const LASER_RANGE := 78.0
 const LASER_INTERVAL := 0.42
 const NPC_POOL := [
@@ -264,7 +274,7 @@ func support_hit(from_position: Vector3, amount: float) -> void:
 func _destroy_enemy(enemy: Enemy) -> void:
     kills += 1
     map_kills += 1
-    _spawn_local_drop(enemy.position)
+    _spawn_local_drop(enemy.position, enemy.npc_id)
     enemy_destroyed.emit(enemy.display_name, live_map, enemy.position)
     _message("%s destruído! +1 eliminação de teste" % enemy.display_name)
     selected = null
@@ -279,33 +289,33 @@ func _destroy_enemy(enemy: Enemy) -> void:
             active_astral_wave = 0
             astral_wave_finished.emit(cleared_wave)
 
-func _spawn_local_drop(where: Vector3) -> void:
+func _spawn_local_drop(where: Vector3, npc_id: String) -> void:
     if drops.size() >= 8:
         return
-    var asset := load("res://assets/loot/box_loot.glb") as PackedScene
+    var asset: PackedScene = load("res://assets/loot/box_loot.glb") as PackedScene
     if asset == null:
         return
-    var box := asset.instantiate() as Node3D
+    var box: Node3D = asset.instantiate() as Node3D
     if box == null:
         return
     loot_root.add_child(box)
-    box.position = where
-    box.scale = Vector3.ONE * 0.8
-    drops.append({"node": box, "time": 45.0})
+    box.position = where + Vector3.UP * 0.25
+    box.scale = Vector3.ONE * 1.12
+    var payload: Dictionary = NPC_DROP_RESOURCES.get(npc_id, {"Ferron":12,"Cryon":10})
+    drops.append({"node":box, "time":30.0, "resources":payload.duplicate(true), "counted":false})
 
-## Reutiliza malhas de laser; evita alocar geometria/material a cada disparo.
-## Máximo 18 raios simultâneos de teste para proteger celulares modestos.
+## Caixas NPC no minimapa; não devem ser confundidas com bonus independentes.
 func loot_positions() -> Array[Vector3]:
     var result: Array[Vector3] = []
     for drop in drops:
         var node: Node3D = drop["node"]
         if is_instance_valid(node):
-            result.append(node.position)
+            result.append(node.global_position)
     return result
 
 func loot_at_screen(screen_point: Vector2, camera: Camera3D) -> Dictionary:
     var best: Dictionary = {}
-    var best_pixels: float = 40.0
+    var best_pixels: float = 43.0
     for drop in drops:
         var node: Node3D = drop["node"]
         if not is_instance_valid(node):
@@ -316,22 +326,47 @@ func loot_at_screen(screen_point: Vector2, camera: Camera3D) -> Dictionary:
         var pixels: float = camera.unproject_position(center).distance_to(screen_point)
         if pixels < best_pixels:
             best_pixels = pixels
-            best = {"position": node.global_position}
+            best = {"position":node.global_position}
     return best
 
-func collect_nearby(player_pos: Vector3) -> void:
+func collect_nearby(player_pos: Vector3, cargo, ship_name: String, equipment) -> void:
+    var fitted_modules: Array = equipment.equipped_modules() if equipment != null else []
+    var has_aux: bool = equipment != null and equipment.fitted_aux == "AUX-9"
+    var pickup_radius: float = 15.0 if has_aux and fitted_modules.has("Coletor de Cargas") else 7.5
     for i in range(drops.size() - 1, -1, -1):
         var box: Node3D = drops[i]["node"]
         if not is_instance_valid(box):
             drops.remove_at(i)
             continue
-        if box.global_position.distance_to(player_pos) > 7.5:
+        if box.global_position.distance_to(player_pos) > pickup_radius:
             continue
-        box.queue_free()
-        drops.remove_at(i)
-        loot_collected.emit(live_map)
-        _message("Caixa recolhida! Recompensa de TESTE local")
+        var resources: Dictionary = drops[i].get("resources", {})
+        var collected_amount: int = 0
+        for name in resources.keys():
+            var picked: int = cargo.add_resource(str(name), int(resources[name]), ship_name, equipment)
+            if picked <= 0:
+                continue
+            resources[name] = int(resources[name]) - picked
+            collected_amount += picked
+            loot_resources_collected.emit(live_map, str(name), picked)
+            if int(resources[name]) <= 0:
+                resources.erase(name)
+        if collected_amount <= 0:
+            continue
+        if not bool(drops[i].get("counted", false)):
+            drops[i]["counted"] = true
+            cargo.loot_collected += 1
+            cargo._save()
+            loot_collected.emit(live_map)
+        if resources.is_empty():
+            box.queue_free()
+            drops.remove_at(i)
+        else:
+            drops[i]["resources"] = resources
+        _message("Loot recolhido! +%d recursos (OFFLINE)" % collected_amount)
 
+## Reutiliza malhas de laser; evita alocar geometria/material a cada disparo.
+## Máximo 18 raios simultâneos de teste para proteger celulares modestos.
 func _draw_beam(a: Vector3, b: Vector3, tint: Color) -> void:
     var length := a.distance_to(b)
     if length < 0.1:

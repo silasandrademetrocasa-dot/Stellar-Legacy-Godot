@@ -8,12 +8,14 @@ const MISSIONS := [
     {"code": "combat", "label": "Primeira patrulha", "goal": 5, "xp": 1600, "credits": 600},
     {"code": "loot", "label": "Colecionador estelar", "goal": 3, "xp": 1100, "credits": 450},
     {"code": "travel", "label": "Explorador galactico", "goal": 4, "xp": 900, "credits": 350},
+    {"code": "ore", "label": "Minerador estelar", "goal": 12, "xp": 1400, "credits": 500},
 ]
 
 var total_xp: int = 0
 var credits: int = 0
 var kills: int = 0
 var boxes: int = 0
+var ore_units: int = 0
 var visited: Array[String] = []
 var mission_claims: Dictionary = {}
 var recent: Array[String] = []
@@ -36,6 +38,7 @@ func _load() -> void:
     credits = clampi(int(parsed.get("credits", 0)), 0, 1000000000)
     kills = clampi(int(parsed.get("kills", 0)), 0, 10000000)
     boxes = clampi(int(parsed.get("boxes", 0)), 0, 10000000)
+    ore_units = clampi(int(parsed.get("ore_units", 0)), 0, 10000000)
     var loaded_visits: Variant = parsed.get("visited", [])
     if loaded_visits is Array:
         for item in loaded_visits:
@@ -61,7 +64,7 @@ func _save() -> void:
         return
     var payload: Dictionary = {
         "version": FORMAT_VERSION, "xp": total_xp, "credits": credits,
-        "kills": kills, "boxes": boxes, "visited": visited,
+        "kills": kills, "boxes": boxes, "ore_units":ore_units, "visited": visited,
         "missions": mission_claims, "recent": recent
     }
     file.store_string(JSON.stringify(payload))
@@ -86,6 +89,7 @@ func mission_progress(code: String) -> int:
         "combat": return kills
         "loot": return boxes
         "travel": return visited.size()
+        "ore": return ore_units
     return 0
 
 func _reward_missions() -> Array[String]:
@@ -119,6 +123,20 @@ func defeated_enemy(display_name: String, map_id: String) -> Dictionary:
     _save()
     return {"xp": xp_gain, "credits": credit_gain, "completed": completed}
 
+func mined_resource(name: String, amount: int) -> void:
+    if amount <= 0:
+        return
+    ore_units += amount
+    _event("Mineracao +%d %s" % [amount, name])
+    _reward_missions()
+    _save()
+
+func record_box_only(kind: String) -> void:
+    boxes += 1
+    _event("%s coletada | registro local" % kind)
+    _reward_missions()
+    _save()
+
 func collected_box() -> Dictionary:
     var xp_gain: int = 130
     var credit_gain: int = 95
@@ -138,5 +156,5 @@ func snapshot() -> Dictionary:
         goals.append({"name": str(mission["label"]), "done": mission_progress(code),
             "goal": int(mission["goal"]), "claimed": bool(mission_claims.get(code, false))})
     return {"level": level["level"], "xp_current": level["current"], "xp_needed": level["required"],
-        "xp_total": total_xp, "credits": credits, "kills": kills, "boxes": boxes,
+        "xp_total": total_xp, "credits": credits, "kills": kills, "boxes": boxes, "ore_units": ore_units,
         "maps": visited.size(), "missions": goals, "recent": recent.duplicate()}

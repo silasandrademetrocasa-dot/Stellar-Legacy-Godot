@@ -1004,6 +1004,9 @@ func _set_title_menu(next_title: String) -> void:
 func _refine_astral_menu() -> void:
     _toast_and_refresh(game.hub_store.refine_astral(game.astral_trials,game.pilot_progress.credits),"REFINARIA")
 
+func _sell_minerals_menu() -> void:
+    _toast_and_refresh(game.sell_local_cargo(), "REFINARIA")
+
 func _market_filter_selected(category: String) -> void:
     market_filter = category
     _open_modal("MERCADO")
@@ -1095,6 +1098,10 @@ func _build_hub_page(kind: String) -> void:
             _add_menu_row("CONVERTER 350 CR EM 4 FRAGMENTOS ASTRAIS",_refine_astral_menu)
             _add_menu_row("ABRIR MATERIALIZADOR DOS PORTAIS",func() -> void: _open_modal("ASTRAL"))
             _hub_text("Os fragmentos nao existem no servidor e nao podem ser vendidos.")
+            _hub_text("PORAO DE MINERIOS | %d/%d | POEIRA STELLAR: %d" % [game.resource_cargo.used(),game.resource_cargo.capacity(game.current_ship,game.equipment_state),game.resource_cargo.stellar_dust],true)
+            _hub_text(game.resource_cargo.summary())
+            _add_menu_row("VENDER CARGA | BASE X-1 / TERMINAL REMOTO",_sell_minerals_menu)
+            _hub_text("VENDAS LOCAIS EM CREDITOS DE TESTE | ZERO SUPABASE / RENDER")
         "TITULOS":
             _hub_text("TITULO ATUAL: " + hub.title,true)
             _hub_text("EXPLORADOR: LIVRE | SENTINELA: 5 KOs | CACADOR ESTELAR: 20 KOs")

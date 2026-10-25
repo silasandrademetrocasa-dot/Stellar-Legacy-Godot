@@ -1,0 +1,29 @@
+{
+  "project": "Stellar Legacy Godot",
+  "version": "G0.17",
+  "baseline": "G0.16_HANGAR_PREMIUM",
+  "asset_origin": "STELLAR_LEGACY_RECURSOS_3D_HQ_GODOT_GITHUB.zip enviado pelo usuário",
+  "mode": "offline demonstrativo sem acesso Render/Supabase",
+  "changed_files_count": 18,
+  "changed_files": [
+    "README.md",
+    "assets/loot/box_bonus.glb",
+    "assets/loot/box_loot.glb",
+    "assets/resources/minerio_ciano.glb",
+    "assets/resources/minerio_esmeralda.glb",
+    "assets/resources/minerio_ouro.glb",
+    "assets/resources/minerio_plasma.glb",
+    "assets/resources/minerio_violeta.glb",
+    "docs/G017_MINERACAO_BOXES_LOOT.md",
+    "project.godot",
+    "scripts/main.gd",
+    "scripts/systems/pilot_progress.gd",
+    "scripts/systems/resource_cargo.gd",
+    "scripts/ui/mini_map.gd",
+    "scripts/ui/stellar_hud.gd",
+    "scripts/world/combat_world.gd",
+    "scripts/world/resource_field.gd",
+    "docs/G017_MANIFESTO.json"
+  ],
+  "instructions": "Envie apenas ATUALIZACAO.zip à raiz GitHub e execute o instalador universal."
+}

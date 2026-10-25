@@ -16,6 +16,8 @@ const HubStore = preload("res://scripts/systems/stellar_hub.gd")
 const AstralTrials = preload("res://scripts/systems/astral_trials.gd")
 const AstralEnvironment = preload("res://scripts/world/astral_environment.gd")
 const FactionBase = preload("res://scripts/world/faction_base.gd")
+const ResourceCargo = preload("res://scripts/systems/resource_cargo.gd")
+const ResourceField = preload("res://scripts/world/resource_field.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_g015_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -105,6 +107,8 @@ var starfield: MultiMeshInstance3D
 var equipment_state
 var wallet
 var pilot_progress
+var resource_cargo
+var resource_field
 var hub_store
 var astral_trials
 var graphics_quality: String = "MEDIO"
@@ -124,6 +128,7 @@ func _ready() -> void:
     equipment_state = EquipmentState.new()
     wallet = StellarWallet.new()
     pilot_progress = PilotProgress.new()
+    resource_cargo = ResourceCargo.new()
     hub_store = HubStore.new()
     astral_trials = AstralTrials.new()
     _read_local_profile()
@@ -207,7 +212,8 @@ func _process(delta: float) -> void:
     _animate_engine(delta)
     ship_anchor.position.x = clampf(ship_anchor.position.x, -118.0, 118.0)
     ship_anchor.position.z = clampf(ship_anchor.position.z, -88.0, 88.0)
-    combat_world.collect_nearby(ship_anchor.global_position)
+    combat_world.collect_nearby(ship_anchor.global_position, resource_cargo, current_ship, equipment_state)
+    resource_field.collect_nearby(ship_anchor.global_position, resource_cargo, current_ship, equipment_state)
     if hub_store != null and Routes.is_pvp(current_map):
         var relay_event: String = hub_store.relay_tick(current_map, faction, ship_anchor.position.length(), delta)
         if not relay_event.is_empty() and ui_shell != null:
@@ -284,9 +290,20 @@ func _on_world_tap(screen_point: Vector2, reported_double: bool = false) -> void
     last_enemy_tapped = null
     var chosen_drop: Dictionary = combat_world.loot_at_screen(screen_point, game_camera)
     if not chosen_drop.is_empty():
+        if resource_cargo.free_space(current_ship, equipment_state) <= 0:
+            combat_world._message("PORAO CHEIO: venda os minerios na base X-1")
+            return
         var point: Vector3 = chosen_drop["position"]
         _set_destination(point)
         combat_world._message("Indo coletar caixa estelar")
+        return
+    var resource_pick: Dictionary = resource_field.at_screen(screen_point, game_camera)
+    if not resource_pick.is_empty():
+        if str(resource_pick.get("kind", "")) == "ores" and resource_cargo.free_space(current_ship, equipment_state) <= 0:
+            combat_world._message("PORAO CHEIO: venda os minerios na base X-1")
+            return
+        _set_destination(resource_pick["position"])
+        combat_world._message("Indo coletar recurso estelar")
         return
     var origin := game_camera.project_ray_origin(screen_point)
     var direction := game_camera.project_ray_normal(screen_point)
@@ -404,6 +421,13 @@ func _create_world() -> void:
     combat_world.incoming_damage.connect(_receive_local_damage)
     combat_world.enemy_destroyed.connect(_on_enemy_destroyed)
     combat_world.loot_collected.connect(_on_loot_collected)
+    combat_world.loot_resources_collected.connect(_on_loot_resources_collected)
+    resource_field = ResourceField.new()
+    resource_field.name = "StellarResourcesHQ"
+    add_child(resource_field)
+    resource_field.player_node = ship_anchor
+    resource_field.ore_collected.connect(_on_ore_collected)
+    resource_field.bonus_collected.connect(_on_bonus_collected)
     combat_world.astral_wave_finished.connect(_on_astral_wave_finished)
     support_fleet = FleetSupport.new()
     support_fleet.name = "SupportFleet"
@@ -801,7 +825,7 @@ func _refresh_ui() -> void:
     var points: Array[Vector3] = []
     for portal in portals:
         points.append(portal["pos"])
-    mini_map.update_state(current_map, ship_anchor.position, points, nearest_portal, combat_world.enemy_positions(), destination, destination_active, combat_world.loot_positions())
+    mini_map.update_state(current_map, ship_anchor.position, points, nearest_portal, combat_world.enemy_positions(), destination, destination_active, combat_world.loot_positions(), resource_field.ore_positions(), resource_field.bonus_positions())
     combat_label.text = "HP %d / %d   ESC %d / %d" % [roundi(hp), roundi(MAX_HP), roundi(shield), roundi(MAX_SHIELD)]
     hp_bar.value = 100.0 * hp / MAX_HP
     shield_bar.value = 100.0 * shield / MAX_SHIELD
@@ -967,6 +991,7 @@ func _populate_local_world() -> void:
         combat_world.configure_astral(current_map, astral_trials.wave)
     else:
         combat_world.configure(current_map, points)
+    resource_field.configure(current_map, points)
 
 func _on_astral_wave_finished(wave_number: int) -> void:
     if not Routes.is_astral(current_map) or wave_number != astral_trials.wave:
@@ -1006,6 +1031,8 @@ func set_graphics_quality(profile: String, persist: bool = true) -> void:
         afterburner.visible = profile != "BAIXO"
     if faction_base != null and is_instance_valid(faction_base):
         faction_base.set_quality(profile)
+    if resource_field != null:
+        resource_field.set_quality(profile)
     if astral_environment != null and Routes.is_astral(current_map):
         astral_environment.reset_arena(current_map,profile)
     if persist:
@@ -1021,11 +1048,50 @@ func _on_enemy_destroyed(display_name: String, map_id: String, _where: Vector3) 
         ui_shell.show_notification(announcement)
 
 func _on_loot_collected(_map_id: String) -> void:
-    var reward: Dictionary = pilot_progress.collected_box()
-    astral_trials.award_fragments(2)
-    var announcement: String = "CAIXA +%d XP / +%d CREDITOS (TESTE)" % [int(reward["xp"]), int(reward["credits"])]
+    # No web o drop NPC transfere recursos, não sorteia CR/STL.
+    pilot_progress.record_box_only("BOX LOOT")
+
+func _on_ore_collected(name: String, amount: int) -> void:
+    if pilot_progress != null:
+        pilot_progress.mined_resource(name, amount)
     if ui_shell != null:
-        ui_shell.show_notification(announcement)
+        ui_shell.show_notification("MINERACAO +%d %s | PORAO %d/%d (OFFLINE)" % [amount, name, resource_cargo.used(), resource_cargo.capacity(current_ship, equipment_state)])
+
+func _on_bonus_collected(reward: Dictionary) -> void:
+    var amount: int = int(reward.get("amount", 0))
+    var name: String = str(reward.get("name", ""))
+    match str(reward.get("kind", "")):
+        "credits":
+            wallet.credits += amount
+            wallet._save()
+        "stellarium":
+            wallet.stellarium += amount
+            wallet._save()
+        "ammo":
+            equipment_state.consumables[name] = int(equipment_state.consumables.get(name, 0)) + amount
+            equipment_state._save()
+        "dust":
+            resource_cargo.add_dust(amount)
+    pilot_progress.record_box_only("BOX BONUS")
+    if ui_shell != null:
+        ui_shell.show_notification("BOX BONUS +%d %s (OFFLINE)" % [amount, name])
+
+func _on_loot_resources_collected(_map_id: String, name: String, amount: int) -> void:
+    if ui_shell != null:
+        ui_shell.show_notification("BOX LOOT +%d %s | PORAO %d/%d" % [amount, name, resource_cargo.used(), resource_cargo.capacity(current_ship, equipment_state)])
+
+func can_sell_cargo() -> bool:
+    return near_faction_base() or (equipment_state != null and equipment_state.equipped("EXTRAS").has("Terminal Mercante Remoto"))
+
+func sell_local_cargo() -> String:
+    if resource_cargo == null:
+        return "Porao indisponivel"
+    if not can_sell_cargo():
+        return "VENDAS: aproxime-se da BASE em X-1 ou equipe Terminal Mercante Remoto"
+    var sale: Dictionary = resource_cargo.sell_all(wallet)
+    if int(sale.get("units", 0)) == 0:
+        return "Nenhum minerio vendavel no porao"
+    return "VENDIDOS %d MINERIOS | +%d CR (OFFLINE)" % [int(sale["units"]), int(sale["credits"])]
 
 func _receive_local_damage(amount: float) -> void:
     combat_recovery_clock = 4.0

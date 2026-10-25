@@ -10,16 +10,20 @@ var portal_points: Array[Vector3] = []
 var focused_portal := -1
 var enemy_points: Array[Vector3] = []
 var loot_points: Array[Vector3] = []
+var ore_points: Array[Vector3] = []
+var bonus_points: Array[Vector3] = []
 var destination: Vector3 = Vector3.ZERO
 var destination_active := false
 
-func update_state(map_id: String, new_ship_pos: Vector3, points: Array[Vector3], selected: int, enemies: Array[Vector3] = [], next_destination: Vector3 = Vector3.ZERO, has_destination: bool = false, boxes: Array[Vector3] = []) -> void:
+func update_state(map_id: String, new_ship_pos: Vector3, points: Array[Vector3], selected: int, enemies: Array[Vector3] = [], next_destination: Vector3 = Vector3.ZERO, has_destination: bool = false, boxes: Array[Vector3] = [], ores: Array[Vector3] = [], bonuses: Array[Vector3] = []) -> void:
     current_map = map_id
     ship_pos = new_ship_pos
     portal_points = points
     focused_portal = selected
     enemy_points = enemies
     loot_points = boxes
+    ore_points = ores
+    bonus_points = bonuses
     destination = next_destination
     destination_active = has_destination
     queue_redraw()
@@ -89,6 +93,14 @@ func _draw() -> void:
     for box in loot_points:
         var pixel: Vector2 = _to_screen(box)
         draw_rect(Rect2(pixel - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), Color(1.0, 0.83, 0.27), true)
+    for ore in ore_points:
+        var pix: Vector2 = _to_screen(ore)
+        var crystal: PackedVector2Array = PackedVector2Array([pix + Vector2(0,-3.5),pix + Vector2(3.5,0),pix + Vector2(0,3.5),pix + Vector2(-3.5,0)])
+        draw_colored_polygon(crystal, Color(0.23, 0.91, 0.98))
+    for bonus in bonus_points:
+        var pix: Vector2 = _to_screen(bonus)
+        draw_rect(Rect2(pix - Vector2(3.1, 3.1), Vector2(6.2, 6.2)), Color(1.0, 0.68, 0.22), true)
+        draw_circle(pix, 1.8, Color(1.0, 0.98, 0.62))
     if destination_active:
         var p := _to_screen(destination)
         draw_line(_to_screen(ship_pos), p, Color(0.88, 0.95, 0.46, 0.65), 1.2)

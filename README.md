@@ -1,3 +1,14 @@
+## G0.17 — Minérios HQ e Caixas Estelares (Godot Android)
+
+- GLBs HQ originais do pacote enviado: minérios (ciano, violeta, esmeralda, ouro e plasma), BOX BÔNUS e BOX LOOT NPC.
+- Mineração por aproximação com limite de porão da nave, salvamento offline e venda de minerais por Créditos locais na base X-1 / Terminal Mercante.
+- Caixas bônus com recompensa individual, respawn de 40–70 s, 20 por setor comum, 30 no PvP 4-X e nenhuma em arenas Astrais.
+- BOX LOOT de NPC, com minérios distribuídos por espécie, duração de 30 s e coleta parcial quando o porão estiver quase cheio.
+- Minerais e caixas separados no minimapa, com carregamento visual por distância preservando a qualidade integral dos GLBs.
+- Módulos do AUX-9 equipados (`Coletor de Minérios`, `Coletor de Cargas`) ampliam o alcance de coleta, sem botões de ativação no HUD.
+- **Não usa Supabase/Render nem altera o jogo web**; créditos, Stellar Dust e munições de recompensa são demonstrativos neste cliente.
+- Dados, diferenças da versão web e testes: [docs/G017_MINERACAO_BOXES_LOOT.md](docs/G017_MINERACAO_BOXES_LOOT.md).
+
 # Stellar Legacy — Godot G0.16 | Hangar Premium
 
 Cliente Android Godot offline. Baseado na G0.15 e no esquema de balanceamento oficial importado do projeto web.
