@@ -462,6 +462,7 @@ func _create_world() -> void:
     support_fleet.player_node = ship_anchor
     support_fleet.combat_world = combat_world
     _make_starfield()
+    tactical_backdrop.set_follow_target(ship_anchor)
     tactical_backdrop.set_sector(current_map, graphics_quality)
     _make_border()
     _make_navigation_marker()
@@ -734,14 +735,37 @@ func _rebuild_portals() -> void:
             var visual := model.instantiate() as Node3D
             if visual != null:
                 gate.add_child(visual)
-                visual.scale = Vector3.ONE * 1.45
+                visual.scale = Vector3.ONE * (1.15 if Routes.is_astral(target) else 1.10)
+                visual.position.y = -0.32
+                # Camera praticamente superior: inclina a abertura para o plano orbital.
+                visual.rotation_degrees.x = 64.0 if not Routes.is_astral(target) else 59.0
                 var animation := PortalAnimation.new()
                 visual.add_child(animation)
                 var tint: Color = Routes.ASTRAL_COLORS.get(target, Color(1.0, 0.2, 0.25) if Routes.is_pvp(target) else (Color(0.7, 0.3, 1.0) if Routes.is_universe(target) else Color(0.15, 0.75, 1.0)))
                 animation.setup(visual, graphics_quality, tint)
+        # Marca orbital sob o portal: indica o ponto de viagem na nova perspectiva.
+        var arrival_ring := MeshInstance3D.new()
+        arrival_ring.name = "PortalArrivalRing"
+        var torus := TorusMesh.new()
+        torus.inner_radius = 3.75
+        torus.outer_radius = 3.92
+        torus.rings = 32
+        torus.ring_segments = 5
+        var ring_mat := StandardMaterial3D.new()
+        ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+        ring_mat.albedo_color = Color(0.12, 0.67, 1.0, 0.72)
+        ring_mat.emission_enabled = true
+        ring_mat.emission = Color(0.05, 0.29, 0.55)
+        ring_mat.emission_energy_multiplier = 0.6
+        ring_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+        torus.material = ring_mat
+        arrival_ring.mesh = torus
+        arrival_ring.position.y = -0.38
+        arrival_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        gate.add_child(arrival_ring)
         var label := Label3D.new()
         label.text = ("PORTAL " + Routes.astral_label(target)) if Routes.is_astral(target) else target
-        label.position = Vector3(0, 6.8, 0)
+        label.position = Vector3(0, 3.1, 0)
         label.font_size = 50
         label.pixel_size = 0.01
         label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -795,7 +819,7 @@ func _build_relay_visual() -> void:
     controller.use_mobile_lod = graphics_quality != "ALTO"
     controller.enable_particles = graphics_quality != "BAIXO"
     relay_visual = controller
-    controller.scale = Vector3.ONE * [0.30, 0.28, 0.26][level - 1]
+    controller.scale = Vector3.ONE * [0.39, 0.36, 0.34][level - 1]
     portal_root.add_child(controller)
     controller.level_changed.connect(_on_relay_level_changed)
     controller.set_quality(graphics_quality)
@@ -803,7 +827,7 @@ func _build_relay_visual() -> void:
 
 func _on_relay_level_changed(level: int) -> void:
     if relay_visual is RelayController:
-        relay_visual.scale = Vector3.ONE * [0.30, 0.28, 0.26][level - 1]
+        relay_visual.scale = Vector3.ONE * [0.39, 0.36, 0.34][level - 1]
 
 func upgrade_relay_local() -> String:
     if relay_visual is RelayController and (relay_visual as RelayController).current_state == RelayController.RelayState.EVOLVING:
@@ -1055,7 +1079,7 @@ func _set_ship(ship_id: String) -> void:
         return
     if ship_visual != null:
         ship_visual.queue_free()
-    ship_visual = ModelPresentation.create_visual(inst, ShipPresentation.span(ship_id))
+    ship_visual = ModelPresentation.create_visual(inst, ShipPresentation.span(ship_id) * 1.14)
     ship_visual.name = ship_id
     ship_anchor.add_child(ship_visual)
     # Fit measured imported bounds; preserve +Z nose, materials and proportions.

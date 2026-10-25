@@ -1,6 +1,7 @@
 extends Node3D
 const Routes = preload("res://scripts/world_routes.gd")
 const Presentation = preload("res://scripts/world/model_presentation.gd")
+const NpcVisualScale = preload("res://scripts/world/npc_visual_scale.gd")
 ## G0.3: NPC 3D local. Não representa entidades reais do servidor.
 
 var npc_id := ""
@@ -40,10 +41,11 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
     attack_clock = randf_range(0.3, 1.6)
     var scene := load(model_path) as PackedScene
     if scene != null:
-        visual = scene.instantiate() as Node3D
-        if visual != null:
+        var imported: Node3D = scene.instantiate() as Node3D
+        if imported != null:
+            visual = Presentation.create_visual(imported, NpcVisualScale.span(kind))
+            visual.name = "NPC_Visual_Padronizado"
             add_child(visual)
-            visual.scale = Vector3.ONE * 0.86
     if visual == null:
         var placeholder := MeshInstance3D.new()
         var fallback := SphereMesh.new()
