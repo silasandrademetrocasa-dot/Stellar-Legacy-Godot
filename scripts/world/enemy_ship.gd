@@ -47,15 +47,9 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
         add_child(visual)
         var sprite := PixelSprite.new()
         visual.add_child(sprite)
-        sprite.configure(self, pixel_path, NpcVisualScale.span(kind) * 2.0, true)
+        sprite.configure(self, pixel_path, NpcVisualScale.span(kind) * 2.55, true)
     else:
-        var scene := load(model_path) as PackedScene
-        if scene != null:
-            var imported: Node3D = scene.instantiate() as Node3D
-            if imported != null:
-                visual = Presentation.create_visual(imported, NpcVisualScale.span(kind))
-                visual.name = "NPC_Visual_Padronizado"
-                add_child(visual)
+        push_warning("NPC sem atlas Pixel Art: " + pixel_path)
     if visual == null:
         var placeholder := MeshInstance3D.new()
         var fallback := SphereMesh.new()

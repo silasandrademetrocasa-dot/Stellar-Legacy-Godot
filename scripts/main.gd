@@ -731,19 +731,17 @@ func _rebuild_portals() -> void:
         gate.name = "Portal_to_" + target
         gate.position = p
         portal_root.add_child(gate)
-        var model := load(Routes.portal_model(target)) as PackedScene
-        if model != null:
-            var visual := model.instantiate() as Node3D
-            if visual != null:
-                gate.add_child(visual)
-                visual.scale = Vector3.ONE * (1.15 if Routes.is_astral(target) else 1.10)
-                visual.position.y = -0.32
-                # Camera praticamente superior: inclina a abertura para o plano orbital.
-                visual.rotation_degrees.x = 64.0 if not Routes.is_astral(target) else 59.0
-                var animation := PortalAnimation.new()
-                visual.add_child(animation)
-                var tint: Color = Routes.ASTRAL_COLORS.get(target, Color(1.0, 0.2, 0.25) if Routes.is_pvp(target) else (Color(0.7, 0.3, 1.0) if Routes.is_universe(target) else Color(0.15, 0.75, 1.0)))
-                animation.setup(visual, graphics_quality, tint)
+        var tex: Texture2D = load(Routes.portal_model(target)) as Texture2D
+        if tex != null:
+            var visual := Sprite3D.new()
+            visual.texture = tex
+            visual.pixel_size = 0.11
+            visual.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+            visual.shaded = false
+            visual.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+            visual.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+            visual.position.y = 2.2
+            gate.add_child(visual)
         # Marca orbital sob o portal: indica o ponto de viagem na nova perspectiva.
         var arrival_ring := MeshInstance3D.new()
         arrival_ring.name = "PortalArrivalRing"
@@ -1070,7 +1068,7 @@ func _on_ship_selected(index: int) -> void:
         change_ship_for_hangar(SHIP_IDS[index])
 
 func _set_ship(ship_id: String) -> void:
-    # Pixel Art e somente apresentacao no mapa; GLB continua no Hangar/Loja.
+    # Sprites 32 direcoes sao a apresentacao definitiva do mapa; nao carregar modelos antigos.
     var atlas_path := "res://assets/pixel/map_units/ships/%s.png" % ship_id.to_lower()
     if ship_visual != null:
         ship_visual.queue_free()
@@ -1081,7 +1079,7 @@ func _set_ship(ship_id: String) -> void:
         ship_anchor.add_child(pivot)
         var sprite := PixelSprite.new()
         pivot.add_child(sprite)
-        sprite.configure(ship_anchor, atlas_path, ShipPresentation.span(ship_id) * 2.0, true)
+        sprite.configure(ship_anchor, atlas_path, ShipPresentation.span(ship_id) * 2.8, true)
         ship_visual = pivot
         (ship_anchor.get_node("WeaponMuzzle") as Marker3D).position = Vector3(0.0, 0.1, ShipPresentation.span(ship_id) * 0.48)
         engine_mounts.clear()
@@ -1089,19 +1087,10 @@ func _set_ship(ship_id: String) -> void:
             jet.visible = false
         afterburner.visible = false
     else:
-        var file := "res://assets/ships/SL_%s_FINAL.glb" % ship_id
-        var res := load(file) as PackedScene
-        if res == null:
-            push_warning("Modelo ausente: " + file)
-            return
-        var inst := res.instantiate() as Node3D
-        ship_visual = ModelPresentation.create_visual(inst, ShipPresentation.span(ship_id) * 1.14)
-        ship_visual.name = ship_id
+        push_warning("Sprite da nave nao encontrado: " + atlas_path)
+        ship_visual = Node3D.new()
         ship_anchor.add_child(ship_visual)
-        afterburner.visible = true
-        _update_engine_mounts()
-        var visual_bounds := ModelPresentation.bounds(ship_visual)
-        (ship_anchor.get_node("WeaponMuzzle") as Marker3D).position = Vector3(0.0, 0.1, visual_bounds.end.z + 0.05)
+        afterburner.visible = false
     current_ship = ship_id
     equipment_state.set_active_ship(ship_id)
     var profile: Dictionary = ShipBalance.get_ship(ship_id)

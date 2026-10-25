@@ -1,8 +1,8 @@
 extends RefCounted
 ## G0.23: enquadramento estabilizado a partir do video de referencia.
 ## Projecao ortografica = sem aumento repentino de tamanho por perspectiva.
-const CAMERA_OFFSET := Vector3(0.0, 82.0, 18.0)
-const CAMERA_SIZE := 42.0
+const CAMERA_OFFSET := Vector3(0.0, 69.0, 32.0)
+const CAMERA_SIZE := 36.0
 const FOLLOW_SPEED := 5.0
 
 static func configure(camera: Camera3D, target: Vector3) -> void:

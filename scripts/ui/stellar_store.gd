@@ -1,9 +1,9 @@
 extends Control
-## G0.13: loja premium nativa, catalogo unificado, compras locais; um GLB por vez.
+## G0.25: loja e catalogo unificado com sprites Pixel Art; compras locais.
 const Store = preload("res://scripts/data/store_catalog.gd")
 const Equip = preload("res://scripts/data/equipment_catalog.gd")
 const Ships = preload("res://scripts/data/ship_balance.gd")
-const Presentation = preload("res://scripts/world/model_presentation.gd")
+const PixelArt = preload("res://scripts/world/pixel_model.gd")
 const NAVY := Color(0.012, 0.034, 0.076, 0.97)
 const CYAN := Color(0.24, 0.83, 1.0)
 const WHITE := Color(0.91, 0.96, 1.0)
@@ -90,11 +90,11 @@ func setup(owner_game) -> void:
     shelf_grid.add_theme_constant_override("v_separation", 7)
     shelf_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     shelf_scroll.add_child(shelf_grid)
-    _label(detail, "INSPECAO 3D", 14, GOLD)
+    _label(detail, "INSPECAO PIXEL ART", 14, GOLD)
     item_view = _viewport(detail, false)
     item_pivot = item_view.get_child(0).get_node("Pivot") as Node3D
     item_label = _label(detail, "SELECIONE UM ITEM", 14, WHITE)
-    description = _label(detail, "GLB original / qualidade integral", 10, MUTED)
+    description = _label(detail, "Arte Pixel Art / vitrine leve", 10, MUTED)
     description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     cost_label = _label(detail, "", 13, GOLD)
     owned_label = _label(detail, "", 10, CYAN)
@@ -109,9 +109,9 @@ func _skin(edge: Color, bg: Color = NAVY) -> StyleBoxFlat:
     skin.bg_color = bg
     skin.border_color = edge
     skin.set_border_width_all(2)
-    skin.set_corner_radius_all(8)
+    skin.set_corner_radius_all(0)
     skin.shadow_color = Color(edge.r, edge.g, edge.b, 0.20)
-    skin.shadow_size = 5
+    skin.shadow_size = 0
     return skin
 
 func _panel(parent: Node, edge: Color) -> Panel:
@@ -130,6 +130,21 @@ func _label(parent: Node, caption: String, font: int, tint: Color) -> Label:
     parent.add_child(label)
     return label
 
+func _pixel_button_skin(state: String) -> StyleBoxTexture:
+    var skin: StyleBoxTexture = StyleBoxTexture.new()
+    skin.texture = load("res://assets/pixel/ui/button_%s.png" % state) as Texture2D
+    skin.texture_margin_left = 5.0
+    skin.texture_margin_right = 5.0
+    skin.texture_margin_top = 5.0
+    skin.texture_margin_bottom = 5.0
+    skin.content_margin_left = 5.0
+    skin.content_margin_right = 5.0
+    skin.content_margin_top = 4.0
+    skin.content_margin_bottom = 4.0
+    skin.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    skin.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    return skin
+
 func _button(parent: Node, caption: String, tint: Color) -> Button:
     var button: Button = Button.new()
     button.text = caption
@@ -137,9 +152,11 @@ func _button(parent: Node, caption: String, tint: Color) -> Button:
     button.mouse_filter = Control.MOUSE_FILTER_STOP
     button.add_theme_font_size_override("font_size", 11)
     button.add_theme_color_override("font_color", WHITE)
-    button.add_theme_stylebox_override("normal", _skin(tint.darkened(0.4), Color(0.021, 0.07, 0.12, 0.98)))
-    button.add_theme_stylebox_override("hover", _skin(tint, Color(0.035, 0.12, 0.18, 0.98)))
-    button.add_theme_stylebox_override("pressed", _skin(tint, Color(0.045, 0.17, 0.21, 0.98)))
+    button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    button.add_theme_stylebox_override("normal", _pixel_button_skin("normal"))
+    button.add_theme_stylebox_override("hover", _pixel_button_skin("hover"))
+    button.add_theme_stylebox_override("pressed", _pixel_button_skin("pressed"))
+    button.add_theme_stylebox_override("disabled", _pixel_button_skin("normal"))
     parent.add_child(button)
     return button
 
@@ -211,18 +228,7 @@ func _set_model(pivot: Node3D, path: String, target_span: float) -> Node3D:
     for old in pivot.get_children():
         pivot.remove_child(old)
         old.queue_free()
-    if path.is_empty():
-        return null
-    var scene: PackedScene = load(path) as PackedScene
-    if scene == null:
-        return null
-    var imported: Node3D = scene.instantiate() as Node3D
-    if imported == null:
-        return null
-    var model := Presentation.create_visual(imported, target_span)
-    pivot.add_child(model)
-    model.rotation = Vector3(0.15, -0.15, 0)
-    return model
+    return PixelArt.create(pivot, path, target_span)
 
 func open_store() -> void:
     visible = true
@@ -239,7 +245,7 @@ func _refresh_ship() -> void:
     # Dados do balanceamento oficial; carteira e compras sao apenas demonstrativas.
     if name != last_ship:
         last_ship = name
-        ship_mesh = _set_model(ship_pivot, "res://assets/ships/SL_%s_FINAL.glb" % name, 5.5)
+        ship_mesh = _set_model(ship_pivot, "res://assets/pixel/catalog/ships/%s.png" % name, 5.5)
     balance_label.text = "LOJA ESTELAR  |  %s CR   •   %s STL   |   VALORES OFICIAIS / SALDO LOCAL" % [_fmt(game.wallet.credits), _fmt(game.wallet.stellarium)]
 
 func _tint(rarity: String) -> Color:
@@ -300,34 +306,16 @@ func _create_product_card(product: Dictionary) -> void:
     art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    var thumb: String = Equip.thumbnail_path(name)
-    var model_path: String = str(product["path"])
-    var base_name: String = model_path.get_file().get_basename()
-    var glb_thumb: String = "res://assets/ui/g019_shields/%s.png" % base_name
-    if not ResourceLoader.exists(glb_thumb):
-        glb_thumb = "res://assets/ui/g020_ship_previews/%s.png" % base_name
-    if not ResourceLoader.exists(glb_thumb):
-        glb_thumb = "res://assets/ui/g018_mesh_previews/%s.png" % base_name
-    if not ResourceLoader.exists(glb_thumb):
-        glb_thumb = "res://assets/ui/g015_models/%s.png" % base_name
-    if not ResourceLoader.exists(glb_thumb):
-        glb_thumb = "res://assets/ui/g014_models/%s.png" % base_name
-    if ResourceLoader.exists(glb_thumb):
-        thumb = glb_thumb
-    if thumb == "":
-        thumb = "res://assets/ui/g013_models/%s.png" % base_name
-        if not ResourceLoader.exists(thumb):
-            thumb = "res://assets/ui/g013_item_insignia.png"
-    art.texture = load(thumb) as Texture2D
+    art.texture = PixelArt.texture_for(str(product.get("path", "")))
     inner.add_child(art)
     var label: Label = _label(inner, name, 11, WHITE)
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     var currency: String = str(product.get("currency", "credits"))
     var for_sale: bool = bool(product.get("shop_visible", false)) and int(product.get("cost", 0)) > 0
-    var price_text: String = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if for_sale else ("VISUAL HQ / SEM PRECO" if str(product.get("kind", "")) == "shield_concept" else "EXCLUSIVO / EVENTO")
+    var price_text: String = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if for_sale else ("PIXEL ART / SEM PRECO" if str(product.get("kind", "")) == "shield_concept" else "EXCLUSIVO / EVENTO")
     var price: Label = _label(inner, price_text, 12, GOLD if currency == "credits" else Color(0.75, 0.4, 1.0))
     price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    var inspect: Button = _button(inner, "VER MODELO 3D", accent)
+    var inspect: Button = _button(inner, "VER SPRITE", accent)
     inspect.custom_minimum_size.y = 27
     inspect.add_theme_font_size_override("font_size", 10)
     inspect.pressed.connect(_select_product.bind(product))
@@ -338,12 +326,12 @@ func _select_product(product: Dictionary) -> void:
     item_label.text = name
     description.text = str(product.get("desc", ""))
     if str(product.get("category", "")) == "ESCUDOS":
-        description.text += "  |  " + str(product.get("hq_visual", "GLB integral G0.19"))
+        description.text += "  |  " + str(product.get("hq_visual", "Sprite Pixel Art G0.25"))
     if str(product.get("category", "")) == "NAVES":
         description.text = "%s  |  %s HP  |  VEL %d  |  PORAO %d  |  LASER %d / GER %d / EXTRA %d" % [name, str(product.get("hp", 0)), int(product.get("speed", 0)), int(product.get("cargo", 0)), int(product.get("lasers", 0)), int(product.get("generators", 0)), int(product.get("extras", 0))]
     var currency: String = str(product.get("currency", "credits"))
     var marketable: bool = bool(product.get("shop_visible", false)) and int(product.get("cost", 0)) > 0
-    cost_label.text = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else ("MODELO HQ / AINDA NAO VENDIDO" if str(product.get("kind", "")) == "shield_concept" else "EXCLUSIVO / EVENTO")
+    cost_label.text = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else ("EXCLUSIVO / AINDA NAO VENDIDO" if str(product.get("kind", "")) == "shield_concept" else "EXCLUSIVO / EVENTO")
     var owned: int = 0
     match str(product["category"]):
         "NAVES": owned = 1 if game.equipment_state.owns_ship(name) else 0

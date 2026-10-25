@@ -20,16 +20,17 @@ func reset_arena(map_id: String, quality: String) -> void:
     if not Routes.is_astral(map_id):
         return
     accent = Routes.ASTRAL_COLORS[map_id]
-    var resource: PackedScene = load(Routes.portal_model(map_id)) as PackedScene
-    if resource != null:
-        portal_visual = resource.instantiate() as Node3D
-        if portal_visual != null:
-            add_child(portal_visual)
-            portal_visual.position = Vector3(0.0, 0.0, 59.0)
-            portal_visual.scale = Vector3.ONE * 1.85
-            var animation := PortalAnimation.new()
-            portal_visual.add_child(animation)
-            animation.setup(portal_visual, quality, accent)
+    var texture: Texture2D = load(Routes.portal_model(map_id)) as Texture2D
+    if texture != null:
+        var sprite := Sprite3D.new()
+        sprite.texture = texture
+        sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+        sprite.shaded = false
+        sprite.pixel_size = 0.18
+        sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+        sprite.position = Vector3(0.0, 4.0, 59.0)
+        portal_visual = sprite
+        add_child(sprite)
     var platform := MeshInstance3D.new()
     var mesh := CylinderMesh.new()
     mesh.top_radius = 18.0

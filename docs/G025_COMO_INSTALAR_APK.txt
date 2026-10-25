@@ -1,0 +1,42 @@
+STELLAR LEGACY GODOT G0.25 - PIXEL ART LEVE + APK DEBUG
+============================================================
+
+LEIA ANTES DE INSTALAR:
+- Versao offline de testes. NAO substitui o Stellar Legacy Web de producao.
+- A conversao remove GLB e imagens 3D legadas da copia Godot: faca backup.
+- O APK ainda precisa ser compilado e testado via GitHub Actions.
+- O pacote INCREMENTAL pressupoe que o cliente Godot G0.24 esteja instalado no repositorio.
+
+PASSO 1 - UMA UNICA VEZ:
+No repositorio Godot, edite ou crie o arquivo:
+.github/workflows/godot-zip-installer.yml
+Cole nele o conteudo de godot-zip-installer-G025-APK.yml e salve na branch main.
+NUNCA coloque o workflow dentro do ZIP de atualizacao: o instalador bloqueia .github.
+
+PASSO 2 - ATUALIZACAO:
+Suba somente STELLAR_LEGACY_G025_PIXEL_LIGHT_ATUALIZACAO.zip na raiz.
+Remova outros ZIPs na raiz para nao causar erro no instalador.
+O instalador recebe o ZIP, substitui arquivos e remove artefatos 3D obsoletos,
+mas somente se docs/G025_PLANO_ROTAS_CRONOGRAMA.md existir na atualizacao.
+
+PASSO 3 - GERAR APK:
+GitHub > Actions > Stellar Legacy Godot - Instalar ZIP e gerar APK > Run workflow.
+Marque instalar_zip = true. Se houver erro, abra o log da etapa vermelha.
+Quando verde, em Artifacts, baixe StellarLegacy-PixelArt-APK.
+Extraia o APK e instale no Android para testar.
+
+ATENCAO AO REINSTALAR APK:
+APK debug usa assinatura de teste; reinstalar entre builds pode exigir remover
+a versao anterior e pode apagar os saves locais. Faca backup antes.
+
+TESTES RECOMENDADOS:
+- 32 direcoes Aurora e Scavenger, visibilidade/escala, Android paisagem.
+- Loja, Equipamentos, Hangar, Leilao: sprites e botoes pixelados.
+- Menus PILOTO, CONQUISTAS, BATALHA, MAPA, LOJAS e MAIS.
+- Mapa X-1, transicoes 1-1 -> 1-2, Battle Maps, astral.
+- FPS, memoria, tamanho final APK; comparacao com G0.24.
+- Algumas rotas como Autopilot/Modo Compacto estao mapeadas mas pendentes.
+
+OS ARQUIVOS COMPLETOS (STELLAR_LEGACY_G025_PIXEL_LIGHT_COMPLETO.zip)
+servem de backup/instalacao limpa. No instalador use incremental quando houver
+um repositorio G0.24 previamente instalado.

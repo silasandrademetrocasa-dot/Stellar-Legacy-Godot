@@ -1,10 +1,10 @@
 extends Control
-## G0.11: Estacao de equipamentos nativa Godot; nenhuma miniatura 2D de referencia.
+## G0.25: Inventario e configuracoes preservados, vitrine Pixel Art.
 ## Nave | slots | inventario. Tudo local e persistido pelo EquipmentState existente.
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
 const Store = preload("res://scripts/data/store_catalog.gd")
 const Ships = preload("res://scripts/data/ship_balance.gd")
-const Presentation = preload("res://scripts/world/model_presentation.gd")
+const PixelArt = preload("res://scripts/world/pixel_model.gd")
 const CYAN := Color(0.22, 0.78, 1.0)
 const WHITE := Color(0.88, 0.96, 1.0)
 const MUTED := Color(0.52, 0.68, 0.8)
@@ -99,7 +99,7 @@ func setup(owner_game) -> void:
     item_view.visible = false
     item_root = item_view.get_child(0).get_node("ModelPivot") as Node3D
     item_caption = _label(right_panel, "SELECIONE UM ITEM", 12, WHITE)
-    detail_caption = _label(right_panel, "Modelo 3D aparece apos selecionar.", 10, MUTED)
+    detail_caption = _label(right_panel, "Sprite Pixel Art aparece apos selecionar.", 10, MUTED)
     equip_button = _button(right_panel, "EQUIPAR")
     equip_button.pressed.connect(_equip_selected)
     remove_button = _button(right_panel, "REMOVER")
@@ -145,6 +145,21 @@ func _label(parent: Node, caption: String, font: int, tint: Color) -> Label:
     parent.add_child(l)
     return l
 
+func _pixel_button_skin(state: String) -> StyleBoxTexture:
+    var skin: StyleBoxTexture = StyleBoxTexture.new()
+    skin.texture = load("res://assets/pixel/ui/button_%s.png" % state) as Texture2D
+    skin.texture_margin_left = 5.0
+    skin.texture_margin_right = 5.0
+    skin.texture_margin_top = 5.0
+    skin.texture_margin_bottom = 5.0
+    skin.content_margin_left = 5.0
+    skin.content_margin_right = 5.0
+    skin.content_margin_top = 4.0
+    skin.content_margin_bottom = 4.0
+    skin.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    skin.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    return skin
+
 func _button(parent: Node, caption: String) -> Button:
     var b := Button.new()
     b.text = caption
@@ -152,19 +167,11 @@ func _button(parent: Node, caption: String) -> Button:
     b.add_theme_color_override("font_color", WHITE)
     b.mouse_filter = Control.MOUSE_FILTER_STOP
     b.focus_mode = Control.FOCUS_NONE
-    var skin := StyleBoxFlat.new()
-    skin.bg_color = Color(0.018, 0.073, 0.13)
-    skin.border_color = Color(0.19, 0.57, 0.79)
-    skin.set_border_width_all(1)
-    skin.set_corner_radius_all(6)
-    skin.shadow_color = Color(0.03, 0.52, 0.9, 0.18)
-    skin.shadow_size = 3
-    b.add_theme_stylebox_override("normal", skin)
-    var hot := skin.duplicate() as StyleBoxFlat
-    hot.bg_color = Color(0.05, 0.2, 0.32)
-    hot.border_color = CYAN
-    b.add_theme_stylebox_override("hover", hot)
-    b.add_theme_stylebox_override("pressed", hot)
+    b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    b.add_theme_stylebox_override("normal", _pixel_button_skin("normal"))
+    b.add_theme_stylebox_override("hover", _pixel_button_skin("hover"))
+    b.add_theme_stylebox_override("pressed", _pixel_button_skin("pressed"))
+    b.add_theme_stylebox_override("disabled", _pixel_button_skin("normal"))
     parent.add_child(b)
     return b
 
@@ -233,20 +240,11 @@ func _showcase(parent: Node, ship: bool) -> SubViewportContainer:
         vp.add_child(halo)
     return wrap
 
-func _set_model(root: Node3D, path: String, target_span: float) -> Node3D:
-    for child in root.get_children():
-        root.remove_child(child)
-        child.queue_free()
-    var scene := load(path) as PackedScene
-    if scene == null:
-        return null
-    var imported := scene.instantiate() as Node3D
-    if imported == null:
-        return null
-    var obj := Presentation.create_visual(imported, target_span)
-    root.add_child(obj)
-    obj.rotation = Vector3(0.13, -0.25, 0)
-    return obj
+func _set_model(pivot: Node3D, path: String, target_span: float) -> Node3D:
+    for old in pivot.get_children():
+        pivot.remove_child(old)
+        old.queue_free()
+    return PixelArt.create(pivot, path, target_span)
 
 func _load_ship() -> void:
     if game == null:
@@ -257,7 +255,7 @@ func _load_ship() -> void:
     ship_loaded = ship_id
     var st: Dictionary = Ships.get_ship(ship_id)
     ship_caption.text = "%s • HP %s • VEL %d • PORAO %d • ARM %d / GER %d / EXT %d" % [ship_id, str(st.get("hp",0)), int(st.get("speed",0)), int(st.get("cargo",0)), int(st.get("lasers",1)), int(st.get("generators",1)), int(st.get("extras",1))]
-    ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 6.0)
+    ship_mesh = _set_model(ship_root, "res://assets/pixel/catalog/ships/%s.png" % ship_id, 6.0)
 
 func open_command() -> void:
     visible = true
@@ -376,16 +374,7 @@ func _redraw_grid() -> void:
         frame.add_child(layout)
         var snap: TextureRect = TextureRect.new()
         var model_file: String = str(entry.get("model", str(entry.get("path", "")).get_file().get_basename()))
-        var thumbnail_path: String = "res://assets/ui/g015_models/%s.png" % model_file
-        if not ResourceLoader.exists(thumbnail_path):
-            thumbnail_path = "res://assets/ui/g014_models/%s.png" % model_file
-        if not ResourceLoader.exists(thumbnail_path):
-            thumbnail_path = "res://assets/ui/g013_models/%s.png" % model_file
-        var catalog_thumb := Catalog.thumbnail_path(name)
-        if not catalog_thumb.is_empty():
-            thumbnail_path = catalog_thumb
-        if ResourceLoader.exists(thumbnail_path):
-            snap.texture = load(thumbnail_path) as Texture2D
+        snap.texture = PixelArt.texture_for(Catalog.model_path(name) if Catalog.CATEGORY_NAMES.has(category) else str(entry.get("path", "")))
         snap.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
         snap.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
         snap.custom_minimum_size = Vector2(58, 47)

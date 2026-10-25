@@ -36,12 +36,12 @@ const SHOP_EQUIPMENT := [
     {"name":"THR-1","cost":200,"description":"Vitrine GLB do arsenal Stellar Legacy"},
 ]
 const AUCTION := [
-    {"name":"THR-3 | MOTOR DE ELITE","opening":900,"model":"res://assets/equipment/thr-3.glb"},
-    {"name":"SG-3 | ESCUDO ELITE","opening":1100,"model":"res://assets/equipment/sg-3.glb"},
-    {"name":"ARC-4 | LASER ELITE","opening":1400,"model":"res://assets/equipment/arc-4.glb"},
-    {"name":"RELOAD BOOSTER | EXTRA","opening":1200,"model":"res://assets/equipment/reload_booster.glb"},
-    {"name":"ARC-Q | ARMAMENTO LENDARIO","opening":12500,"model":"res://assets/equipment/arc-q.glb"},
-    {"name":"VSH-3 | ESCUDO DE SINGULARIDADE","opening":5200,"model":"res://assets/equipment/vsh-3.glb"},
+    {"name":"THR-3 | MOTOR DE ELITE","opening":900,"model":"res://assets/pixel/catalog/equipment/thr_3.png"},
+    {"name":"SG-3 | ESCUDO ELITE","opening":1100,"model":"res://assets/pixel/catalog/equipment/sg_3.png"},
+    {"name":"ARC-4 | LASER ELITE","opening":1400,"model":"res://assets/pixel/catalog/equipment/arc_4.png"},
+    {"name":"RELOAD BOOSTER | EXTRA","opening":1200,"model":"res://assets/pixel/catalog/equipment/reload_booster.png"},
+    {"name":"ARC-Q | ARMAMENTO LENDARIO","opening":12500,"model":"res://assets/pixel/catalog/equipment/arc_q.png"},
+    {"name":"VSH-3 | ESCUDO DE SINGULARIDADE","opening":5200,"model":"res://assets/pixel/catalog/equipment/vsh_3.png"},
 ]
 const CONTRACTS := [
     {"key": "hunter", "label": "Patrulha da Fronteira", "goal": 8, "credits": 450},

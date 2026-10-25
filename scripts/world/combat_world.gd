@@ -123,7 +123,7 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
             if good:
                 break
         var spec: Array = pool[(i + map_rank - 1) % pool.size()]
-        var model := "res://assets/npcs/%s.glb" % str(spec[0])
+        var model := "res://assets/pixel/map_units/npcs/%s.png" % str(spec[0])
         var enemy := Enemy.new()
         enemy.name = "Enemy_%d" % i
         enemy_root.add_child(enemy)
@@ -153,7 +153,7 @@ func configure_astral(arena_map: String, wave_number: int) -> void:
         var radius: float = 34.0 + 8.0 * float((i + wave_number) % 2)
         var place: Vector3 = Vector3(sin(angle) * radius,0.0,cos(angle) * radius)
         var level: float = 1.0 + float(wave_number) * 0.48
-        enemy.setup(code,NpcCatalog.display_name(code),"res://assets/npcs/%s.glb" % code,place,1350.0 * level,640.0 * level,120.0 * level,3.0)
+        enemy.setup(code,NpcCatalog.display_name(code),"res://assets/pixel/map_units/npcs/%s.png" % code,place,1350.0 * level,640.0 * level,120.0 * level,3.0)
         enemy.respawn_allowed = false
         enemies.append(enemy)
     _message("PORTAL %s: ONDA %d / 3" % [arena_map.trim_prefix("A-"),wave_number])
@@ -348,15 +348,17 @@ func _destroy_enemy(enemy: Enemy) -> void:
 func _spawn_local_drop(where: Vector3, npc_id: String) -> void:
     if drops.size() >= 8:
         return
-    var asset: PackedScene = load("res://assets/loot/box_loot.glb") as PackedScene
-    if asset == null:
-        return
-    var box: Node3D = asset.instantiate() as Node3D
-    if box == null:
-        return
+    var box := Node3D.new()
+    var art := Sprite3D.new()
+    art.texture = load("res://assets/pixel/world/box_bonus.png") as Texture2D
+    art.pixel_size = 0.055
+    art.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+    art.shaded = false
+    art.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+    art.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+    box.add_child(art)
     loot_root.add_child(box)
     box.position = where + Vector3.UP * 0.25
-    box.scale = Vector3.ONE * 1.12
     var payload: Dictionary = NPC_DROP_RESOURCES.get(npc_id, {"Ferron":12,"Cryon":10})
     drops.append({"node":box, "time":30.0, "resources":payload.duplicate(true), "counted":false})
 

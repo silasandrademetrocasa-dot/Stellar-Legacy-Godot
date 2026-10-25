@@ -53,13 +53,8 @@ func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String
             sprite.configure(instance, atlas_path, 2.9, false)
             drone_models.append(instance)
         else:
-            var model: PackedScene = load("res://assets/drones/%s.glb" % file_id) as PackedScene
-            if model != null:
-                instance.queue_free()
-                instance = model.instantiate() as Node3D
-                drones_root.add_child(instance)
-                instance.scale = Vector3.ONE * 0.55
-                drone_models.append(instance)
+            push_warning("Drone Pixel ausente: " + atlas_path)
+            instance.queue_free()
     if installed_aux == "AUX-9":
         var pixel_path := "res://assets/pixel/map_units/aux/aux9.png"
         if ResourceLoader.exists(pixel_path):
@@ -69,12 +64,7 @@ func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String
             aux_model.add_child(sprite)
             sprite.configure(aux_model, pixel_path, 3.2, false)
         else:
-            var asset: PackedScene = load("res://assets/aux/aux9.glb") as PackedScene
-            if asset != null:
-                aux_model = asset.instantiate() as Node3D
-                if aux_model != null:
-                    aux_root.add_child(aux_model)
-                    aux_model.scale = Vector3.ONE * 0.70
+            push_warning("AUX Pixel ausente: " + pixel_path)
     drones_enabled = drone_models.size() > 0
     aux_enabled = aux_model != null
     snap_to_player()

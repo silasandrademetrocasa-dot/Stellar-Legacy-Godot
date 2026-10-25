@@ -1,5 +1,5 @@
 extends Node3D
-## G0.17: minérios e caixas bônus 3D locais, inspirados nas regras do Stellar Legacy Web.
+## G0.25: minérios e caixas bônus pixel art locais, inspirados nas regras do Stellar Legacy Web.
 ## Reaparecimento persistido por mapa; no modo offline o cliente e dono da simulacao.
 
 signal ore_collected(resource_name: String, amount: int)
@@ -14,13 +14,14 @@ const ORE_MIN_WAIT: float = 5.0
 const ORE_MAX_WAIT: float = 12.0
 const COLLECT_RADIUS: float = 6.5
 const MODELS: Dictionary = {
-    "Ferron":"res://assets/resources/minerio_plasma.glb",
-    "Cryon":"res://assets/resources/minerio_ciano.glb",
-    "Virel":"res://assets/resources/minerio_violeta.glb",
-    "Ferrite":"res://assets/resources/minerio_plasma.glb",
-    "Duracite":"res://assets/resources/minerio_esmeralda.glb",
-    "Solarium":"res://assets/resources/minerio_ouro.glb"
+    "Ferron":"res://assets/pixel/world/ore_red.png",
+    "Cryon":"res://assets/pixel/world/ore_blue.png",
+    "Virel":"res://assets/pixel/world/ore_purple.png",
+    "Ferrite":"res://assets/pixel/world/ore_gold.png",
+    "Duracite":"res://assets/pixel/world/ore_green.png",
+    "Solarium":"res://assets/pixel/world/ore_gold.png"
 }
+
 const BONUS_REWARDS: Array[Dictionary] = [
     {"kind":"ammo", "name":"PLS-1", "min":15, "max":100},
     {"kind":"ammo", "name":"PLS-2", "min":15, "max":75},
@@ -48,7 +49,7 @@ var portal_avoid: Array[Vector3] = []
 func _ready() -> void:
     rng.randomize()
     root = Node3D.new()
-    root.name = "Minerios_E_BoxBonus_3D"
+    root.name = "Minerios_E_BoxBonus_Pixel"
     add_child(root)
     _load_state()
 
@@ -84,7 +85,7 @@ func _ore_target(map_id: String) -> int:
     if map_id.begins_with("A-") or map_id.begins_with("4-") or map_id.begins_with("U-"):
         return 0
     # Jogo web usa mais nodes porque seus setores sao muito maiores.
-    # Aqui mantemos o mesmo ciclo de coleta, limitado a 10-14 GLBs HQ no Android.
+    # Aqui mantemos o mesmo ciclo de coleta, limitado a sprites compactos no Android.
     var tier: int = _tier(map_id)
     return mini(36, 27 + tier)
 
@@ -196,24 +197,19 @@ func _replenish() -> void:
     if JSON.stringify(current_state) != prior:
         _save_state()
 
-func _scene(path: String) -> PackedScene:
-    if scene_cache.has(path):
-        return scene_cache[path] as PackedScene
-    var asset: PackedScene = load(path) as PackedScene
-    if asset != null:
-        scene_cache[path] = asset
-    return asset
-
 func _node_from_row(row: Dictionary, kind: String) -> void:
-    var path: String = "res://assets/loot/box_bonus.glb" if kind == "bonus" else str(MODELS.get(str(row.get("type", "")), ""))
-    if path == "":
+    var path: String = "res://assets/pixel/world/box_bonus.png" if kind == "bonus" else str(MODELS.get(str(row.get("type", "")), ""))
+    if path.is_empty() or not ResourceLoader.exists(path):
         return
-    var asset: PackedScene = _scene(path)
-    if asset == null:
-        return
-    var body: Node3D = asset.instantiate() as Node3D
-    if body == null:
-        return
+    var body := Node3D.new()
+    var art := Sprite3D.new()
+    art.texture = load(path) as Texture2D
+    art.pixel_size = 0.065 if kind == "ore" else 0.056
+    art.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+    art.shaded = false
+    art.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+    art.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+    body.add_child(art)
     var coords: Array = row.get("pos", [0.0,0.0])
     body.position = Vector3(float(coords[0]), 0.4 if kind == "bonus" else -0.55, float(coords[1]))
     body.scale = Vector3.ONE * (0.80 if kind == "bonus" else 0.90)

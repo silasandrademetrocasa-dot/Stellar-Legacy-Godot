@@ -15,17 +15,17 @@ const StellarStore = preload("res://scripts/ui/stellar_store.gd")
 const StellarHangarPremium = preload("res://scripts/ui/stellar_hangar_premium.gd")
 const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
 const AstralCatalog = preload("res://scripts/systems/astral_trials.gd")
-const Presentation = preload("res://scripts/world/model_presentation.gd")
+const PixelArt = preload("res://scripts/world/pixel_model.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
 const WEAPON_NAMES := ["PLS-1", "PLS-2", "PLS-3", "PLS-4", "CMT-1"]
 const DRONE_ITEMS := [
-    ["Drone Alfa", "res://assets/drones/drone_a.glb"],
-    ["Drone Beta", "res://assets/drones/drone_b.glb"],
-    ["Drone Gama", "res://assets/drones/drone_c.glb"],
-    ["Drone Delta", "res://assets/drones/drone_d.glb"],
-    ["Drone Epsilon", "res://assets/drones/drone_e.glb"],
-    ["Drone Comum", "res://assets/drones/drone_common.glb"],
-    ["Drone Elite", "res://assets/drones/drone_elite.glb"],
+    ["Drone Alfa", "res://assets/pixel/map_units/drones/drone_a.png"],
+    ["Drone Beta", "res://assets/pixel/map_units/drones/drone_b.png"],
+    ["Drone Gama", "res://assets/pixel/map_units/drones/drone_c.png"],
+    ["Drone Delta", "res://assets/pixel/map_units/drones/drone_d.png"],
+    ["Drone Epsilon", "res://assets/pixel/map_units/drones/drone_e.png"],
+    ["Drone Comum", "res://assets/pixel/map_units/drones/drone_common.png"],
+    ["Drone Elite", "res://assets/pixel/map_units/drones/drone_elite.png"],
 ]
 
 var game
@@ -39,19 +39,31 @@ var pixel_drop_buttons: Array = []
 var missile_captions: Array[Label] = []
 const PIXEL_MENU := ["PILOTO", "CONQUISTAS", "BATALHA", "MAPA", "LOJAS", "MAIS"]
 const PIXEL_MENU_ITEMS := [
-    ["HANGAR", "EQUIPAMENTOS", "HABILIDADES", "CLÃ"],
-    ["MISSÕES", "PASSE", "TÍTULOS", "EVENTOS"],
-    ["WARFRONT", "PORTAIS", "GRUPO"],
+    ["HANGAR", "NAVE", "HABILIDADES", "AUX-9", "AUTOPILOT"],
+    ["MISSÕES", "PASSE", "CENTRO DE COMANDO"],
+    ["ARENA", "WARFRONT", "PORTAIS", "EVENTOS", "GRUPO"],
     [],
     ["LOJA", "LOJA PREMIUM", "LEILÃO"],
-    ["CONFIGURAÇÕES", "ADMINISTRAÇÃO"],
+    ["CLÃ", "UNIVERSO", "HUD", "MODO COMPACTO", "CONFIGURAÇÕES", "ADMINISTRAÇÃO"],
 ]
-const PIXEL_MENU_KINDS := {
-    "HANGAR":"HANGAR", "EQUIPAMENTOS":"EQUIPAMENTOS", "HABILIDADES":"PILOTO", "CLÃ":"ALIANCA",
-    "MISSÕES":"MISSOES", "PASSE":"PASSE", "TÍTULOS":"TITULOS", "EVENTOS":"CENTRAL",
-    "WARFRONT":"RELES", "PORTAIS":"ASTRAL", "GRUPO":"ALIANCA",
-    "LOJA":"LOJA", "LOJA PREMIUM":"PREMIUM", "LEILÃO":"LEILAO",
-    "CONFIGURAÇÕES":"CONFIG", "ADMINISTRAÇÃO":"ADM"
+const WEB_ID_BY_LABEL := {
+    "HANGAR":"hangarBtn", "NAVE":"shipMenuBtn", "HABILIDADES":"pilotBtn", "AUX-9":"petBtn",
+    "AUTOPILOT":"v481AutopilotEntry", "MISSÕES":"missionBtn", "PASSE":"passBtn",
+    "CENTRO DE COMANDO":"commandCenterBtn", "ARENA":"arenaBtn", "WARFRONT":"warfrontBtn",
+    "PORTAIS":"gateBtn", "EVENTOS":"galaxyEventBtn", "GRUPO":"battleGroupBtn",
+    "LOJA":"shopBtn", "LOJA PREMIUM":"premiumBtn", "LEILÃO":"auctionBtn",
+    "CLÃ":"clanBtn", "UNIVERSO":"frontierExpansionBtnV42", "HUD":"hudIntelligenceQuick",
+    "MODO COMPACTO":"mobileCombatModeBtn", "CONFIGURAÇÕES":"configBtn", "ADMINISTRAÇÃO":"adminBtn",
+    "MAPA":"mapBtn"
+}
+const WEB_ROUTE_UI_KIND := {
+    "hangarBtn":"HANGAR", "shipMenuBtn":"HANGAR", "pilotBtn":"PILOTO",
+    "petBtn":"HANGAR", "missionBtn":"MISSOES", "passBtn":"PASSE", "commandCenterBtn":"CENTRAL",
+    "arenaBtn":"BATALHA", "warfrontBtn":"RELES", "gateBtn":"ASTRAL",
+    "galaxyEventBtn":"CENTRAL", "battleGroupBtn":"ALIANCA", "shopBtn":"LOJA",
+    "premiumBtn":"PREMIUM", "auctionBtn":"LEILAO", "clanBtn":"ALIANCA",
+    "configBtn":"CONFIG", "adminBtn":"ADM", "mapBtn":"MAPAS",
+    "frontierExpansionBtnV42":"MAPAS"
 }
 var vitals_panel: Panel
 var vitals_title: Label
@@ -140,6 +152,8 @@ func setup(root, minimap: Control) -> void:
     mouse_filter = Control.MOUSE_FILTER_IGNORE
     _create_shell()
     _create_modal()
+    if not WebRouteRegistry.route_requested.is_connected(_on_web_route_requested):
+        WebRouteRegistry.route_requested.connect(_on_web_route_requested)
     relayout(get_viewport_rect().size)
     refresh()
 
@@ -575,7 +589,7 @@ func _copy_equipment_config() -> void:
 
 func _process(delta: float) -> void:
     if modal_overlay.visible and preview_mesh != null and is_instance_valid(preview_mesh):
-        preview_mesh.rotation.y += delta * 0.53
+        pass # sprites fixos: sem rotacao 3D artificial
     if notification_seconds > 0.0:
         notification_seconds = maxf(0.0, notification_seconds - delta)
         notification_label.visible = notification_seconds > 0.0
@@ -595,7 +609,7 @@ func _toggle_pixel_menu(index: int) -> void:
     if PIXEL_MENU[index] == "MAPA":
         for drop in pixel_dropdowns:
             drop.visible = false
-        _on_top_button("MAPAS")
+        WebRouteRegistry.navigate_web_id("mapBtn")
         return
     var next: bool = not pixel_dropdowns[index].visible
     for drop in pixel_dropdowns:
@@ -605,7 +619,24 @@ func _toggle_pixel_menu(index: int) -> void:
 func _activate_pixel_menu(label: String) -> void:
     for drop in pixel_dropdowns:
         drop.visible = false
-    var kind: String = str(PIXEL_MENU_KINDS.get(label, "CENTRAL"))
+    var web_id: String = str(WEB_ID_BY_LABEL.get(label, ""))
+    if not web_id.is_empty():
+        WebRouteRegistry.navigate_web_id(web_id)
+    else:
+        show_notification("ROTA SEM MAPEAMENTO WEB: " + label)
+
+func _on_web_route_requested(route: String, web_id: String) -> void:
+    # Web modules are modal routes (not URLs); preserve the offline implementation boundary.
+    if web_id in ["v481AutopilotEntry", "mobileCombatModeBtn"]:
+        show_notification("ROTA WEB MAPEADA • AGUARDA IMPLEMENTACAO: " + route)
+        return
+    if web_id == "hudIntelligenceQuick":
+        show_notification("HUD PIXEL ART JA ATIVO")
+        return
+    var kind: String = str(WEB_ROUTE_UI_KIND.get(web_id, ""))
+    if kind.is_empty():
+        show_notification("ROTA WEB REGISTRADA • PAINEL PENDENTE: " + route)
+        return
     _on_top_button(kind)
 
 func _on_top_button(item: String) -> void:
@@ -645,7 +676,7 @@ func _open_modal(kind: String) -> void:
     modal_overlay.visible = true
     _apply_sector_skin(kind)
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.19  |  HANGAR PREMIUM / ESCUDOS 3D HQ / SALVO LOCAL" if kind == "HANGAR" else "G0.19  |  PREÇOS DE REFERÊNCIA / SIMULAÇÃO LOCAL"
+    modal_info.text = "G0.25 | VITRINES PIXEL ART / SALVO LOCAL" if kind == "HANGAR" else "G0.25 | VALORES DE REFERENCIA / SIMULACAO LOCAL"
     var hangar_mode: bool = kind == "HANGAR"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
     if not hangar_mode:
@@ -727,7 +758,7 @@ func _ship_catalog() -> Array[Dictionary]:
     var result: Array[Dictionary] = []
     for ship_id in SHIP_IDS:
         var st: Dictionary = OfficialShips.get_ship(ship_id)
-        result.append({"name": ship_id.capitalize(), "path": "res://assets/ships/SL_%s_FINAL.glb" % ship_id, "id": ship_id, "source": "GLB INTEGRAL", "desc":"%s HP • VEL %d • CARGA %d • ARM %d • GER %d • EXT %d" % [str(st.get("hp",0)),int(st.get("speed",0)),int(st.get("cargo",0)),int(st.get("lasers",0)),int(st.get("generators",0)),int(st.get("extras",0))]})
+        result.append({"name": ship_id.capitalize(), "path": "res://assets/pixel/catalog/ships/%s.png" % ship_id.to_lower(), "id": ship_id, "source": "PIXEL ART", "desc":"%s HP • VEL %d • CARGA %d • ARM %d • GER %d • EXT %d" % [str(st.get("hp",0)),int(st.get("speed",0)),int(st.get("cargo",0)),int(st.get("lasers",0)),int(st.get("generators",0)),int(st.get("extras",0))]})
     return result
 
 func _select_category(category: String) -> void:
@@ -752,13 +783,13 @@ func _populate_category(category: String, reset_scroll: bool = true) -> void:
             catalogue = _ship_catalog()
         "DRONES":
             for d in DRONE_ITEMS:
-                catalogue.append({"name":str(d[0]), "path":str(d[1]), "id":"", "source":"GLB LOCAL"})
+                catalogue.append({"name":str(d[0]), "path":str(d[1]), "id":"", "source":"PIXEL ART"})
         "AUX-9":
-            catalogue.append({"name":"AUX-9", "path":"res://assets/aux/aux9.glb", "id":"", "source":"GLB LOCAL"})
+            catalogue.append({"name":"AUX-9", "path":"res://assets/pixel/map_units/aux/aux9.png", "id":"", "source":"PIXEL ART"})
         "ARMAS", "ESCUDOS", "MOTORES", "EXTRAS":
             for item in EquipCatalog.items_in_category(category):
                 catalogue.append({"name":str(item["name"]), "path":EquipCatalog.model_path(str(item["name"])),
-                    "id":"", "source":"GLB G0.6", "desc":str(item["desc"]), "category":category})
+                    "id":"", "source":"PIXEL ART", "desc":str(item["desc"]), "category":category})
     for i in range(catalogue.size()):
         var row := _button(item_stack, str(catalogue[i]["name"]), 13)
         row.custom_minimum_size = Vector2(165, 54)
@@ -808,31 +839,9 @@ func _load_preview(path: String) -> void:
     if preview_mesh != null and is_instance_valid(preview_mesh):
         preview_mesh.queue_free()
         preview_mesh = null
-    if path != "":
-        var res := load(path) as PackedScene
-        if res != null:
-            preview_mesh = Presentation.create_visual(res.instantiate() as Node3D, 5.0)
-    if preview_mesh == null:
-        preview_mesh = Node3D.new()
-        var symbol := MeshInstance3D.new()
-        var concept := CylinderMesh.new()
-        concept.top_radius = 0.7
-        concept.bottom_radius = 1.0
-        concept.height = 2.2
-        var material := StandardMaterial3D.new()
-        material.metallic = 0.8
-        material.roughness = 0.24
-        material.albedo_color = C_HI
-        concept.material = material
-        symbol.mesh = concept
-        symbol.rotation.z = PI / 2.0
-        preview_mesh.add_child(symbol)
-    preview_root.add_child(preview_mesh)
-    # Cada vitrine tem um SubViewport unico, criado apenas quando o menu e aberto.
-    var equipment_scale: float = 1.45 if str(selected_item.get("category", "")) != "" else 1.0
-    preview_mesh.scale = Vector3.ONE * equipment_scale
+    preview_mesh = PixelArt.create(preview_root, path, 5.6)
     preview_mesh.position = Vector3.ZERO
-    preview_mesh.rotation = Vector3(0.12, 0, 0.0)
+
 
 func _equip_preview() -> void:
     var ship_id := str(selected_item.get("id", ""))
@@ -969,12 +978,12 @@ func _bid_auction_menu(lot: int) -> void:
     _toast_and_refresh(game.hub_store.simulate_bid(lot), "LEILAO")
 
 func _preview_hub_model(item_name: String, path: String, description: String) -> void:
-    selected_item = {"name": item_name, "path": path, "source": "GLB FULL / LOCAL"}
+    selected_item = {"name": item_name, "path": path, "source": "PIXEL ART / LOCAL"}
     preview_title.text = item_name.to_upper()
     preview_note.text = description
     _load_preview(path)
 
-## Card premium nativo, totalmente interativo; o painel 3D preserva o GLB carregado.
+## Card Pixel Art nativo, baseado na arte catalogada.
 func _rich_card(title: String, subtitle: String, path: String, accent: Color, action_caption: String, action: Callable) -> void:
     var card := PanelContainer.new()
     card.custom_minimum_size = Vector2(220, 125)
@@ -985,15 +994,14 @@ func _rich_card(title: String, subtitle: String, path: String, accent: Color, ac
     body.add_theme_constant_override("separation",8)
     card.add_child(body)
     var card_name: String = title
-    var icon_path: String = EquipCatalog.thumbnail_path(card_name)
-    if not icon_path.is_empty():
-        var art := TextureRect.new()
-        art.texture = load(icon_path) as Texture2D
-        art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-        art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-        art.custom_minimum_size = Vector2(88,88)
-        art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        body.add_child(art)
+    var art := TextureRect.new()
+    art.texture = PixelArt.texture_for(path)
+    art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    art.custom_minimum_size = Vector2(88,88)
+    art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    body.add_child(art)
     var info := VBoxContainer.new()
     info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     info.add_theme_constant_override("separation",4)
@@ -1002,7 +1010,7 @@ func _rich_card(title: String, subtitle: String, path: String, accent: Color, ac
     name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     var sub_label := _label(info,subtitle,10,accent)
     sub_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    var inspect := _button(info,"INSPECIONAR GLB 3D",11)
+    var inspect := _button(info,"INSPECIONAR SPRITE",11)
     inspect.custom_minimum_size = Vector2(116,27)
     inspect.pressed.connect(_preview_hub_model.bind(title,path,subtitle))
     if not action_caption.is_empty():
@@ -1021,10 +1029,10 @@ func _materialize_astral(kind: String) -> void:
     _open_modal("ASTRAL")
 
 func _show_astral_catalog() -> void:
-    _preview_hub_model("PORTAL AURORA", "res://assets/astral/portal_astral_aurora.glb", "GLB integral. Entradas fisicas em 1-1, 2-1 e 3-1.")
+    _preview_hub_model("PORTAL AURORA", "res://assets/pixel/world/portal_astral_aurora.png", "sprite Pixel Art. Entradas fisicas em 1-1, 2-1 e 3-1.")
     for name in AstralCatalog.ARENAS:
         var info: Dictionary = AstralCatalog.ARENAS[name]
-        var gate_path: String = "res://assets/astral/portal_astral_%s.glb" % str(info["label"]).to_lower()
+        var gate_path: String = "res://assets/pixel/world/portal_astral_%s.png" % str(info["label"]).to_lower()
         var summary: String = "%s  |  %s" % [str(info["description"]), game.astral_trials.status(name)]
         var col: Color = Color(0.32,0.90,0.93) if name == "A-AURORA" else (Color(0.71,0.48,0.99) if name == "A-NEXUS" else Color(1.0,0.46,0.36))
         _rich_card("PORTAL " + str(info["label"]),summary,gate_path,col,"CONSULTAR ROTAS",func() -> void:
@@ -1036,7 +1044,7 @@ func _show_astral_catalog() -> void:
         var label: String = str(AstralCatalog.ARENAS[arena_id]["label"])
         var state: String = game.astral_trials.entry_status(arena_id)
         _rich_card("CHAVE " + label, state,
-            "res://assets/astral/portal_astral_%s.glb" % label.to_lower(),
+            "res://assets/pixel/world/portal_astral_%s.png" % label.to_lower(),
             C_GOLD, "MATERIALIZAR", _materialize_astral.bind(arena_id))
     _hub_text("VOE ATE X-1 DA SUA FACCAO, FABRIQUE UMA CHAVE E ENTRE PELO PORTAL FISICO.")
     _hub_text("3 ONDAS PvE; NPC +1 FRAGMENTO / CAIXA +2. Somente no dispositivo.")
@@ -1044,7 +1052,7 @@ func _show_astral_catalog() -> void:
         _hub_text("AGORA: %s  |  ONDA %d/3  |  %s" % [game.current_map,game.astral_trials.wave,"FINALIZADO" if game.astral_trials.finished else "EM COMBATE"],true)
 
 func _show_market_catalog() -> void:
-    _preview_hub_model("ARSENAL ESTELAR","res://assets/equipment/arc-q.glb","Referencias visuais Stellar Legacy: pecas em GLB e miniaturas conceituais. Compras offline.")
+    _preview_hub_model("ARSENAL ESTELAR","res://assets/pixel/catalog/equipment/arc_q.png","Referencias visuais Stellar Legacy: itens pixelados e miniaturas conceituais. Compras offline.")
     _hub_text("LOJA ESTELAR | SALDO LOCAL: %d CR | SEM PAGAMENTOS REAIS" % game.hub_store.credit_balance(game.pilot_progress.credits),true)
     for cat in ["ARMAS","ESCUDOS","MOTORES","EXTRAS"]:
         _add_menu_row(("[ATIVO]  " if cat == market_filter else "[VER]  ") + cat,_market_filter_selected.bind(cat))
@@ -1061,11 +1069,11 @@ func _show_market_catalog() -> void:
     _hub_text("EXIBINDO %d ITENS DE %s | todos os modelos sao carregados localmente" % [shown,market_filter])
 
 func _show_auction_catalog() -> void:
-    _preview_hub_model("LEILAO ORBITAL","res://assets/equipment/thr-3.glb","Lotes Elite e equipamentos 3D. Sem leiloes ou outros participantes online.")
+    _preview_hub_model("LEILAO ORBITAL","res://assets/pixel/catalog/equipment/thr_3.png","Lotes Elite e equipamentos Pixel Art. Sem leiloes ou outros participantes online.")
     for i in range(HubCatalog.AUCTION.size()):
         var listing: Dictionary = HubCatalog.AUCTION[i]
         var current: int = int(game.hub_store.auction_bids.get(str(i),int(listing["opening"])))
-        _rich_card(str(listing["name"]),"LOTE %02d | LANCE LOCAL %d CR" % [i+1,current],str(listing.get("model","res://assets/equipment/arc-4.glb")),C_GOLD,"SIMULAR +50 CR",_bid_auction_menu.bind(i))
+        _rich_card(str(listing["name"]),"LOTE %02d | LANCE LOCAL %d CR" % [i+1,current],str(listing.get("model","res://assets/pixel/catalog/equipment/arc_4.png")),C_GOLD,"SIMULAR +50 CR",_bid_auction_menu.bind(i))
     _hub_text("O leilao nao tem temporizador online, compra, concorrentes ou saldo real.")
 
 func _set_title_menu(next_title: String) -> void:
@@ -1167,9 +1175,9 @@ func _build_hub_page(kind: String) -> void:
             _show_auction_catalog()
         "PREMIUM":
             _hub_text("VITRINE PREMIUM  |  SEM CHECKOUT / SEM VALORES REAIS",true)
-            _preview_hub_model("AURORA ELITE","res://assets/ships/SL_AURORA_FINAL.glb","Nave GLB integral. Sem compra premium, somente demonstracao.")
-            _rich_card("COLECAO AURORA","COSMETICOS ESTELARES EM ESTUDO", "res://assets/ships/SL_AURORA_FINAL.glb",C_GOLD,"",func() -> void: pass)
-            _rich_card("DRONES ELITE","VISUAL COMPLETO / SEM VENDA", "res://assets/drones/drone_elite.glb",C_HI,"",func() -> void: pass)
+            _preview_hub_model("AURORA ELITE","res://assets/pixel/catalog/ships/aurora.png","Nave sprite Pixel Art. Sem compra premium, somente demonstracao.")
+            _rich_card("COLECAO AURORA","COSMETICOS ESTELARES EM ESTUDO", "res://assets/pixel/catalog/ships/aurora.png",C_GOLD,"",func() -> void: pass)
+            _rich_card("DRONES ELITE","VISUAL COMPLETO / SEM VENDA", "res://assets/pixel/map_units/drones/drone_elite.png",C_HI,"",func() -> void: pass)
             _hub_text("Sem pagamento, moedas vendidas ou direitos de conta neste prototipo.")
         "REFINARIA":
             _hub_text("REFINARIA DE FRAGMENTOS ASTRAIS | PRODUCAO OFFLINE",true)
@@ -1198,7 +1206,7 @@ func _build_hub_page(kind: String) -> void:
 func _build_settings_menu() -> void:
     _add_menu_row("DESIGN SYSTEM — PREVIA DA ETAPA 01", _open_design_preview)
     _hub_text("QUALIDADE GRAFICA  |  %s" % game.graphics_quality, true)
-    _hub_text("Naves, NPCs, drones e AUX-9 permanecem com seus GLBs FULL em todos os perfis.")
+    _hub_text("Naves, NPCs, drones e AUX-9 permanecem com seus sprites FULL em todos os perfis.")
     for preset in ["BAIXO","MEDIO","ALTO"]:
         var note: String = {"BAIXO":"Cenario leve / sombras OFF / estrelas OFF", "MEDIO":"Cenario equilibrado / sombras OFF", "ALTO":"Iluminacao intensa / sombras ON / estrelas ON"}[preset]
         _add_menu_row("%s  -  %s" % [preset,note], _apply_quality_setting.bind(preset))

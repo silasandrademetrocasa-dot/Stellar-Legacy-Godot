@@ -76,7 +76,7 @@ static func model_path(item_name: String) -> String:
     var item: Dictionary = get_item(item_name)
     if item.is_empty():
         return ""
-    return "res://assets/equipment/%s.glb" % str(item["model"])
+    return "res://assets/pixel/catalog/equipment/%s.png" % str(item["model"]).replace("-", "_")
 
 static func thumbnail_path(item_name: String) -> String:
     var hq := WeaponArt.model_for(item_name)

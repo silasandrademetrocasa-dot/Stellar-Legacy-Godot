@@ -120,12 +120,12 @@ static func is_universe(map_id: String) -> bool:
 
 static func portal_model(target: String) -> String:
     if is_astral(target):
-        return "res://assets/astral/portal_astral_%s.glb" % astral_label(target).to_lower()
+        return "res://assets/pixel/world/portal_astral_%s.png" % astral_label(target).to_lower()
     if is_pvp(target):
-        return "res://assets/portals/portal_pvp.glb"
+        return "res://assets/pixel/world/portal_pvp.png"
     if is_universe(target):
-        return "res://assets/portals/portal_universe.glb"
-    return "res://assets/portals/portal_normal.glb"
+        return "res://assets/pixel/world/portal_universe.png"
+    return "res://assets/pixel/world/portal_normal.png"
 
 static func link_keys(faction: String) -> Array[PackedStringArray]:
     var links: Array[PackedStringArray] = []

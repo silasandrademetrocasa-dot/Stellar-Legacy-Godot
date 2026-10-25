@@ -1,10 +1,10 @@
 extends Control
 ## G0.16: hangar premium dinamico. Dados reais do save Godot, sem itens ficticios.
-## A vitrine principal instancia o GLB integral. Miniaturas sao renders locais dos GLBs.
+## Vitrine leve com sprites Pixel Art de 96px, sem modelos importados.
 const Ships = preload("res://scripts/data/ship_balance.gd")
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
 const Store = preload("res://scripts/data/store_catalog.gd")
-const Presentation = preload("res://scripts/world/model_presentation.gd")
+const PixelArt = preload("res://scripts/world/pixel_model.gd")
 const SKY := Color(0.12, 0.72, 1.0)
 const WHITE := Color(0.92, 0.97, 1.0)
 const DIM := Color(0.48, 0.67, 0.80)
@@ -57,7 +57,7 @@ func setup(owner_game) -> void:
         b.pressed.connect(_open_tab.bind(tab))
         button_tabs.add_child(b)
 
-    top_detail = _label(self, "HANGAR ESTELAR   •   VITRINE GLB INTEGRAL   •   EQUIPAMENTOS INSTALADOS", 10, DIM)
+    top_detail = _label(self, "HANGAR ESTELAR   •   VITRINE PIXEL ART   •   EQUIPAMENTOS INSTALADOS", 10, DIM)
     for cat in ["ARMAS", "ESCUDOS", "MOTORES"]:
         left_cards.append(_equipment_panel(cat))
     for cat in ["EXTRAS", "DRONES", "AUX-9"]:
@@ -70,7 +70,7 @@ func setup(owner_game) -> void:
     hero_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     hero_specs = _label(center_panel, "", 11, SKY)
     hero_specs.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    hero_hint = _label(center_panel, "MODELO 3D ORIGINAL • ARRASTE PARA GIRAR", 10, DIM)
+    hero_hint = _label(center_panel, "SPRITE PIXEL ART ORIGINAL", 10, DIM)
     hero_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     hero_view = _hero_viewport(center_panel)
     hero_pivot = hero_view.get_child(0).get_node("Pivot") as Node3D
@@ -140,16 +140,32 @@ func _label(parent: Node, caption: String, font_size: int, tint: Color) -> Label
     parent.add_child(l)
     return l
 
+func _pixel_button_skin(state: String) -> StyleBoxTexture:
+    var skin: StyleBoxTexture = StyleBoxTexture.new()
+    skin.texture = load("res://assets/pixel/ui/button_%s.png" % state) as Texture2D
+    skin.texture_margin_left = 5.0
+    skin.texture_margin_right = 5.0
+    skin.texture_margin_top = 5.0
+    skin.texture_margin_bottom = 5.0
+    skin.content_margin_left = 5.0
+    skin.content_margin_right = 5.0
+    skin.content_margin_top = 4.0
+    skin.content_margin_bottom = 4.0
+    skin.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    skin.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    return skin
+
 func _button(caption: String, color: Color) -> Button:
     var b: Button = Button.new()
     b.text = caption
     b.focus_mode = Control.FOCUS_NONE
     b.add_theme_font_size_override("font_size", 11)
     b.add_theme_color_override("font_color", WHITE)
-    b.add_theme_stylebox_override("normal", _panel_style(Color(0.020, 0.072, 0.125, 0.97), color.darkened(0.15)))
-    b.add_theme_stylebox_override("hover", _panel_style(Color(0.038, 0.145, 0.22, 0.99), color))
-    b.add_theme_stylebox_override("pressed", _panel_style(Color(0.06, 0.20, 0.28, 0.99), color))
-    b.add_theme_stylebox_override("disabled", _panel_style(Color(0.022, 0.031, 0.053), Color(0.15, 0.24, 0.31)))
+    b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    b.add_theme_stylebox_override("normal", _pixel_button_skin("normal"))
+    b.add_theme_stylebox_override("hover", _pixel_button_skin("hover"))
+    b.add_theme_stylebox_override("pressed", _pixel_button_skin("pressed"))
+    b.add_theme_stylebox_override("disabled", _pixel_button_skin("normal"))
     return b
 
 func _equipment_panel(category: String) -> PanelContainer:
@@ -302,19 +318,7 @@ func _rank_color(rarity: String) -> Color:
     return SKY
 
 func _icon_for_path(model_path: String) -> Texture2D:
-    if model_path.is_empty():
-        return null
-    var stem: String = model_path.get_file().get_basename()
-    var img_path: String = "res://assets/ui/g022_textured/%s.png" % stem
-    if not ResourceLoader.exists(img_path):
-        img_path = "res://assets/ui/g019_shields/%s.png" % stem
-    if not ResourceLoader.exists(img_path):
-        img_path = "res://assets/ui/g020_ship_previews/%s.png" % stem
-    if not ResourceLoader.exists(img_path):
-        img_path = "res://assets/ui/g018_mesh_previews/%s.png" % stem
-    if not ResourceLoader.exists(img_path):
-        img_path = "res://assets/ui/g016_mesh_previews/%s.png" % stem
-    return load(img_path) as Texture2D if ResourceLoader.exists(img_path) else null
+    return PixelArt.texture_for(model_path) if not model_path.is_empty() else null
 
 func _refresh_loadout() -> void:
     for kind in ["ARMAS", "ESCUDOS", "MOTORES", "EXTRAS", "DRONES", "AUX-9"]:
@@ -369,7 +373,7 @@ func _new_ship_thumbnail(ship_id: String, owned: bool, active: bool) -> Button:
     var title: String = "ATIVA" if active else ("DESBLOQUEADA" if owned else "BLOQUEADA")
     card.tooltip_text = "%s — %s" % [ship_id, title]
     card.text = "%s\n%s" % [ship_id, title]
-    card.icon = _icon_for_path("res://assets/ships/SL_%s_FINAL.glb" % ship_id)
+    card.icon = _icon_for_path("res://assets/pixel/catalog/ships/%s.png" % ship_id.to_lower())
     card.expand_icon = true
     card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
     card.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -396,18 +400,12 @@ func _set_preview_ship(ship_id: String) -> void:
     hero_title.text = ship_id
     hero_specs.text = "LASERS %d   •   GERADORES %d   •   EXTRAS %d   •   PORAO %d" % [int(st.get("lasers",0)), int(st.get("generators",0)), int(st.get("extras",0)), int(st.get("cargo",0))]
     var owned: bool = game.equipment_state.owns_ship(ship_id)
-    hero_hint.text = "GLB INTEGRAL  •  ARRASTE PARA GIRAR" if owned else "NAVE BLOQUEADA  •  ADQUIRA NA LOJA"
+    hero_hint.text = "SPRITE PIXEL ART  •  32 DIRECOES NO MAPA" if owned else "NAVE BLOQUEADA  •  ADQUIRA NA LOJA"
     change_button.text = "NAVE ATIVA" if ship_id == str(game.current_ship) else ("ATIVAR NAVE" if owned else "COMPRAR NA LOJA")
     change_button.disabled = ship_id == str(game.current_ship)
     hero_view.modulate = WHITE if owned else Color(0.42, 0.49, 0.61, 0.93)
     var path: String = str(st.get("model", ""))
-    var packed: PackedScene = load(path) as PackedScene
-    if packed != null:
-        hero_model = Presentation.create_visual(packed.instantiate() as Node3D, 6.0)
-        hero_pivot.add_child(hero_model)
-        hero_model.position = Vector3.ZERO
-        hero_model.rotation_degrees = Vector3(0, 10, 0)
-        hero_model.visible = true
+    hero_model = PixelArt.create(hero_pivot, path, 6.4)
     hero_camera.position = Vector3(6.7, 5.1, 10.6) if ship_id in ["LEVIATHAN", "BULWARK"] else Vector3(5.5, 4.3, 9.0)
     hero_camera.look_at(Vector3(0.0, 0.1, 0.0), Vector3.UP)
     _refresh_stats(ship_id)

@@ -33,5 +33,13 @@ func _process(_delta: float) -> void:
     global_position = tracked.global_position + Vector3(0.0, 0.48, 0.0)
     if frame_count != 32:
         return
-    var degrees: float = fposmod(rad_to_deg(tracked.global_rotation.y) + yaw_offset, 360.0)
+    var forward: Vector3 = Vector3(sin(tracked.global_rotation.y), 0.0, cos(tracked.global_rotation.y))
+    var camera: Camera3D = get_viewport().get_camera_3d()
+    var screen_x: float = forward.x
+    var screen_up: float = -forward.z
+    if camera != null:
+        screen_x = forward.dot(camera.global_transform.basis.x)
+        screen_up = forward.dot(camera.global_transform.basis.y)
+    # 32 atlas directions increase anti-clockwise; world heading increases clockwise.
+    var degrees: float = fposmod(-rad_to_deg(atan2(screen_x, screen_up)) + yaw_offset, 360.0)
     frame = posmod(roundi(degrees / 11.25), 32)

@@ -15,7 +15,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": false,
     "event_only": false,
-    "model": "res://assets/ships/SL_AURORA_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/aurora.png"
   },
   "BASTION": {
     "name": "BASTION",
@@ -31,7 +31,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_BASTION_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/bastion.png"
   },
   "BULWARK": {
     "name": "BULWARK",
@@ -47,7 +47,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": false,
     "event_only": true,
-    "model": "res://assets/ships/SL_BULWARK_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/bulwark.png"
   },
   "KENSEI": {
     "name": "KENSEI",
@@ -63,7 +63,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": false,
     "event_only": true,
-    "model": "res://assets/ships/SL_KENSEI_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/kensei.png"
   },
   "LEVIATHAN": {
     "name": "LEVIATHAN",
@@ -79,7 +79,7 @@ const SHIPS = {
     "currency": "uridium",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_LEVIATHAN_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/leviathan.png"
   },
   "LYNX": {
     "name": "LYNX",
@@ -95,7 +95,7 @@ const SHIPS = {
     "currency": "uridium",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_LYNX_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/lynx.png"
   },
   "MERIDIAN": {
     "name": "MERIDIAN",
@@ -111,7 +111,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_MERIDIAN_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/meridian.png"
   },
   "PATHFINDER": {
     "name": "PATHFINDER",
@@ -127,7 +127,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": false,
     "event_only": true,
-    "model": "res://assets/ships/SL_PATHFINDER_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/pathfinder.png"
   },
   "PHANTOM": {
     "name": "PHANTOM",
@@ -143,7 +143,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": false,
     "event_only": true,
-    "model": "res://assets/ships/SL_PHANTOM_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/phantom.png"
   },
   "PIONEER": {
     "name": "PIONEER",
@@ -159,7 +159,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_PIONEER_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/pioneer.png"
   },
   "RAPTOR": {
     "name": "RAPTOR",
@@ -175,7 +175,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_RAPTOR_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/raptor.png"
   },
   "SERAPH": {
     "name": "SERAPH",
@@ -191,7 +191,7 @@ const SHIPS = {
     "currency": "credits",
     "sale": false,
     "event_only": true,
-    "model": "res://assets/ships/SL_SERAPH_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/seraph.png"
   },
   "VALKYRIE": {
     "name": "VALKYRIE",
@@ -207,7 +207,7 @@ const SHIPS = {
     "currency": "uridium",
     "sale": true,
     "event_only": false,
-    "model": "res://assets/ships/SL_VALKYRIE_FINAL.glb"
+    "model": "res://assets/pixel/catalog/ships/valkyrie.png"
   }
 }
 

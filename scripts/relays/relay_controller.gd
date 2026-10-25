@@ -23,7 +23,7 @@ signal level_changed(level: int)
 
 const SHIELD_SHADER: Shader = preload("res://shaders/relays/relay_shield.gdshader")
 const BEAM_SHADER: Shader = preload("res://shaders/relays/relay_beam.gdshader")
-const RING_MODEL: PackedScene = preload("res://assets/relays/modulo_anel.glb")
+const RELAY_ART := "res://assets/pixel/world/relay_%d.png"
 
 var current_state: int = RelayState.IDLE
 var phase: float = 0.0
@@ -46,18 +46,15 @@ func _load_level() -> void:
     for node in model_root.get_children():
         model_root.remove_child(node)
         node.queue_free()
-    var stem: String = "rele_lv%d" % relay_level
-    if use_mobile_lod:
-        stem += "_lod"
-    var path: String = "res://assets/relays/%s.glb" % stem
-    var packed: PackedScene = load(path) as PackedScene
-    if packed == null:
-        push_error("Stellar Relay: nao foi possivel carregar " + path)
-        return
-    var visual: Node3D = packed.instantiate() as Node3D
-    if visual != null:
-        visual.name = "RelayVisual"
-        model_root.add_child(visual)
+    var texture: Texture2D = load(RELAY_ART % relay_level) as Texture2D
+    if texture != null:
+        var sprite := Sprite3D.new()
+        sprite.texture = texture
+        sprite.pixel_size = 0.25
+        sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+        sprite.shaded = false
+        sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+        model_root.add_child(sprite)
 
 func _energy_color() -> Color:
     match relay_level:
@@ -72,18 +69,9 @@ func _setup_fx() -> void:
         for node in pivot.get_children():
             pivot.remove_child(node)
             node.queue_free()
-    # Two genuinely animated 3D rotor GLBs (not just rotating a texture).
-    var a: Node3D = RING_MODEL.instantiate() as Node3D
-    var b: Node3D = RING_MODEL.instantiate() as Node3D
-    if a != null:
-        ring_a.add_child(a)
-    if b != null:
-        ring_b.add_child(b)
+    # Pixel visual; animation and shield logic remain lightweight.
     ring_a.position = Vector3(0, 1.45, 0)
     ring_b.position = Vector3(0, 2.30, 0)
-    ring_a.scale = Vector3.ONE * (0.68+0.10*relay_level)
-    ring_b.scale = Vector3.ONE * (0.47+0.085*relay_level)
-    ring_b.rotation_degrees.x = 23.0
 
     field_material = ShaderMaterial.new()
     field_material.shader = SHIELD_SHADER

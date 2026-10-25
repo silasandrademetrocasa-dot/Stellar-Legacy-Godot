@@ -1,0 +1,346 @@
+{
+  "source": "stellar-legacy-main.zip",
+  "web_sources": [
+    "public/index.html",
+    "public/modules/topbar-navigation-v481.js"
+  ],
+  "menus": {
+    "pilot": [
+      {
+        "id": "hangarBtn",
+        "label": "HANGAR"
+      },
+      {
+        "id": "shipMenuBtn",
+        "label": "NAVE"
+      },
+      {
+        "id": "pilotBtn",
+        "label": "HABILIDADES 0 PP"
+      },
+      {
+        "id": "petBtn",
+        "label": "AUX-9"
+      },
+      {
+        "id": "v481AutopilotEntry",
+        "label": "AUTOPILOT (condicional)"
+      }
+    ],
+    "missions": [
+      {
+        "id": "missionBtn",
+        "label": "MISSÕES"
+      },
+      {
+        "id": "passBtn",
+        "label": "PASSE 0/30"
+      },
+      {
+        "id": "commandCenterBtn",
+        "label": "✦ CENTRO DE COMANDO"
+      }
+    ],
+    "battle": [
+      {
+        "id": "arenaBtn",
+        "label": "ARENA 10/10"
+      },
+      {
+        "id": "warfrontBtn",
+        "label": "WARFRONT READY"
+      },
+      {
+        "id": "gateBtn",
+        "label": "PORTAIS AURORA 0/34"
+      },
+      {
+        "id": "galaxyEventBtn",
+        "label": "EVENTOS AO VIVO"
+      },
+      {
+        "id": "battleGroupBtn",
+        "label": "GRUPO 0/5"
+      }
+    ],
+    "shops": [
+      {
+        "id": "shopBtn",
+        "label": "LOJA"
+      },
+      {
+        "id": "premiumBtn",
+        "label": "LOJA PREMIUM LOJA"
+      }
+    ],
+    "more": [
+      {
+        "id": "shopBtn",
+        "label": "LOJA"
+      },
+      {
+        "id": "premiumBtn",
+        "label": "LOJA PREMIUM"
+      },
+      {
+        "id": "auctionBtn",
+        "label": "LEILÃO"
+      },
+      {
+        "id": "clanBtn",
+        "label": "CLÃ"
+      },
+      {
+        "id": "frontierExpansionBtnV42",
+        "label": "UNIVERSO"
+      },
+      {
+        "id": "hudIntelligenceQuick",
+        "label": "HUD"
+      },
+      {
+        "id": "mobileCombatModeBtn",
+        "label": "MODO COMPACTO"
+      },
+      {
+        "id": "configBtn",
+        "label": "CONFIGURAÇÕES"
+      },
+      {
+        "id": "adminBtn",
+        "label": "ADMINISTRAÇÃO"
+      }
+    ],
+    "map": [
+      {
+        "id": "mapBtn",
+        "label": "MAPA"
+      }
+    ]
+  },
+  "web_id_to_godot_route": {
+    "hangarBtn": {
+      "route": "pilot/hangar",
+      "menu": "pilot",
+      "label": "HANGAR",
+      "web_dom_id": "hangarBtn"
+    },
+    "shipMenuBtn": {
+      "route": "pilot/ship_menu",
+      "menu": "pilot",
+      "label": "NAVE",
+      "web_dom_id": "shipMenuBtn"
+    },
+    "pilotBtn": {
+      "route": "pilot/pilot",
+      "menu": "pilot",
+      "label": "HABILIDADES 0 PP",
+      "web_dom_id": "pilotBtn"
+    },
+    "petBtn": {
+      "route": "pilot/pet",
+      "menu": "pilot",
+      "label": "AUX-9",
+      "web_dom_id": "petBtn"
+    },
+    "v481AutopilotEntry": {
+      "route": "pilot/v481_autopilot_entry",
+      "menu": "pilot",
+      "label": "AUTOPILOT (condicional)",
+      "web_dom_id": "v481AutopilotEntry"
+    },
+    "missionBtn": {
+      "route": "missions/mission",
+      "menu": "missions",
+      "label": "MISSÕES",
+      "web_dom_id": "missionBtn"
+    },
+    "passBtn": {
+      "route": "missions/pass",
+      "menu": "missions",
+      "label": "PASSE 0/30",
+      "web_dom_id": "passBtn"
+    },
+    "commandCenterBtn": {
+      "route": "missions/command_center",
+      "menu": "missions",
+      "label": "✦ CENTRO DE COMANDO",
+      "web_dom_id": "commandCenterBtn"
+    },
+    "arenaBtn": {
+      "route": "battle/arena",
+      "menu": "battle",
+      "label": "ARENA 10/10",
+      "web_dom_id": "arenaBtn"
+    },
+    "warfrontBtn": {
+      "route": "battle/warfront",
+      "menu": "battle",
+      "label": "WARFRONT READY",
+      "web_dom_id": "warfrontBtn"
+    },
+    "gateBtn": {
+      "route": "battle/gate",
+      "menu": "battle",
+      "label": "PORTAIS AURORA 0/34",
+      "web_dom_id": "gateBtn"
+    },
+    "galaxyEventBtn": {
+      "route": "battle/galaxy_event",
+      "menu": "battle",
+      "label": "EVENTOS AO VIVO",
+      "web_dom_id": "galaxyEventBtn"
+    },
+    "battleGroupBtn": {
+      "route": "battle/battle_group",
+      "menu": "battle",
+      "label": "GRUPO 0/5",
+      "web_dom_id": "battleGroupBtn"
+    },
+    "shopBtn": {
+      "route": "more/shop",
+      "menu": "more",
+      "label": "LOJA",
+      "web_dom_id": "shopBtn"
+    },
+    "premiumBtn": {
+      "route": "more/premium",
+      "menu": "more",
+      "label": "LOJA PREMIUM",
+      "web_dom_id": "premiumBtn"
+    },
+    "auctionBtn": {
+      "route": "more/auction",
+      "menu": "more",
+      "label": "LEILÃO",
+      "web_dom_id": "auctionBtn"
+    },
+    "clanBtn": {
+      "route": "more/clan",
+      "menu": "more",
+      "label": "CLÃ",
+      "web_dom_id": "clanBtn"
+    },
+    "frontierExpansionBtnV42": {
+      "route": "more/frontier_expansion_btn_v42",
+      "menu": "more",
+      "label": "UNIVERSO",
+      "web_dom_id": "frontierExpansionBtnV42"
+    },
+    "hudIntelligenceQuick": {
+      "route": "more/hud_intelligence_quick",
+      "menu": "more",
+      "label": "HUD",
+      "web_dom_id": "hudIntelligenceQuick"
+    },
+    "mobileCombatModeBtn": {
+      "route": "more/mobile_combat_mode",
+      "menu": "more",
+      "label": "MODO COMPACTO",
+      "web_dom_id": "mobileCombatModeBtn"
+    },
+    "configBtn": {
+      "route": "more/config",
+      "menu": "more",
+      "label": "CONFIGURAÇÕES",
+      "web_dom_id": "configBtn"
+    },
+    "adminBtn": {
+      "route": "more/admin",
+      "menu": "more",
+      "label": "ADMINISTRAÇÃO",
+      "web_dom_id": "adminBtn"
+    },
+    "mapBtn": {
+      "route": "map/map",
+      "menu": "map",
+      "label": "MAPA",
+      "web_dom_id": "mapBtn"
+    }
+  },
+  "subsections_reference": {
+    "hangar": [
+      "Naves",
+      "Equipamentos",
+      "Inventário",
+      "Refinaria / crafting",
+      "Configurações de nave"
+    ],
+    "ship": [
+      "Nave",
+      "Status",
+      "Equipamentos",
+      "Configurações CONF1 / CONF2"
+    ],
+    "missions": [
+      "Diárias",
+      "Semanais",
+      "Mensais",
+      "Especiais",
+      "Missões de clã"
+    ],
+    "battle": [
+      "Arena PvP",
+      "Warfront",
+      "Portais Astrais",
+      "Eventos",
+      "Grupo de Batalha"
+    ],
+    "settings": [
+      "JOGO",
+      "RANKING",
+      "CONTA"
+    ],
+    "ranking": [
+      "Minha patente",
+      "Guia de patentes",
+      "Ranking por pontos",
+      "Ranking de arena",
+      "Aliens matados",
+      "Portais astrais"
+    ],
+    "clan": [
+      "Visão geral",
+      "Membros",
+      "Cofre",
+      "Missões",
+      "Relés",
+      "Administração do clã"
+    ],
+    "admin": [
+      "Jogadores",
+      "Economia",
+      "NPCs",
+      "Mapas e portais",
+      "Eventos",
+      "Missões",
+      "Lojas",
+      "Passe",
+      "Relés",
+      "Farm offline",
+      "Sistemas",
+      "Logs"
+    ],
+    "world": [
+      "Mapas X-1 a X-8",
+      "U-1 a U-3",
+      "4-X",
+      "Aurora",
+      "Nexus",
+      "Eclipse",
+      "Bases",
+      "Portais"
+    ],
+    "hud": [
+      "Nave/Piloto",
+      "Minimapa",
+      "Chat",
+      "Alvo",
+      "Munições",
+      "Habilidades",
+      "AUX",
+      "Missões ativas"
+    ]
+  },
+  "note": "Subsections are functional groupings, not guaranteed DOM routes. Use existing web IDs for compatibility."
+}
