@@ -1,0 +1,359 @@
+name: Stellar Legacy Godot - Instalar ZIP e gerar APK
+run-name: Atualizar Stellar Legacy Pixel Art e compilar APK Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      instalar_zip:
+        description: 'Instalar o ZIP da raiz antes da compilacao?'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stellar-godot-installer-apk
+  cancel-in-progress: false
+
+jobs:
+  construir:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - name: Baixar codigo do repositorio
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Instalar ZIP enviado pelo celular
+        shell: bash
+        env:
+          INSTALL_ZIP: ${{ inputs.instalar_zip }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, stat, zipfile
+          from pathlib import Path, PurePosixPath
+          root = Path.cwd().resolve()
+          zips = sorted(root.glob('*.zip'))
+          requested = os.getenv('INSTALL_ZIP', 'true').lower() == 'true'
+          if requested and zips:
+              if len(zips) != 1:
+                  raise SystemExit(f'Deixe apenas UM ZIP na raiz; encontrados: {len(zips)}')
+              bundle = zips[0]
+              with zipfile.ZipFile(bundle) as archive:
+                  entries = archive.infolist()
+                  if len(entries) > 2000 or sum(x.file_size for x in entries) > 200 * 1024 * 1024:
+                      raise SystemExit('ZIP excede limites do instalador')
+                  planned = []
+                  for info in entries:
+                      if info.is_dir():
+                          continue
+                      if stat.S_ISLNK(info.external_attr >> 16):
+                          raise SystemExit('Links simbolicos nao sao permitidos')
+                      name = info.filename.replace('\\', '/')
+                      prefix = 'StellarLegacy-Godot/'
+                      if name.startswith(prefix):
+                          name = name[len(prefix):]
+                      path = PurePosixPath(name)
+                      if (not path.parts or path.is_absolute() or '..' in path.parts
+                          or path.parts[0] in ('.git', '.github')
+                          or name.lower().endswith(('.zip', '.apk', '.aab'))):
+                          # O workflow e instalado manualmente uma unica vez.
+                          if path.parts and path.parts[0] == '.github':
+                              continue
+                          raise SystemExit('Caminho proibido no ZIP: ' + name)
+                      target = (root / str(path)).resolve()
+                      if not target.is_relative_to(root):
+                          raise SystemExit('Destino fora do repositorio: ' + name)
+                      planned.append((info, target))
+                  for info, target in planned:
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      target.write_bytes(archive.read(info))
+              bundle.unlink()
+              print(f'Instalados {len(planned)} arquivos do projeto.')
+          elif requested:
+              print('Nenhum ZIP encontrado. Compilando a versao ja instalada no repositorio.')
+          else:
+              print('Instalacao de ZIP desativada; compilando somente.')
+          for mandatory in ('project.godot', 'scenes/main.tscn', 'scripts/main.gd', 'scripts/world_routes.gd'):
+              if not (root / mandatory).is_file():
+                  raise SystemExit('Arquivo obrigatorio ausente: ' + mandatory)
+          PY
+
+      - name: Limpar apenas modelos legados substituidos pela G0.25
+        shell: bash
+        env:
+          INSTALL_ZIP: ${{ inputs.instalar_zip }}
+        run: |
+          set -euo pipefail
+          if [[ "${INSTALL_ZIP:-true}" != 'true' ]]; then
+            echo 'Somente compilacao — limpeza desativada.'
+            exit 0
+          fi
+          python3 - <<'PY_CLEAN'
+          from pathlib import Path
+          import shutil
+          root = Path.cwd().resolve()
+          if not (root/'docs/G025_PLANO_ROTAS_CRONOGRAMA.md').is_file():
+              raise SystemExit('Nova atualizacao G0.25 nao encontrada; limpeza abortada.')
+          for part in ('assets/ships','assets/weapons','assets/aux','assets/relays','assets/resources','assets/loot'):
+              directory = root / part
+              if directory.is_dir():
+                  shutil.rmtree(directory)
+                  print('Removido pacote de renders antigo:', part)
+          removed=0
+          for path in (root/'assets').rglob('*'):
+              if path.is_file() and path.name.lower().endswith(('.glb','.glb.import','.gltf','.gltf.import')):
+                  path.unlink()
+                  removed+=1
+          print('Modelos importados residuais removidos:',removed)
+          PY_CLEAN
+
+      - name: Validar estrutura Pixel Art antes de importar
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f tools/validate_pixel_g025.py ]]; then
+            python3 tools/validate_pixel_g025.py
+          fi
+
+      - name: Preparar preset de exportacao Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f export_presets.cfg ]]; then
+            printf '%s' 'W3ByZXNldC4wXQoKbmFtZT0iQW5kcm9pZCIKcGxhdGZvcm09IkFuZHJvaWQiCnJ1bm5hYmxlPXRydWUKYWR2YW5jZWRfb3B0aW9ucz1mYWxzZQpkZWRpY2F0ZWRfc2VydmVyPWZhbHNlCmN1c3RvbV9mZWF0dXJlcz0iIgpleHBvcnRfZmlsdGVyPSJhbGxfcmVzb3VyY2VzIgppbmNsdWRlX2ZpbHRlcj0iIgpleGNsdWRlX2ZpbHRlcj0iIgpleHBvcnRfcGF0aD0iYnVpbGQvU3RlbGxhckxlZ2FjeV9QaXhlbEFydF9EZWJ1Zy5hcGsiCnBhdGNoZXM9UGFja2VkU3RyaW5nQXJyYXkoKQplbmNyeXB0aW9uX2luY2x1ZGVfZmlsdGVycz0iIgplbmNyeXB0aW9uX2V4Y2x1ZGVfZmlsdGVycz0iIgplbmNyeXB0X3Bjaz1mYWxzZQplbmNyeXB0X2RpcmVjdG9yeT1mYWxzZQpzY3JpcHRfZXhwb3J0X21vZGU9MgoKW3ByZXNldC4wLm9wdGlvbnNdCgpjdXN0b21fdGVtcGxhdGUvZGVidWc9IiIKY3VzdG9tX3RlbXBsYXRlL3JlbGVhc2U9IiIKZ3JhZGxlX2J1aWxkL3VzZV9ncmFkbGVfYnVpbGQ9ZmFsc2UKZ3JhZGxlX2J1aWxkL2V4cG9ydF9mb3JtYXQ9MApwYWNrYWdlL3VuaXF1ZV9uYW1lPSJjb20uc3RlbGxhcmxlZ2FjeS5nb2RvdC5waXhlbGFydCIKcGFja2FnZS9uYW1lPSJTdGVsbGFyIExlZ2FjeSBQaXhlbCBBcnQiCnBhY2thZ2Uvc2lnbmVkPXRydWUKcGFja2FnZS92ZXJzaW9uX2NvZGU9MQpwYWNrYWdlL3ZlcnNpb25fbmFtZT0iMC4yNC1waXhlbCIKYXJjaGl0ZWN0dXJlcy9hcm1lYWJpLXY3YT10cnVlCmFyY2hpdGVjdHVyZXMvYXJtNjQtdjhhPXRydWUK' | base64 -d > export_presets.cfg
+          fi
+          grep -q '^name="Android"$' export_presets.cfg
+          grep -q '^platform="Android"$' export_presets.cfg
+          echo 'Preset Android pronto.'
+
+      - name: Corrigir validacao de exportacao Android do Godot 4.5
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY_ANDROID_TEXTURES'
+          from pathlib import Path
+          import re
+          p = Path('project.godot')
+          content = p.read_text(encoding='utf-8')
+          setting = 'textures/vram_compression/import_etc2_astc'
+          if re.search(r'^' + re.escape(setting) + r'\s*=', content, flags=re.M):
+              content = re.sub(r'^' + re.escape(setting) + r'\s*=.*$', setting + '=true', content, flags=re.M)
+          elif '[rendering]' in content:
+              content = content.replace('[rendering]', '[rendering]\n' + setting + '=true', 1)
+          else:
+              content += '\n[rendering]\n' + setting + '=true\n'
+          p.write_text(content, encoding='utf-8')
+          assert content.count(setting) == 1
+          preset = Path('export_presets.cfg').read_text(encoding='utf-8')
+          assert 'name="Android"' in preset, 'Preset Android ausente'
+          assert 'gradle_build/use_gradle_build=false' in preset, 'Preset Gradle inesperado'
+          assert 'package/unique_name=' in preset, 'Nome do pacote Android ausente'
+          print('ETC2/ASTC habilitado — requisito do Godot 4.5 para exportar ao Android.')
+          print('Preset Android do jogo verificado.')
+          PY_ANDROID_TEXTURES
+          grep -n 'import_etc2_astc=true' project.godot
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # O Ubuntu 24.04 do GitHub Actions ja inclui Android SDK e Build Tools 35.
+      # Evita android-actions/setup-android@v3, que estava falhando ao executar sdkmanager.
+      - name: Verificar Android SDK do runner (sem reinstalacao)
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          echo "SDK: $SDK"
+          echo "Java: $(java -version 2>&1 | head -1)"
+          test -d "$SDK" || { echo 'Android SDK nao encontrado no runner'; exit 1; }
+
+          # O runner atual ja possui esses pacotes; nao chamamos sdkmanager desnecessariamente.
+          missing=()
+          test -f "$SDK/platforms/android-35/android.jar" || missing+=("platforms;android-35")
+          test -x "$SDK/build-tools/35.0.0/aapt2" || missing+=("build-tools;35.0.0")
+          test -x "$SDK/platform-tools/adb" || missing+=("platform-tools")
+          if (( ${#missing[@]} > 0 )); then
+            echo "SDK incompleto. Faltam: ${missing[*]}"
+            MANAGER="$(find "$SDK/cmdline-tools" -maxdepth 3 -type f -name sdkmanager 2>/dev/null | head -n 1 || true)"
+            if [[ -z "$MANAGER" ]]; then
+              echo 'sdkmanager ausente. Consulte os detalhes do runner ou mude a imagem do runner.'
+              exit 1
+            fi
+            echo "Instalando somente componentes faltantes com: $MANAGER"
+            for tentativa in 1 2 3; do
+              if yes | "$MANAGER" --sdk_root="$SDK" --licenses > /tmp/fleet-android-licenses.log 2>&1 && \
+                 "$MANAGER" --sdk_root="$SDK" --install "${missing[@]}" > /tmp/fleet-android-install.log 2>&1; then
+                break
+              fi
+              echo "Tentativa $tentativa falhou:"
+              tail -40 /tmp/fleet-android-install.log 2>/dev/null || true
+              if (( tentativa == 3 )); then
+                echo 'Falha ao instalar componentes Android faltantes.'
+                exit 1
+              fi
+              sleep 8
+            done
+          else
+            echo 'Android SDK preinstalado completo — nenhuma instalacao necessaria.'
+          fi
+          test -f "$SDK/platforms/android-35/android.jar"
+          test -x "$SDK/build-tools/35.0.0/aapt2"
+          test -x "$SDK/platform-tools/adb"
+          echo "Build tools 35: $SDK/build-tools/35.0.0"
+          "$SDK/build-tools/35.0.0/aapt2" version
+          "$SDK/platform-tools/adb" version | head -2
+
+      - name: Preparar Godot 4.5.2 e templates Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/fleet-godot /tmp/fleet-templates
+          curl -fL --retry 4 --retry-delay 4 -o /tmp/godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.5.2-stable/Godot_v4.5.2-stable_linux.x86_64.zip
+          unzip -oq /tmp/godot.zip -d /tmp/fleet-godot
+          chmod +x /tmp/fleet-godot/Godot_v4.5.2-stable_linux.x86_64
+          curl -fL --retry 4 --retry-delay 4 -o /tmp/templates.tpz \
+            https://github.com/godotengine/godot/releases/download/4.5.2-stable/Godot_v4.5.2-stable_export_templates.tpz
+          unzip -oq /tmp/templates.tpz -d /tmp/fleet-templates
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.5.2.stable"
+          cp -a /tmp/fleet-templates/templates/. "$HOME/.local/share/godot/export_templates/4.5.2.stable/"
+          test -f "$HOME/.local/share/godot/export_templates/4.5.2.stable/android_debug.apk"
+          /tmp/fleet-godot/Godot_v4.5.2-stable_linux.x86_64 --headless --version
+
+      - name: Configurar ambiente Android no editor Godot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          home = Path.home()
+          cfg = home / '.config/godot/editor_settings-4.5.tres'
+          cfg.parent.mkdir(parents=True, exist_ok=True)
+          android = os.environ.get('ANDROID_HOME', os.environ.get('ANDROID_SDK_ROOT', ''))
+          java = os.environ.get('JAVA_HOME', '')
+          if not android or not java:
+              raise SystemExit('Android SDK ou JAVA_HOME nao encontrado no runner')
+          lines = {
+              'export/android/android_sdk_path': android,
+              'export/android/java_sdk_path': java,
+              'export/android/shutdown_adb_on_exit': False,
+          }
+          if cfg.exists():
+              content = cfg.read_text(encoding='utf-8')
+          else:
+              content = '[gd_resource type="EditorSettings" format=3]\n\n[resource]\n'
+          if '[resource]' not in content:
+              content += '\n[resource]\n'
+          for key, val in lines.items():
+              import re
+              content = re.sub(r'^' + re.escape(key) + r'\s*=.*$', '', content, flags=re.M)
+              if isinstance(val, bool):
+                  content += '\n' + key + ' = ' + str(val).lower() + '\n'
+              else:
+                  content += '\n' + key + ' = "' + val.replace('\\', '/') + '"\n'
+          cfg.write_text(content, encoding='utf-8')
+          print('Configurado Android SDK:', android)
+          print('Configurado Java SDK:', java)
+          PY
+          mkdir -p "$HOME/.android" build
+          if [ ! -e "$HOME/.android/debug.keystore" ]; then
+            keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" \
+              -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass android -keypass android \
+              -dname 'CN=Android Debug,O=Stellar Test,C=BR' -noprompt
+          fi
+
+      - name: Importar projeto e verificar GDScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT=/tmp/fleet-godot/Godot_v4.5.2-stable_linux.x86_64
+          "$GODOT" --headless --path . --editor --import 2>&1 | tee /tmp/fleet-import.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|ERROR:.*(load|parse|import|resource)' /tmp/fleet-import.log; then
+            echo 'Encontrados erros na importacao Godot.'
+            exit 1
+          fi
+
+      - name: Exportar APK Android de teste
+        shell: bash
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ runner.temp }}/stellar_debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+        run: |
+          set -euo pipefail
+          # Mesmo keystore gerado acima; somente para testes, nao para Play Store.
+          cp "$HOME/.android/debug.keystore" "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+          test -s "$GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+          test -x "$JAVA_HOME/bin/java"
+          test -x "$ANDROID_HOME/platform-tools/adb"
+          test -x "$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          grep -q '^textures/vram_compression/import_etc2_astc=true' project.godot
+          GODOT=/tmp/fleet-godot/Godot_v4.5.2-stable_linux.x86_64
+          mkdir -p build
+          "$GODOT" --headless --verbose --path . --export-debug 'Android' \
+            build/StellarLegacy_PixelArt_Debug.apk 2>&1 | tee /tmp/fleet-export.log
+          test -s build/StellarLegacy_PixelArt_Debug.apk
+          unzip -tqq build/StellarLegacy_PixelArt_Debug.apk
+          echo 'APK gerado com sucesso!'
+          ls -lh build/*.apk
+
+      - name: Disponibilizar APK para baixar no celular
+        uses: actions/upload-artifact@v4
+        with:
+          name: StellarLegacy-PixelArt-APK
+          path: build/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Logs de diagnostico (somente se falhar)
+        if: failure()
+        shell: bash
+        run: |
+          echo 'Se a proxima etapa falhar, consulte esta secao e a etapa vermelha.'
+          for f in /tmp/fleet-android-install.log /tmp/fleet-import.log /tmp/fleet-export.log; do
+            if [[ -f "$f" ]]; then
+              echo "===== $f ====="
+              tail -100 "$f"
+            fi
+          done
+
+      - name: Publicar projeto instalado no GitHub
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Stellar Legacy Godot Installer'
+          git config user.email 'actions@users.noreply.github.com'
+
+          # Stage only tracked changes plus untracked, NON-IGNORED files.
+          # Never pass build/ to git add: it contains the already-uploaded APK.
+          git add -u
+          while IFS= read -r -d '' arquivo; do
+            case "$arquivo" in
+              build/*|.godot/*|*.apk|*.aab|*.keystore|*.jks|*.zip)
+                echo "Ignorando artefato gerado: $arquivo" ;;
+              *)
+                git add -- "$arquivo" ;;
+            esac
+          done < <(git ls-files --others --exclude-standard -z)
+
+          echo 'Mudancas preparadas para publicar:'
+          git diff --cached --name-status
+          if git diff --cached --quiet; then
+            echo 'O projeto ja esta atualizado.'
+          else
+            git commit -m 'feat: atualizar Stellar Legacy Godot e preparar APK debug'
+            git push origin HEAD:main
+          fi
