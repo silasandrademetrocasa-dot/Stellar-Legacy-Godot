@@ -38,7 +38,7 @@ func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String
         child.queue_free()
     drone_models.clear()
     aux_model = null
-    var ids: Dictionary = {"Drone Alfa":"drone_a", "Drone Beta":"drone_b", "Drone Gama":"drone_c", "Drone Delta":"drone_d", "Drone Epsilon":"drone_e", "Drone Comum":"drone_common", "Drone Elite":"drone_elite"}
+    var ids: Dictionary = {"Drone Alfa":"drone_a", "Drone Beta":"drone_b", "Drone Gama":"drone_c", "Drone Delta":"drone_d", "Drone Epsilon":"drone_e", "Drone Comum":"drone_common", "Drone Elite":"drone_elite", "Halo":"drone_common", "Nova":"drone_elite"}
     for drone_name in equipped_drones:
         var file_id: String = str(ids.get(drone_name, ""))
         if file_id.is_empty():

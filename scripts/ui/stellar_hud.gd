@@ -8,6 +8,7 @@ const C_HI := Color(0.25, 0.82, 0.95)
 const C_GOLD := Color(1.0, 0.78, 0.35)
 const C_WHITE := Color(0.88, 0.96, 1.0)
 const C_MUTED := Color(0.5, 0.66, 0.78)
+const OfficialShips = preload("res://scripts/data/ship_balance.gd")
 const EquipCatalog = preload("res://scripts/data/equipment_catalog.gd")
 const EquipmentCommand = preload("res://scripts/ui/equipment_command.gd")
 const StellarStore = preload("res://scripts/ui/stellar_store.gd")
@@ -573,7 +574,7 @@ func _open_modal(kind: String) -> void:
     modal_overlay.visible = true
     _apply_sector_skin(kind)
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.13  |  ARSENAL ORBITAL / INVENTARIO INICIAL / COMPRAS OFFLINE"
+    modal_info.text = "G0.14  |  PREÇOS SUPABASE / ATRIBUTOS OFICIAIS / SIMULAÇÃO LOCAL"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
     var store_mode: bool = kind in ["LOJA", "MERCADO"]
     store_command.visible = store_mode
@@ -632,7 +633,7 @@ func _clear_dynamic_rows() -> void:
         child.queue_free()
 
 func _build_categories() -> void:
-    var categories: Array = EquipCatalog.CATEGORY_NAMES if modal_kind == "EQUIPAMENTOS" else (["NAVES", "EQUIPAMENTOS", "DRONES", "AUX-9", "REFINARIA", "TITULOS"] if modal_kind == "HANGAR" else ["NAVES", "DRONES", "AUX-9", "ARMAS", "ESCUDOS", "MOTORES", "EXTRAS"])
+    var categories: Array = EquipCatalog.CATEGORY_NAMES if modal_kind == "EQUIPAMENTOS" else (["NAVES", "EQUIPAMENTOS", "REFINARIA", "TITULOS"] if modal_kind == "HANGAR" else ["NAVES", "DRONES", "AUX-9", "ARMAS", "ESCUDOS", "MOTORES", "EXTRAS"])
     for category in categories:
         var btn := _button(category_row, category, 11)
         btn.custom_minimum_size = Vector2(89, 31)
@@ -641,7 +642,8 @@ func _build_categories() -> void:
 func _ship_catalog() -> Array[Dictionary]:
     var result: Array[Dictionary] = []
     for ship_id in SHIP_IDS:
-        result.append({"name": ship_id.capitalize(), "path": "res://assets/ships/SL_%s_FINAL.glb" % ship_id, "id": ship_id, "source": "GLB ORIGINAL"})
+        var st: Dictionary = OfficialShips.get_ship(ship_id)
+        result.append({"name": ship_id.capitalize(), "path": "res://assets/ships/SL_%s_FINAL.glb" % ship_id, "id": ship_id, "source": "GLB INTEGRAL", "desc":"%s HP • VEL %d • CARGA %d • ARM %d • GER %d • EXT %d" % [str(st.get("hp",0)),int(st.get("speed",0)),int(st.get("cargo",0)),int(st.get("lasers",0)),int(st.get("generators",0)),int(st.get("extras",0))]})
     return result
 
 func _select_category(category: String) -> void:
@@ -1266,8 +1268,8 @@ func relayout(view_size: Vector2) -> void:
 
     modal_overlay.position = Vector2.ZERO
     modal_overlay.size = view_size
-    var modal_w := minf(w - 26.0, 890.0)
-    var modal_h := minf(h - 35.0, 480.0)
+    var modal_w := w - 8.0
+    var modal_h := h - 8.0
     modal_box.position = (view_size - Vector2(modal_w, modal_h)) * 0.5
     modal_box.size = Vector2(modal_w, modal_h)
     modal_backdrop.position = Vector2(3, 3)

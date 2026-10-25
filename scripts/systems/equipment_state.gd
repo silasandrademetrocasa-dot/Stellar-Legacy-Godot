@@ -1,6 +1,7 @@
 extends RefCounted
 ## Dois layouts locais com inventario demonstrativo. Dados gravados APENAS em user://.
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
+const ShipBalance = preload("res://scripts/data/ship_balance.gd")
 const SAVE_PATH := "user://stellar_g06_equipment_demo.json"
 const SWITCH_COOLDOWN := 5.0
 var active_configuration := 0
@@ -8,11 +9,71 @@ var last_switch_ms := -100000
 var configurations: Array[Dictionary] = []
 var stock: Dictionary = {}
 # G0.12: suporte instalado no hangar, nunca por botoes de combate.
-const SUPPORT_ITEMS: Array[String] = ["Drone Alfa", "Drone Beta", "Drone Gama", "Drone Delta", "Drone Epsilon", "Drone Comum", "Drone Elite", "AUX-9"]
+const SUPPORT_ITEMS: Array[String] = ["Drone Alfa", "Drone Beta", "Drone Gama", "Drone Delta", "Drone Epsilon", "Drone Comum", "Drone Elite", "Halo", "Nova", "AUX-9", "Coletor de Cargas", "Guarda Estelar", "Pulso Kamikaze", "Coletor de Minérios", "Reparador AUX"]
 var support_stock: Dictionary = {}
 var fitted_drones: Array[String] = []
 var fitted_aux: String = ""
 var owned_ships: Dictionary = {"AURORA": 1}
+var consumables: Dictionary = {}
+var active_ship: String = "AURORA"
+var configuration_drones: Array = [[], []]
+var configuration_aux: Array = ["", ""]
+var configuration_modules: Array = [[], []]
+const DRONE_SHOP: Array[String] = ["Halo", "Nova"]
+const AUX_MODULE_NAMES: Array[String] = ["Coletor de Cargas", "Guarda Estelar", "Pulso Kamikaze", "Coletor de Minérios", "Reparador AUX"]
+
+func set_active_ship(name: String) -> void:
+    active_ship = name
+    # Configuracoes guardam o equipamento possuido, mas nao podem violar o limite da nave.
+    for cfg in configurations:
+        for kind in ["ARMAS", "EXTRAS"]:
+            var limit: int = ShipBalance.max_slots(active_ship, kind)
+            var arr: Array = cfg[kind]
+            for i in range(limit, arr.size()):
+                arr[i] = ""
+        var generator_limit: int = ShipBalance.max_slots(active_ship, "ESCUDOS")
+        var used: int = 0
+        for kind in ["ESCUDOS", "MOTORES"]:
+            var arr: Array = cfg[kind]
+            for i in range(arr.size()):
+                if i >= generator_limit or (str(arr[i]) != "" and used >= generator_limit):
+                    arr[i] = ""
+                elif str(arr[i]) != "":
+                    used += 1
+    _save()
+
+func _sync_active_support() -> void:
+    fitted_drones.clear()
+    for name in configuration_drones[active_configuration]:
+        fitted_drones.append(str(name))
+    fitted_aux = str(configuration_aux[active_configuration])
+
+func equipped_modules() -> Array:
+    return configuration_modules[active_configuration]
+
+func allowed_slots(category: String) -> int:
+    var base: int = ShipBalance.max_slots(active_ship, category)
+    if category == "EXTRAS":
+        if equipped("EXTRAS").has("Expansor de Extras Elite"):
+            base += 9
+        elif equipped("EXTRAS").has("Expansor de Extras Comum"):
+            base += 4
+    return mini(base, int(Catalog.SLOTS.get(category, 0)))
+
+func used_generators() -> int:
+    var result: int = 0
+    for kind in ["ESCUDOS", "MOTORES"]:
+        for item in equipped(kind):
+            if item != "":
+                result += 1
+    return result
+
+func _slot_allowed(kind: String, idx: int) -> bool:
+    if idx < 0 or idx >= allowed_slots(kind):
+        return false
+    if kind in ["ESCUDOS", "MOTORES"] and used_generators() >= ShipBalance.max_slots(active_ship, "ESCUDOS"):
+        return false
+    return true
 const STARTER_MARKER: int = 13
 const BACKUP_PATH := "user://stellar_pre_g013_inventory_backup.json"
 
@@ -36,21 +97,33 @@ func toggle_support(item_name: String) -> String:
         return "Modelo desconhecido"
     if item_name == "AUX-9":
         if fitted_aux == "AUX-9":
-            fitted_aux = ""
+            configuration_aux[active_configuration] = ""
+            configuration_modules[active_configuration] = []
         elif owned_support("AUX-9") > 0:
-            fitted_aux = "AUX-9"
+            configuration_aux[active_configuration] = "AUX-9"
         else:
-            return "Adquira AUX-9 para instalar"
+            return "Adquira AUX-9 na loja"
+    elif AUX_MODULE_NAMES.has(item_name):
+        if fitted_aux != "AUX-9":
+            return "Equipe AUX-9 primeiro"
+        var modules: Array = configuration_modules[active_configuration]
+        if modules.has(item_name):
+            modules.erase(item_name)
+        elif owned_support(item_name) > 0 and modules.size() < 4:
+            modules.append(item_name)
+        else:
+            return "Sem modulo ou 4 slots ocupados"
     elif fitted_drones.has(item_name):
-        fitted_drones.erase(item_name)
+        configuration_drones[active_configuration].erase(item_name)
     elif owned_support(item_name) > 0:
-        if fitted_drones.size() >= 2:
-            return "Dois slots ocupados: remova um drone"
-        fitted_drones.append(item_name)
+        if configuration_drones[active_configuration].size() >= 8:
+            return "8 slots de drones ocupados"
+        configuration_drones[active_configuration].append(item_name)
     else:
-        return "Adquira o drone antes de equipar"
+        return "Adquira o drone na loja"
+    _sync_active_support()
     _save()
-    return "%s: %s" % [item_name, "INSTALADO" if equipped_support(item_name) else "REMOVIDO"]
+    return "%s: configuracao %d atualizada" % [item_name, active_configuration + 1]
 
 
 func _init() -> void:
@@ -85,11 +158,15 @@ func _migrate_starter_once() -> void:
         stock[name] = 1
     configurations[0]["ARMAS"][0] = "ARC-1"
     configurations[0]["ESCUDOS"][0] = "SG-1"
-    configurations[0]["MOTORES"][0] = "THR-1"
+    # THR-1 fica no inventario: Aurora tem 1 gerador compartilhado (motor OU escudo).
     configurations[0]["EXTRAS"][0] = "REPARADOR COMUM"
     support_stock.clear()
     fitted_drones.clear()
     fitted_aux = ""
+    configuration_drones = [[], []]
+    configuration_aux = ["", ""]
+    configuration_modules = [[], []]
+    consumables.clear()
     owned_ships = {"AURORA": 1}
     active_configuration = 0
     last_switch_ms = -100000
@@ -141,8 +218,8 @@ func equip(item_name: String) -> String:
     if free_amount(item_name) == 0:
         return "Sem unidades livres no estoque local"
     var arr: Array = configurations[active_configuration][kind]
-    for i in range(arr.size()):
-        if str(arr[i]) == "":
+    for i in range(mini(arr.size(), allowed_slots(kind))):
+        if str(arr[i]) == "" and _slot_allowed(kind, i):
             arr[i] = item_name
             _save()
             return "%s equipado no slot %d" % [item_name, i + 1]
@@ -158,6 +235,8 @@ func equip_at(item_name: String, index: int) -> String:
         return "Slot invalido"
     if str(arr[index]) != "":
         return "Slot ja ocupado"
+    if not _slot_allowed(kind, index):
+        return "Sem slots livres nesta nave (geradores compartilhados)"
     if free_amount(item_name) <= 0:
         return "Nao ha unidades livres"
     arr[index] = item_name
@@ -197,6 +276,7 @@ func select_configuration(index: int) -> String:
         return "Aguarde %.1fs para alternar" % remaining
     active_configuration = index
     last_switch_ms = now
+    _sync_active_support()
     _save()
     return "Configuracao %d ativada" % (index + 1)
 
@@ -210,7 +290,7 @@ func bonus(kind: String) -> float:
 func _save() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock,"support_stock":support_stock,"fitted_drones":fitted_drones,"fitted_aux":fitted_aux,"owned_ships":owned_ships,"inventory_schema":STARTER_MARKER}))
+        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock,"support_stock":support_stock,"fitted_drones":fitted_drones,"fitted_aux":fitted_aux,"owned_ships":owned_ships,"inventory_schema":STARTER_MARKER,"configuration_drones":configuration_drones,"configuration_aux":configuration_aux,"configuration_modules":configuration_modules,"consumables":consumables}))
 
 func _read() -> void:
     if not FileAccess.file_exists(SAVE_PATH):
@@ -241,6 +321,32 @@ func _read() -> void:
                 fitted_drones.append(drone_name)
     var saved_aux: String = str(parsed.get("fitted_aux", fitted_aux))
     fitted_aux = "AUX-9" if saved_aux == "AUX-9" and owned_support("AUX-9") > 0 else ""
+    var saved_c_drones: Variant = parsed.get("configuration_drones", [])
+    var saved_c_aux: Variant = parsed.get("configuration_aux", [])
+    var saved_c_modules: Variant = parsed.get("configuration_modules", [])
+    if saved_c_drones is Array and saved_c_drones.size() == 2:
+        configuration_drones = [[], []]
+        for i in range(2):
+            if saved_c_drones[i] is Array:
+                for n in saved_c_drones[i]:
+                    if SUPPORT_ITEMS.has(str(n)) and owned_support(str(n)) > 0 and configuration_drones[i].size() < 8:
+                        configuration_drones[i].append(str(n))
+    else:
+        configuration_drones[0] = fitted_drones.duplicate()
+    if saved_c_aux is Array and saved_c_aux.size() == 2:
+        for i in range(2):
+            configuration_aux[i] = "AUX-9" if str(saved_c_aux[i]) == "AUX-9" and owned_support("AUX-9") > 0 else ""
+    else:
+        configuration_aux[0] = fitted_aux
+    if saved_c_modules is Array and saved_c_modules.size() == 2:
+        for i in range(2):
+            if saved_c_modules[i] is Array:
+                for n in saved_c_modules[i]:
+                    if AUX_MODULE_NAMES.has(str(n)) and owned_support(str(n)) > 0 and configuration_modules[i].size() < 4:
+                        configuration_modules[i].append(str(n))
+    var loaded_consumables: Variant = parsed.get("consumables", {})
+    if loaded_consumables is Dictionary:
+        consumables = loaded_consumables
     var loaded_stock: Variant = parsed.get("stock", {})
     if loaded_stock is Dictionary:
         for catalog_item in Catalog.ITEMS:
@@ -270,6 +376,7 @@ func _read() -> void:
         clean.append(result)
     configurations = clean
     active_configuration = clampi(int(parsed.get("active", 0)), 0, 1)
+    _sync_active_support()
 
 func copy_to_other() -> String:
     var dest := 1 - active_configuration
@@ -277,5 +384,8 @@ func copy_to_other() -> String:
     for kind in Catalog.CATEGORY_NAMES:
         copied[kind] = equipped(kind)
     configurations[dest] = copied
+    configuration_drones[dest] = configuration_drones[active_configuration].duplicate()
+    configuration_aux[dest] = configuration_aux[active_configuration]
+    configuration_modules[dest] = configuration_modules[active_configuration].duplicate()
     _save()
     return "Config %d copiada para Config %d (simulacao)" % [active_configuration + 1, dest + 1]

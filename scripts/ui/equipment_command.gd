@@ -2,6 +2,8 @@ extends Control
 ## G0.11: Estacao de equipamentos nativa Godot; nenhuma miniatura 2D de referencia.
 ## Nave | slots | inventario. Tudo local e persistido pelo EquipmentState existente.
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
+const Store = preload("res://scripts/data/store_catalog.gd")
+const Ships = preload("res://scripts/data/ship_balance.gd")
 const CYAN := Color(0.22, 0.78, 1.0)
 const WHITE := Color(0.88, 0.96, 1.0)
 const MUTED := Color(0.52, 0.68, 0.8)
@@ -20,7 +22,7 @@ var preset_one: Button
 var preset_two: Button
 var slot_scroll: ScrollContainer
 var slot_stack: VBoxContainer
-var filter_row: HBoxContainer
+var filter_row: HFlowContainer
 var inventory_scroll: ScrollContainer
 var inventory_grid: GridContainer
 var item_view: SubViewportContainer
@@ -75,11 +77,11 @@ func setup(owner_game) -> void:
     slot_stack.add_theme_constant_override("separation", 6)
     slot_scroll.add_child(slot_stack)
     _label(right_panel, "INVENTARIO  /  ARSENAL", 15, GOLD)
-    filter_row = HBoxContainer.new()
+    filter_row = HFlowContainer.new()
     filter_row.add_theme_constant_override("separation", 3)
     right_panel.add_child(filter_row)
-    for kind in Catalog.CATEGORY_NAMES:
-        var b := _button(filter_row, str({"ARMAS":"ARC", "ESCUDOS":"ESC", "MOTORES":"MOT", "EXTRAS":"EXT"}.get(kind, kind)))
+    for kind in Catalog.CATEGORY_NAMES + ["DRONES", "AUX-9", "MODULOS AUX"]:
+        var b := _button(filter_row, str({"ARMAS":"ARC", "ESCUDOS":"ESC", "MOTORES":"MOT", "EXTRAS":"EXT", "DRONES":"DRONES", "AUX-9":"AUX", "MODULOS AUX":"MOD AUX"}.get(kind, kind)))
         b.add_theme_font_size_override("font_size", 10)
         b.pressed.connect(_filter.bind(kind))
     inventory_scroll = ScrollContainer.new()
@@ -252,7 +254,8 @@ func _load_ship() -> void:
     if ship_id == ship_loaded:
         return
     ship_loaded = ship_id
-    ship_caption.text = "%s  /  NAVE ATIVA" % ship_id
+    var st: Dictionary = Ships.get_ship(ship_id)
+    ship_caption.text = "%s • HP %s • VEL %d • PORAO %d • ARM %d / GER %d / EXT %d" % [ship_id, str(st.get("hp",0)), int(st.get("speed",0)), int(st.get("cargo",0)), int(st.get("lasers",1)), int(st.get("generators",1)), int(st.get("extras",1))]
     ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 0.85)
 
 func open_command() -> void:
@@ -301,17 +304,18 @@ func _redraw_slots() -> void:
     _clear(slot_stack)
     for kind in Catalog.CATEGORY_NAMES:
         var values: Array[String] = game.equipment_state.equipped(kind)
+        var limit: int = game.equipment_state.allowed_slots(kind)
         var used: int = 0
         for value in values:
             if value != "":
                 used += 1
-        var title := _label(slot_stack, "%s   %d / %d" % [kind, used, values.size()], 12, CYAN)
+        var title := _label(slot_stack, "%s   %d / %d" % [kind, used, limit], 12, CYAN)
         title.custom_minimum_size.y = 17
         var row := HFlowContainer.new()
         row.add_theme_constant_override("h_separation", 4)
         row.add_theme_constant_override("v_separation", 4)
         slot_stack.add_child(row)
-        for i in range(values.size()):
+        for i in range(limit):
             var name: String = values[i]
             var caption: String = name if name != "" else "+"
             var b := _button(row, caption)
@@ -319,6 +323,16 @@ func _redraw_slots() -> void:
             b.add_theme_font_size_override("font_size", 10)
             b.tooltip_text = "Toque para remover" if name != "" else "Toque para equipar o item selecionado"
             b.pressed.connect(_slot_pressed.bind(kind, i, name))
+    var gen_limit: int = Ships.max_slots(game.current_ship, "ESCUDOS")
+    var gen_line := _label(slot_stack, "GERADORES USADOS: %d / %d (MOTORES + ESCUDOS)" % [game.equipment_state.used_generators(), gen_limit], 12, GOLD)
+    gen_line.custom_minimum_size.y = 22
+    var drone_values: Array[String] = game.equipment_state.fitted_drones
+    var aux_name: String = game.equipment_state.fitted_aux
+    for pair in [["DRONES / CONF %d" % (game.equipment_state.active_configuration+1), ", ".join(PackedStringArray(drone_values))], ["AUX-9", aux_name], ["MODULOS AUX", ", ".join(PackedStringArray(game.equipment_state.equipped_modules()))]]:
+        var heading: Label = _label(slot_stack, str(pair[0]), 12, CYAN)
+        heading.custom_minimum_size.y = 19
+        var value: Label = _label(slot_stack, str(pair[1]) if str(pair[1]) != "" else "[ VAZIO — ADQUIRA NA LOJA ]", 11, WHITE)
+        value.custom_minimum_size.y = 19
     slot_scroll.set_deferred("scroll_vertical", old_pos)
 
 func _slot_pressed(kind: String, index: int, content: String) -> void:
@@ -338,9 +352,10 @@ func _redraw_grid() -> void:
         return
     var old_pos: int = inventory_scroll.scroll_vertical
     _clear(inventory_grid)
-    for entry in Catalog.items_in_category(category):
+    var available: Array[Dictionary] = Catalog.items_in_category(category) if Catalog.CATEGORY_NAMES.has(category) else Store.all_in(category)
+    for entry in available:
         var name: String = str(entry["name"])
-        var count: int = int(game.equipment_state.stock.get(name, 0))
+        var count: int = int(game.equipment_state.stock.get(name, 0)) if Catalog.CATEGORY_NAMES.has(category) else game.equipment_state.owned_support(name)
         if count <= 0:
             continue
         var frame: PanelContainer = PanelContainer.new()
@@ -359,7 +374,12 @@ func _redraw_grid() -> void:
         layout.add_theme_constant_override("separation", 1)
         frame.add_child(layout)
         var snap: TextureRect = TextureRect.new()
-        snap.texture = load("res://assets/ui/g013_models/%s.png" % str(entry["model"])) as Texture2D
+        var model_file: String = str(entry.get("model", str(entry.get("path", "")).get_file().get_basename()))
+        var thumbnail_path: String = "res://assets/ui/g014_models/%s.png" % model_file
+        if not ResourceLoader.exists(thumbnail_path):
+            thumbnail_path = "res://assets/ui/g013_models/%s.png" % model_file
+        if ResourceLoader.exists(thumbnail_path):
+            snap.texture = load(thumbnail_path) as Texture2D
         snap.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
         snap.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
         snap.custom_minimum_size = Vector2(58, 47)
@@ -379,23 +399,26 @@ func _redraw_grid() -> void:
 
 func _choose_item(name: String) -> void:
     selected_name = name
-    var entry: Dictionary = Catalog.get_item(name)
+    var entry: Dictionary = Catalog.get_item(name) if Catalog.CATEGORY_NAMES.has(category) else Store.find(name)
     item_caption.text = name
-    detail_caption.text = "%s  |  +%s  |  livres %d" % [str(entry.get("desc", "")), str(entry.get("bonus", 0)), game.equipment_state.free_amount(name)]
-    item_mesh = _set_model(item_root, Catalog.model_path(name), 1.35)
+    detail_caption.text = "%s  |  POSSE: %d" % [str(entry.get("desc", "")), int(game.equipment_state.stock.get(name, 0)) if Catalog.CATEGORY_NAMES.has(category) else game.equipment_state.owned_support(name)]
+    var model_path: String = Catalog.model_path(name) if Catalog.CATEGORY_NAMES.has(category) else str(entry.get("path", ""))
+    item_mesh = _set_model(item_root, model_path, 1.35)
     item_view.visible = true
     _redraw_grid()
     _update_actions()
 
 func _update_actions() -> void:
     var selected: bool = selected_name != ""
-    equip_button.disabled = not selected or game.equipment_state.free_amount(selected_name) <= 0
-    remove_button.disabled = not selected
+    var support_category: bool = not Catalog.CATEGORY_NAMES.has(category)
+    equip_button.disabled = not selected or (game.equipment_state.owned_support(selected_name) <= 0 if support_category else game.equipment_state.free_amount(selected_name) <= 0)
+    equip_button.text = "INSTALAR / ALTERNAR" if support_category else "EQUIPAR"
+    remove_button.disabled = not selected or support_category
 
 func _equip_selected() -> void:
     if selected_name == "":
         return
-    var result: String = game.equipment_state.equip(selected_name)
+    var result: String = game.equipment_state.equip(selected_name) if Catalog.CATEGORY_NAMES.has(category) else game.equipment_state.toggle_support(selected_name)
     _notice(result)
     game._on_equipment_changed()
     _redraw_all()
@@ -451,14 +474,14 @@ func relayout(view: Vector2) -> void:
     slot_scroll.position = Vector2(8, 71)
     slot_scroll.size = Vector2(center_w - 16, h - 103)
     filter_row.position = Vector2(7, 33)
-    filter_row.size = Vector2(right_w - 14, 30)
+    filter_row.size = Vector2(right_w - 14, 65)
     for b in filter_row.get_children():
         if b is Button:
-            (b as Button).custom_minimum_size.x = (right_w - 18) / 4.0 - 3.0
-    inventory_scroll.position = Vector2(7, 69)
-    inventory_scroll.size = Vector2(right_w - 14, maxf(76, h * 0.30))
-    item_view.position = Vector2(7, 72 + inventory_scroll.size.y)
-    item_view.size = Vector2(right_w - 14, maxf(76, h - 187 - inventory_scroll.size.y))
+            (b as Button).custom_minimum_size.x = (right_w - 18) / 4.0 - 7.0
+    inventory_scroll.position = Vector2(7, 101)
+    inventory_scroll.size = Vector2(right_w - 14, maxf(76, h * 0.33))
+    item_view.position = Vector2(7, 105 + inventory_scroll.size.y)
+    item_view.size = Vector2(right_w - 14, maxf(76, h - 226 - inventory_scroll.size.y))
     item_caption.position = Vector2(10, h - 103)
     item_caption.size = Vector2(right_w - 20, 18)
     detail_caption.position = Vector2(10, h - 84)

@@ -8,6 +8,8 @@ const GalaxyUI = preload("res://scripts/ui/galaxy_map.gd")
 const CombatWorld = preload("res://scripts/world/combat_world.gd")
 const FleetSupport = preload("res://scripts/world/fleet_support.gd")
 const StellarHUD = preload("res://scripts/ui/stellar_hud.gd")
+const StellarWallet = preload("res://scripts/systems/stellar_wallet.gd")
+const ShipBalance = preload("res://scripts/data/ship_balance.gd")
 const EquipmentState = preload("res://scripts/systems/equipment_state.gd")
 const PilotProgress = preload("res://scripts/systems/pilot_progress.gd")
 const HubStore = preload("res://scripts/systems/stellar_hub.gd")
@@ -81,10 +83,10 @@ var shield_bar: ProgressBar
 var target_hp_bar: ProgressBar
 var target_shield_bar: ProgressBar
 var firing_held := false
-var hp := 12000.0
+var hp: float = 104000.0
 var shield := 8000.0
-const MAX_HP := 12000.0
-const MAX_SHIELD := 8000.0
+var MAX_HP: float = 104000.0
+var MAX_SHIELD: float = 8000.0
 var combat_recovery_clock := 0.0
 # Comandos locais: destino, perseguição, mira e disparo independente do servidor.
 var destination := Vector3.ZERO
@@ -101,6 +103,7 @@ var selected_ammo := 0
 var show_fps := true
 var starfield: MultiMeshInstance3D
 var equipment_state
+var wallet
 var pilot_progress
 var hub_store
 var astral_trials
@@ -119,6 +122,7 @@ var exhausts: Array[MeshInstance3D] = []
 
 func _ready() -> void:
     equipment_state = EquipmentState.new()
+    wallet = StellarWallet.new()
     pilot_progress = PilotProgress.new()
     hub_store = HubStore.new()
     astral_trials = AstralTrials.new()
@@ -157,7 +161,7 @@ func _process(delta: float) -> void:
         # G0.5: a ordem de movimento NUNCA cancela o travamento nem o tiro.
 
     var desired_speed := 0.0
-    var local_max_speed: float = MAX_SPEED + equipment_state.bonus("MOTORES") if equipment_state != null else MAX_SPEED
+    var local_max_speed: float = MAX_SPEED * (float(ShipBalance.get_ship(current_ship).get("speed", 320)) / 320.0) + equipment_state.bonus("MOTORES") if equipment_state != null else MAX_SPEED
     var unit: Node3D = combat_world.get_selected_enemy()
     var firing_now := auto_fire_enabled or firing_held or Input.is_key_pressed(KEY_SPACE)
     var movement_vector := Vector3.ZERO
@@ -915,6 +919,11 @@ func _set_ship(ship_id: String) -> void:
     ship_visual.name = ship_id
     ship_anchor.add_child(ship_visual)
     current_ship = ship_id
+    equipment_state.set_active_ship(ship_id)
+    var profile: Dictionary = ShipBalance.get_ship(ship_id)
+    var old_max: float = maxf(1.0, MAX_HP)
+    MAX_HP = float(profile.get("hp", MAX_HP))
+    hp = clampf(hp / old_max * MAX_HP, 1.0, MAX_HP)
     ship_select.select(maxi(0, SHIP_IDS.find(ship_id)))
     _write_local_profile()
     if ui_shell != null:
@@ -1099,6 +1108,9 @@ func _on_equipment_changed() -> void:
     # Recalcula os valores DEMONSTRATIVOS mantendo o disparo ativo.
     var base_damage: float = [425.0, 565.0, 735.0, 905.0, 425.0][selected_ammo]
     combat_world.player_laser_damage = base_damage + equipment_state.bonus("ARMAS")
+    var old_shield_capacity: float = maxf(1.0, MAX_SHIELD)
+    MAX_SHIELD = maxf(8000.0, 8000.0 + equipment_state.bonus("ESCUDOS"))
+    shield = clampf(shield * MAX_SHIELD / old_shield_capacity, 0.0, MAX_SHIELD)
     if support_fleet != null:
         support_fleet.apply_equipment(equipment_state)
     if ui_shell != null:

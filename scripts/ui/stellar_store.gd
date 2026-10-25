@@ -2,6 +2,7 @@ extends Control
 ## G0.13: loja premium nativa, catalogo unificado, compras locais; um GLB por vez.
 const Store = preload("res://scripts/data/store_catalog.gd")
 const Equip = preload("res://scripts/data/equipment_catalog.gd")
+const Ships = preload("res://scripts/data/ship_balance.gd")
 const NAVY := Color(0.012, 0.034, 0.076, 0.97)
 const CYAN := Color(0.24, 0.83, 1.0)
 const WHITE := Color(0.91, 0.96, 1.0)
@@ -31,8 +32,10 @@ var owned_label: Label
 var buy_button: Button
 var feedback: Label
 var selected: Dictionary = {}
-var active_category: String = "ARMAS"
+var active_category: String = "NAVES"
 var last_ship: String = ""
+var rarity_mode: String = "TODOS"
+var rarity_row: HBoxContainer
 
 func setup(owner_game) -> void:
     game = owner_game
@@ -60,10 +63,19 @@ func setup(owner_game) -> void:
     category_bar.add_theme_constant_override("v_separation", 4)
     main.add_child(category_bar)
     for cat in Store.CATEGORIES:
-        var tab: Button = _button(category_bar, cat, CYAN)
+        var caption: String = {"MODULOS AUX":"MOD AUX", "MUNICOES LASER":"MUNICOES"}.get(cat, cat)
+        var tab: Button = _button(category_bar, caption, CYAN)
+        tab.set_meta("category", cat)
         tab.add_theme_font_size_override("font_size", 10)
         tab.custom_minimum_size = Vector2(73, 29)
         tab.pressed.connect(_show_category.bind(cat))
+    rarity_row = HBoxContainer.new()
+    rarity_row.add_theme_constant_override("separation", 5)
+    main.add_child(rarity_row)
+    for filter_name in ["TODOS", "COMUM", "ELITE"]:
+        var filter_button: Button = _button(rarity_row, filter_name, GOLD if filter_name == "ELITE" else CYAN)
+        filter_button.custom_minimum_size = Vector2(96, 28)
+        filter_button.pressed.connect(_set_rarity_filter.bind(filter_name))
     shelf_scroll = ScrollContainer.new()
     shelf_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     shelf_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -87,7 +99,7 @@ func setup(owner_game) -> void:
     buy_button = _button(detail, "COMPRAR", GOLD)
     buy_button.pressed.connect(_buy_selected)
     feedback = _label(self, "LOJA DE TESTE: compras locais, sem pagamento real.", 11, GOLD)
-    _show_category("ARMAS")
+    _show_category("NAVES")
     relayout(size)
 
 func _skin(edge: Color, bg: Color = NAVY) -> StyleBoxFlat:
@@ -219,19 +231,22 @@ func _refresh_ship() -> void:
     if game == null:
         return
     var name: String = str(game.current_ship)
+    var stats: Dictionary = Ships.get_ship(name)
     ship_name.text = name + "  /  NAVE ATIVA"
-    pilot_info.text = "ARMAMENTO E SUPORTE  |  MODO OFFLINE"
+    pilot_info.text = "%s HP  •  VEL %d  •  PORAO %d\nLASER %d  /  GER %d  /  EXT %d" % [str(stats.get("hp", 0)), int(stats.get("speed", 0)), int(stats.get("cargo", 0)), int(stats.get("lasers", 1)), int(stats.get("generators", 1)), int(stats.get("extras", 1))]
+    # Dados do balanceamento oficial; carteira e compras sao apenas demonstrativas.
     if name != last_ship:
         last_ship = name
         ship_mesh = _set_model(ship_pivot, "res://assets/ships/SL_%s_FINAL.glb" % name, 0.9)
-    balance_label.text = "ARSENAL  |  SALDO: %d CR  /  TESTE" % game.hub_store.credit_balance(game.pilot_progress.credits)
+    balance_label.text = "LOJA ESTELAR  |  %s CR   •   %s STL   |   VALORES OFICIAIS / SALDO LOCAL" % [_fmt(game.wallet.credits), _fmt(game.wallet.stellarium)]
 
 func _tint(rarity: String) -> Color:
     match rarity:
         "LENDARIO": return Color(1.0, 0.65, 0.17)
         "EPICO": return Color(0.79, 0.40, 1.0)
         "RARO": return Color(0.19, 0.66, 1.0)
-        "COMUM": return Color(0.3, 0.88, 0.66)
+        "COMUM": return Color(0.28, 0.88, 0.66)
+        "ELITE": return Color(0.78, 0.37, 1.0)
     return CYAN
 
 func _clear(parent: Node) -> void:
@@ -252,18 +267,24 @@ func _show_category(category: String) -> void:
     item_mesh = _set_model(item_pivot, "", 1.0)
     for b in category_bar.get_children():
         if b is Button:
-            (b as Button).add_theme_color_override("font_color", GOLD if (b as Button).text == category else WHITE)
+            (b as Button).add_theme_color_override("font_color", GOLD if str((b as Button).get_meta("category", "")) == category else WHITE)
     var items: Array[Dictionary] = Store.all_in(category)
     for product in items:
+        if rarity_mode != "TODOS" and str(product.get("rarity", "")) != rarity_mode:
+            continue
         _create_product_card(product)
     shelf_scroll.scroll_vertical = 0
+
+func _set_rarity_filter(filter_name: String) -> void:
+    rarity_mode = filter_name
+    _show_category(active_category)
 
 func _create_product_card(product: Dictionary) -> void:
     var name: String = str(product["name"])
     var rarity: String = str(product["rarity"])
     var accent: Color = _tint(rarity)
     var card: PanelContainer = PanelContainer.new()
-    card.custom_minimum_size = Vector2(120, 146)
+    card.custom_minimum_size = Vector2(166, 218)
     card.mouse_filter = Control.MOUSE_FILTER_PASS
     card.add_theme_stylebox_override("panel", _skin(accent, Color(0.013, 0.040, 0.08, 0.99)))
     shelf_grid.add_child(card)
@@ -273,11 +294,14 @@ func _create_product_card(product: Dictionary) -> void:
     var rarity_label: Label = _label(inner, rarity + "   // " + str(product["category"]), 9, accent)
     rarity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     var art: TextureRect = TextureRect.new()
-    art.custom_minimum_size = Vector2(94, 63)
+    art.custom_minimum_size = Vector2(152, 119)
     art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     art.mouse_filter = Control.MOUSE_FILTER_IGNORE
     var thumb: String = Equip.thumbnail_path(name)
+    var glb_thumb: String = "res://assets/ui/g014_models/%s.png" % str(product["path"]).get_file().get_basename()
+    if ResourceLoader.exists(glb_thumb):
+        thumb = glb_thumb
     if thumb == "":
         var model_path: String = str(product["path"])
         thumb = "res://assets/ui/g013_models/%s.png" % model_path.get_file().get_basename()
@@ -287,7 +311,10 @@ func _create_product_card(product: Dictionary) -> void:
     inner.add_child(art)
     var label: Label = _label(inner, name, 11, WHITE)
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    var price: Label = _label(inner, "%d CR" % int(product["cost"]), 11, GOLD)
+    var currency: String = str(product.get("currency", "credits"))
+    var for_sale: bool = bool(product.get("shop_visible", false)) and int(product.get("cost", 0)) > 0
+    var price_text: String = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if for_sale else "EXCLUSIVO / EVENTO"
+    var price: Label = _label(inner, price_text, 12, GOLD if currency == "credits" else Color(0.75, 0.4, 1.0))
     price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     var inspect: Button = _button(inner, "VER MODELO 3D", accent)
     inspect.custom_minimum_size.y = 27
@@ -299,28 +326,44 @@ func _select_product(product: Dictionary) -> void:
     var name: String = str(product["name"])
     item_label.text = name
     description.text = str(product.get("desc", ""))
-    cost_label.text = "%d CR" % int(product["cost"])
+    if str(product.get("category", "")) == "NAVES":
+        description.text = "%s  |  %s HP  |  VEL %d  |  PORAO %d  |  LASER %d / GER %d / EXTRA %d" % [name, str(product.get("hp", 0)), int(product.get("speed", 0)), int(product.get("cargo", 0)), int(product.get("lasers", 0)), int(product.get("generators", 0)), int(product.get("extras", 0))]
+    var currency: String = str(product.get("currency", "credits"))
+    var marketable: bool = bool(product.get("shop_visible", false)) and int(product.get("cost", 0)) > 0
+    cost_label.text = "%s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else "EXCLUSIVO / EVENTO"
     var owned: int = 0
     match str(product["category"]):
         "NAVES": owned = 1 if game.equipment_state.owns_ship(name) else 0
-        "DRONES", "AUX-9": owned = game.equipment_state.owned_support(name)
+        "DRONES", "AUX-9", "MODULOS AUX": owned = game.equipment_state.owned_support(name)
+        "MUNICOES LASER", "MISSEIS": owned = int(game.equipment_state.consumables.get(name, 0))
         _: owned = int(game.equipment_state.stock.get(name, 0))
     owned_label.text = "NO HANGAR: %d" % owned
-    buy_button.disabled = int(product["cost"]) <= 0 or game.hub_store.credit_balance(game.pilot_progress.credits) < int(product["cost"])
+    buy_button.disabled = not marketable or game.wallet.balance(currency) < int(product["cost"])
     if str(product["category"]) == "NAVES" and owned > 0:
         buy_button.disabled = true
-    buy_button.text = "ADQUIRIDO" if str(product["category"]) == "NAVES" and owned > 0 else "COMPRAR  |  %d CR" % int(product["cost"])
+    buy_button.text = "ADQUIRIDO" if str(product["category"]) == "NAVES" and owned > 0 else ("COMPRAR | %s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else "NAO DISPONIVEL")
     item_mesh = _set_model(item_pivot, str(product["path"]), 1.25 if str(product["category"]) != "NAVES" else 0.85)
 
 func _buy_selected() -> void:
     if selected.is_empty():
         return
     var name: String = str(selected["name"])
-    var result: String = game.hub_store.buy_store_item(name, game.pilot_progress.credits, game.equipment_state)
+    var result: String = game.wallet.buy(selected, game.equipment_state)
     feedback.text = result
     game._on_equipment_changed()
     _refresh_ship()
     _select_product(selected)
+
+func _fmt(number: int) -> String:
+    var text_value: String = str(number)
+    var out: String = ""
+    var i: int = 0
+    for pos in range(text_value.length() - 1, -1, -1):
+        if i > 0 and i % 3 == 0:
+            out = "." + out
+        out = text_value[pos] + out
+        i += 1
+    return out
 
 func _process(delta: float) -> void:
     if not visible:
@@ -349,9 +392,9 @@ func relayout(view: Vector2) -> void:
     ship_name.position = Vector2(10, 10)
     ship_name.size = Vector2(left_w - 20, 24)
     pilot_info.position = Vector2(10, 35)
-    pilot_info.size = Vector2(left_w - 20, 20)
-    ship_view.position = Vector2(7, 62)
-    ship_view.size = Vector2(left_w - 14, h - 144)
+    pilot_info.size = Vector2(left_w - 20, 44)
+    ship_view.position = Vector2(7, 87)
+    ship_view.size = Vector2(left_w - 14, h - 169)
     var go: Button = left.get_node("GoHangar") as Button
     go.position = Vector2(9, h - 71)
     go.size = Vector2(left_w - 18, 36)
@@ -359,9 +402,12 @@ func relayout(view: Vector2) -> void:
     balance_label.size = Vector2(center_w - 18, 25)
     category_bar.position = Vector2(6, 36)
     category_bar.size = Vector2(center_w - 12, 66)
-    shelf_scroll.position = Vector2(6, 103)
-    shelf_scroll.size = Vector2(center_w - 12, h - 138)
-    var card_width: float = maxf(115.0, (center_w - 40.0) / 3.0)
+    rarity_row.position = Vector2(8, 103)
+    rarity_row.size = Vector2(center_w - 16, 34)
+    shelf_grid.columns = 3 if center_w >= 530.0 else 2
+    shelf_scroll.position = Vector2(6, 139)
+    shelf_scroll.size = Vector2(center_w - 12, h - 174)
+    var card_width: float = maxf(160.0, (center_w - 40.0) / float(shelf_grid.columns))
     for card in shelf_grid.get_children():
         if card is PanelContainer:
             (card as PanelContainer).custom_minimum_size.x = card_width
@@ -370,14 +416,14 @@ func relayout(view: Vector2) -> void:
         (titles[0] as Label).position = Vector2(8, 7)
         (titles[0] as Label).size = Vector2(right_w - 16, 24)
     item_view.position = Vector2(7, 34)
-    item_view.size = Vector2(right_w - 14, h * 0.40)
-    item_label.position = Vector2(9, 43 + h * 0.40)
+    item_view.size = Vector2(right_w - 14, h * 0.50)
+    item_label.position = Vector2(9, 43 + h * 0.50)
     item_label.size = Vector2(right_w - 18, 22)
-    description.position = Vector2(9, 68 + h * 0.40)
-    description.size = Vector2(right_w - 18, 30)
-    cost_label.position = Vector2(9, 99 + h * 0.40)
+    description.position = Vector2(9, 68 + h * 0.50)
+    description.size = Vector2(right_w - 18, 51)
+    cost_label.position = Vector2(9, 99 + h * 0.50)
     cost_label.size = Vector2(right_w - 18, 19)
-    owned_label.position = Vector2(9, 122 + h * 0.40)
+    owned_label.position = Vector2(9, 122 + h * 0.50)
     owned_label.size = Vector2(right_w - 18, 18)
     buy_button.position = Vector2(8, h - 79)
     buy_button.size = Vector2(right_w - 16, 37)

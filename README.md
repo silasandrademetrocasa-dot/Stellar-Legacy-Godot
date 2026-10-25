@@ -1,18 +1,33 @@
-# Stellar Legacy Godot G0.13 — Commerce & Equipment Rebuild
+# Stellar Legacy — Godot G0.14 | Fullscreen Arsenal & Balance
 
-Cliente experimental Android offline, totalmente separado do jogo web.
+Android primeiro. Projeto Godot independente. **Nenhum acesso a Supabase/Render durante a partida offline.**
 
-## Destaques da G0.13
-- **Loja premium** com menu por categorias, cartões com raridade e preço, nave ativa em vitrine GLB e preview 3D do produto selecionado.
-- **Gerenciamento de equipamentos** em três colunas: nave original, slots equipados e inventário em quadradinhos. Ícones congelados criados a partir das malhas GLB locais; preview 3D rotativo por seleção.
-- **Compras de teste funcionais** para naves, lasers, escudos, motores, extras, drones e AUX-9.
-- **Kit inicial único:** Aurora + ARC-1 + SG-1 + THR-1 + Reparador Comum. Nenhum drone ou AUX. O restante precisa ser comprado.
-- **Migração única** do estoque antigo, com backup local automático; não reinicia inventário a cada abertura.
-- Sem rebaixar modelos GLB de naves, NPCs, drones ou AUX e sem tocar nos servidores web de produção.
+## Novidades
+- Preços de referência: snapshot somente-leitura do `public.live_shop_prices_v16` do Supabase web.
+- Stats: snapshot de `public.game_balance_entries_v1909`, com prioridade sobre `public/data.js` histórico.
+- 13 GLBs integrais preservados, atributos HP/velocidade/porão/laser/gerador/extras oficiais.
+- Naves de evento não ficam disponíveis na loja comum, mesmo aparecendo na vitrine.
+- Loja fullscreen, filtros COMUM/ELITE, cards maiores, modelos GLB por seleção.
+- Créditos (COMUM) / Stellarium (ELITE), com **carteira LOCAL DE TESTE** separada de qualquer economia online.
+- 29 modelos 3D novos (motores, armas, extras, munições laser/mísseis, módulos AUX), sem alterar GLBs anteriores.
+- Inventário e CONF 1/CONF 2 com drones, AUX e módulos configurados separadamente.
+- Geradores são compartilhados por **escudos + motores**, e slots respeitam a nave ativa.
+- Aurora inicia com ARC-1, SG-1, THR-1 e Reparador Comum; como a Aurora tem apenas 1 slot de gerador compartilhado, THR-1 fica no inventário até remover o escudo.
 
-## Como importar
-Use a opção **Importar projeto ZIP** do editor Godot Android com `StellarLegacy_Godot_G0.13_COMPLETO.zip`. Para atualizar o GitHub via instalador ZIP, envie **somente** `StellarLegacy_Godot_G0.13_ATUALIZACAO.zip` ao repositório e execute o workflow. Verifique os logs e teste no aparelho.
+## Fonte dos dados e observações
+- `docs/G014_CATALOGO_VERIFICADO.json` contém nome oficial e metadados de referência sem credenciais e sem dados de jogadores.
+- Preços indicados são valores da tabela de loja na data 2026-10-24. **Snapshot**, não sincronização online.
+- Não são produtos nem pagamentos reais: dinheiro de teste inicial da G0.14 é 150.000.000 Créditos e 2.500.000 Stellarium. O saldo de teste pode se esgotar.
+- Itens de evento sem linha ativa/visível na loja estão indisponíveis.
+- Diversas representações GLB novas são modelos originais de prototipagem, não cópias artísticas exatas dos conceitos cinematográficos.
+- Alguns efeitos avançados de equipamentos especiais ainda são representados somente no inventário; poderes finais serão migrados em etapas.
+- Munições compradas são registradas em estoque local, mas o combate ainda é demonstrativo e **não desconta munições automaticamente**.
 
-Mais detalhes e roteiro de teste: `docs/G013_COMERCIO_E_INVENTARIO.md`.
+## Instalação
+1. Para Android, importe o ZIP COMPLETO como projeto Godot separado, ou atualize a pasta do projeto com ZIP ATUALIZACAO no instalador GitHub.
+2. Não suba os dois ZIPs simultaneamente para o instalador.
+3. Execute a etapa de validação do GitHub Actions com Godot 4.5.2.
+4. Teste gameplay no editor Android e envie logs de erro caso haja incompatibilidade.
 
-**Importante:** esta versão é um protótipo offline. Créditos, compras, estoque, naves e permissões persistem somente no dispositivo; não são propriedade validada por servidor nem pagamentos reais.
+## Segurança
+Não altera nem lê perfis/saldos de jogadores existentes. Nenhum SQL de escrita. Repositório web preservado.
