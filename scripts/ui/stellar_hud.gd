@@ -12,6 +12,7 @@ const OfficialShips = preload("res://scripts/data/ship_balance.gd")
 const EquipCatalog = preload("res://scripts/data/equipment_catalog.gd")
 const EquipmentCommand = preload("res://scripts/ui/equipment_command.gd")
 const StellarStore = preload("res://scripts/ui/stellar_store.gd")
+const StellarHangarPremium = preload("res://scripts/ui/stellar_hangar_premium.gd")
 const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
 const AstralCatalog = preload("res://scripts/systems/astral_trials.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
@@ -96,6 +97,7 @@ var modal_backdrop: TextureRect
 var equip_notice: Label
 var equipment_command
 var store_command
+var hangar_premium
 var equip_presets: HBoxContainer
 var equip_remove: Button
 var equip_copy: Button
@@ -411,6 +413,11 @@ func _create_modal() -> void:
     store_command.visible = false
     modal_body.add_child(store_command)
     store_command.setup(game)
+    hangar_premium = StellarHangarPremium.new()
+    hangar_premium.name = "HangarPremiumG016"
+    hangar_premium.visible = false
+    modal_body.add_child(hangar_premium)
+    hangar_premium.setup(game)
 
 func _preview_touch(event: InputEvent) -> void:
     if preview_mesh == null or not is_instance_valid(preview_mesh):
@@ -574,8 +581,12 @@ func _open_modal(kind: String) -> void:
     modal_overlay.visible = true
     _apply_sector_skin(kind)
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.14  |  PREÇOS SUPABASE / ATRIBUTOS OFICIAIS / SIMULAÇÃO LOCAL"
+    modal_info.text = "G0.16  |  HANGAR PREMIUM / GLBs ORIGINAIS / SALVO LOCAL" if kind == "HANGAR" else "G0.16  |  PREÇOS DE REFERÊNCIA / SIMULAÇÃO LOCAL"
+    var hangar_mode: bool = kind == "HANGAR"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
+    hangar_premium.visible = hangar_mode
+    if hangar_mode:
+        hangar_premium.open_command()
     var store_mode: bool = kind in ["LOJA", "MERCADO"]
     store_command.visible = store_mode
     if store_mode:
@@ -583,7 +594,7 @@ func _open_modal(kind: String) -> void:
     equipment_command.visible = equipment_mode
     if equipment_mode:
         equipment_command.open_command()
-    var show_gallery: bool = kind == "HANGAR"
+    var show_gallery: bool = false # G0.16 substitui o antigo hangar em lista
     var show_economy_3d: bool = kind in ["ASTRAL", "LEILAO", "PREMIUM"]
     var show_preview: bool = show_gallery or show_economy_3d
     if not show_preview and preview_mesh != null and is_instance_valid(preview_mesh):
@@ -591,11 +602,11 @@ func _open_modal(kind: String) -> void:
         preview_mesh = null
     var hub_pages: Array[String] = ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "ASTRAL", "REFINARIA", "TITULOS"]
     category_row.visible = not store_mode and (show_gallery or kind in hub_pages)
-    list_scroll.visible = not equipment_mode and not store_mode
+    list_scroll.visible = not equipment_mode and not store_mode and not hangar_mode
     preview_wrap.visible = show_preview
     preview_title.visible = show_preview
     preview_note.visible = show_preview
-    choose_btn.visible = kind == "HANGAR"
+    choose_btn.visible = false # G0.16 tem botao proprio no hangar
     choose_btn.text = "EQUIPAR NAVE" if kind == "HANGAR" else "EQUIPAR ITEM"
     equip_presets.visible = false
     equip_slots.visible = false
@@ -606,6 +617,9 @@ func _open_modal(kind: String) -> void:
     _clear_dynamic_rows()
     if kind in hub_pages and not store_mode:
         _build_hub_navigation()
+    if hangar_mode:
+        relayout(layout_size)
+        return
     if show_gallery:
         _build_categories()
         if kind == "EQUIPAMENTOS":
@@ -1289,6 +1303,8 @@ func relayout(view_size: Vector2) -> void:
     equipment_command.position = Vector2.ZERO
     equipment_command.relayout(modal_body.size)
     store_command.relayout(modal_body.size)
+    hangar_premium.position = Vector2.ZERO
+    hangar_premium.relayout(modal_body.size)
     var body_w := modal_body.size.x
     var body_h := modal_body.size.y
     var hub_modal: bool = modal_kind in ["CENTRAL", "ASTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "REFINARIA", "TITULOS"]

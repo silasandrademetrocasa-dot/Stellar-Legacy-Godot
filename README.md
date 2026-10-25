@@ -1,3 +1,15 @@
+# Stellar Legacy — Godot G0.16 | Hangar Premium
+
+Cliente Android Godot offline. Baseado na G0.15 e no esquema de balanceamento oficial importado do projeto web.
+
+**Novo hangar:** GLB real da nave ativa, cartões dinâmicos dos melhores equipamentos *instalados*, status para categorias sem equipamento, atributos reais da nave e galeria das 13 naves com bloqueio de aquisição. Naves bloqueadas não podem ser equipadas sem compra.
+
+O inventário da G0.15 foi preservado; nada foi concedido gratuitamente na atualização. Compras continuam **simulações locais**, sem acesso de escrita ao Supabase.
+
+Instruções: `docs/G016_HANGAR_PREMIUM.md`
+
+---
+
 # Stellar Legacy — Godot G0.14 | Fullscreen Arsenal & Balance
 
 Android primeiro. Projeto Godot independente. **Nenhum acesso a Supabase/Render durante a partida offline.**
