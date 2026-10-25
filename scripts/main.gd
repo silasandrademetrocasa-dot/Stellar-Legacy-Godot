@@ -20,6 +20,7 @@ const ResourceCargo = preload("res://scripts/systems/resource_cargo.gd")
 const ResourceField = preload("res://scripts/world/resource_field.gd")
 const ModelPresentation = preload("res://scripts/world/model_presentation.gd")
 const ShipPresentation = preload("res://scripts/world/ship_presentation.gd")
+const PixelSprite = preload("res://scripts/world/pixel_unit_sprite.gd")
 const TacticalCamera = preload("res://scripts/world/tactical_camera.gd")
 const TacticalBackdrop = preload("res://scripts/world/tactical_sector_background.gd")
 const RelayController = preload("res://scripts/relays/relay_controller.gd")
@@ -1069,23 +1070,38 @@ func _on_ship_selected(index: int) -> void:
         change_ship_for_hangar(SHIP_IDS[index])
 
 func _set_ship(ship_id: String) -> void:
-    var file := "res://assets/ships/SL_%s_FINAL.glb" % ship_id
-    var res := load(file) as PackedScene
-    if res == null:
-        push_warning("GLB ausente: " + file)
-        return
-    var inst := res.instantiate() as Node3D
-    if inst == null:
-        return
+    # Pixel Art e somente apresentacao no mapa; GLB continua no Hangar/Loja.
+    var atlas_path := "res://assets/pixel/map_units/ships/%s.png" % ship_id.to_lower()
     if ship_visual != null:
         ship_visual.queue_free()
-    ship_visual = ModelPresentation.create_visual(inst, ShipPresentation.span(ship_id) * 1.14)
-    ship_visual.name = ship_id
-    ship_anchor.add_child(ship_visual)
-    # Fit measured imported bounds; preserve +Z nose, materials and proportions.
-    _update_engine_mounts()
-    var visual_bounds := ModelPresentation.bounds(ship_visual)
-    (ship_anchor.get_node("WeaponMuzzle") as Marker3D).position = Vector3(0.0, 0.1, visual_bounds.end.z + 0.05)
+        ship_visual = null
+    if ResourceLoader.exists(atlas_path):
+        var pivot := Node3D.new()
+        pivot.name = "Pixel_%s" % ship_id
+        ship_anchor.add_child(pivot)
+        var sprite := PixelSprite.new()
+        pivot.add_child(sprite)
+        sprite.configure(ship_anchor, atlas_path, ShipPresentation.span(ship_id) * 2.0, true)
+        ship_visual = pivot
+        (ship_anchor.get_node("WeaponMuzzle") as Marker3D).position = Vector3(0.0, 0.1, ShipPresentation.span(ship_id) * 0.48)
+        engine_mounts.clear()
+        for jet in exhausts:
+            jet.visible = false
+        afterburner.visible = false
+    else:
+        var file := "res://assets/ships/SL_%s_FINAL.glb" % ship_id
+        var res := load(file) as PackedScene
+        if res == null:
+            push_warning("Modelo ausente: " + file)
+            return
+        var inst := res.instantiate() as Node3D
+        ship_visual = ModelPresentation.create_visual(inst, ShipPresentation.span(ship_id) * 1.14)
+        ship_visual.name = ship_id
+        ship_anchor.add_child(ship_visual)
+        afterburner.visible = true
+        _update_engine_mounts()
+        var visual_bounds := ModelPresentation.bounds(ship_visual)
+        (ship_anchor.get_node("WeaponMuzzle") as Marker3D).position = Vector3(0.0, 0.1, visual_bounds.end.z + 0.05)
     current_ship = ship_id
     equipment_state.set_active_ship(ship_id)
     var profile: Dictionary = ShipBalance.get_ship(ship_id)

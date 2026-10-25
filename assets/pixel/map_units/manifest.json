@@ -1,0 +1,95 @@
+{
+  "frames": 32,
+  "cols": 8,
+  "rows": 4,
+  "pixels_per_frame": 64,
+  "generated": [
+    "ships/aurora.png",
+    "ships/bastion.png",
+    "ships/bulwark.png",
+    "ships/kensei.png",
+    "ships/leviathan.png",
+    "ships/lynx.png",
+    "ships/meridian.png",
+    "ships/pathfinder.png",
+    "ships/phantom.png",
+    "ships/pioneer.png",
+    "ships/raptor.png",
+    "ships/seraph.png",
+    "ships/valkyrie.png",
+    "npcs/scavenger.png",
+    "npcs/scavenger_scout.png",
+    "npcs/scavenger_prime.png",
+    "npcs/scavenger_support.png",
+    "npcs/vrax.png",
+    "npcs/zyron.png",
+    "npcs/kharon.png",
+    "npcs/dreadnox.png",
+    "npcs/colossar.png",
+    "npcs/colossar_prime.png",
+    "npcs/batedor_fenda.png",
+    "npcs/corsario_vazio.png",
+    "npcs/ceifador_astral.png",
+    "npcs/ceifador_astral_prime.png",
+    "npcs/guardiao_nexus.png",
+    "npcs/kharon_prime.png"
+  ],
+  "failed": [],
+  "concept_derivatives": {
+    "raider": {
+      "from": "scavenger_support",
+      "status": "referencia aproximada; sem GLB proprio no projeto"
+    },
+    "defiant": {
+      "from": "kharon",
+      "status": "referencia aproximada; sem GLB proprio no projeto"
+    },
+    "boss_prime": {
+      "from": "colossar_prime",
+      "status": "referencia aproximada; sem GLB proprio no projeto"
+    }
+  },
+  "angles_deg": [
+    0.0,
+    11.25,
+    22.5,
+    33.75,
+    45.0,
+    56.25,
+    67.5,
+    78.75,
+    90.0,
+    101.25,
+    112.5,
+    123.75,
+    135.0,
+    146.25,
+    157.5,
+    168.75,
+    180.0,
+    191.25,
+    202.5,
+    213.75,
+    225.0,
+    236.25,
+    247.5,
+    258.75,
+    270.0,
+    281.25,
+    292.5,
+    303.75,
+    315.0,
+    326.25,
+    337.5,
+    348.75
+  ],
+  "runtime": {
+    "atlas_cols": 8,
+    "atlas_rows": 4,
+    "sprite_size": [
+      64,
+      64
+    ],
+    "driver": "scripts/world/pixel_unit_sprite.gd"
+  }
+}

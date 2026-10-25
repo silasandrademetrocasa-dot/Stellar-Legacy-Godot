@@ -34,6 +34,25 @@ var top_panel: Panel
 var top_title: Label
 var top_subtitle: Label
 var top_buttons: Array[Button] = []
+var pixel_dropdowns: Array[Panel] = []
+var pixel_drop_buttons: Array = []
+var missile_captions: Array[Label] = []
+const PIXEL_MENU := ["PILOTO", "CONQUISTAS", "BATALHA", "MAPA", "LOJAS", "MAIS"]
+const PIXEL_MENU_ITEMS := [
+    ["HANGAR", "EQUIPAMENTOS", "HABILIDADES", "CLÃ"],
+    ["MISSÕES", "PASSE", "TÍTULOS", "EVENTOS"],
+    ["WARFRONT", "PORTAIS", "GRUPO"],
+    [],
+    ["LOJA", "LOJA PREMIUM", "LEILÃO"],
+    ["CONFIGURAÇÕES", "ADMINISTRAÇÃO"],
+]
+const PIXEL_MENU_KINDS := {
+    "HANGAR":"HANGAR", "EQUIPAMENTOS":"EQUIPAMENTOS", "HABILIDADES":"PILOTO", "CLÃ":"ALIANCA",
+    "MISSÕES":"MISSOES", "PASSE":"PASSE", "TÍTULOS":"TITULOS", "EVENTOS":"CENTRAL",
+    "WARFRONT":"RELES", "PORTAIS":"ASTRAL", "GRUPO":"ALIANCA",
+    "LOJA":"LOJA", "LOJA PREMIUM":"PREMIUM", "LEILÃO":"LEILAO",
+    "CONFIGURAÇÕES":"CONFIG", "ADMINISTRAÇÃO":"ADM"
+}
 var vitals_panel: Panel
 var vitals_title: Label
 var vitals_hp: ProgressBar
@@ -53,7 +72,7 @@ var chat_preview: RichTextLabel
 var chat_input: LineEdit
 var chat_send: Button
 var chat_expand: Button
-var chat_expanded: bool = false
+var chat_expanded: bool = true
 var chat_messages: Array[String] = []
 const CHAT_LIMIT: int = 16
 const SECTOR_COLORS: Dictionary = {
@@ -124,26 +143,32 @@ func setup(root, minimap: Control) -> void:
     relayout(get_viewport_rect().size)
     refresh()
 
-func _style_box(bg: Color, edge: Color = C_EDGE, radius: int = 9) -> StyleBoxFlat:
+func _style_box(bg: Color, edge: Color = C_EDGE, radius: int = 0) -> StyleBoxFlat:
+    # Bordas retangulares e pixels inteiros, sem cantos arredondados ou blur.
     var sty := StyleBoxFlat.new()
     sty.bg_color = bg
-    sty.border_width_left = 2
-    sty.border_width_right = 2
-    sty.border_width_top = 1
-    sty.border_width_bottom = 2
+    sty.set_border_width_all(2)
     sty.border_color = edge
-    sty.corner_radius_top_left = radius
-    sty.corner_radius_top_right = radius
-    sty.corner_radius_bottom_left = radius
-    sty.corner_radius_bottom_right = radius
-    sty.content_margin_left = 5
-    sty.content_margin_right = 5
-    sty.content_margin_top = 4
-    sty.content_margin_bottom = 4
-    sty.shadow_color = Color(0.00, 0.35, 0.68, 0.13)
-    sty.shadow_size = 3
-    sty.anti_aliasing = true
+    sty.set_corner_radius_all(0)
+    sty.set_content_margin_all(5.0)
+    sty.anti_aliasing = false
+    sty.shadow_size = 0
     return sty
+
+func _pixel_button_style(style_name: String) -> StyleBoxTexture:
+    var tex_style := StyleBoxTexture.new()
+    tex_style.texture = load("res://assets/pixel/ui/button_%s.png" % style_name) as Texture2D
+    tex_style.texture_margin_left = 5.0
+    tex_style.texture_margin_right = 5.0
+    tex_style.texture_margin_top = 5.0
+    tex_style.texture_margin_bottom = 5.0
+    tex_style.content_margin_left = 5.0
+    tex_style.content_margin_right = 5.0
+    tex_style.content_margin_top = 4.0
+    tex_style.content_margin_bottom = 4.0
+    tex_style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    tex_style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_STRETCH
+    return tex_style
 
 func _panel(parent: Control, bg: Color = C_BG) -> Panel:
     var p := Panel.new()
@@ -166,11 +191,14 @@ func _button(parent: Node, caption: String, font_size: int = 14) -> Button:
     b.text = caption
     b.add_theme_color_override("font_color", C_WHITE)
     b.add_theme_color_override("font_hover_color", Color.WHITE)
+    b.add_theme_font_override("font", preload("res://assets/ui/design/fonts/Oxanium.ttf"))
     b.add_theme_font_size_override("font_size", font_size)
-    b.add_theme_stylebox_override("normal", _style_box(Color(0.042, 0.085, 0.145, 0.98), Color(0.16, 0.39, 0.53)))
-    b.add_theme_stylebox_override("hover", _style_box(Color(0.073, 0.19, 0.28, 0.98), C_HI))
-    b.add_theme_stylebox_override("pressed", _style_box(Color(0.1, 0.33, 0.44, 0.98), C_HI))
-    b.add_theme_stylebox_override("disabled", _style_box(Color(0.035, 0.058, 0.085, 0.85), Color(0.12, 0.2, 0.28)))
+    b.add_theme_stylebox_override("normal", _pixel_button_style("normal"))
+    b.add_theme_stylebox_override("hover", _pixel_button_style("hover"))
+    b.add_theme_stylebox_override("pressed", _pixel_button_style("pressed"))
+    b.add_theme_stylebox_override("disabled", _style_box(Color(0.02,0.04,0.06), Color(0.12,0.20,0.24)))
+    b.add_theme_stylebox_override("focus", _pixel_button_style("hover"))
+    b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     parent.add_child(b)
     return b
 
@@ -193,12 +221,21 @@ func _create_shell() -> void:
     top_title.add_theme_constant_override("shadow_offset_x", 1)
     top_title.add_theme_constant_override("shadow_offset_y", 1)
     top_subtitle = _label(top_panel, "GODOT  |  PROTOTIPO OFFLINE", 10, C_MUTED)
-    for item in ["HANGAR", "EQUIPAMENTOS", "BATALHA", "MAPAS", "LOJA", "PILOTO", "CENTRAL", "CONFIG"]:
-        var b := _button(top_panel, item, 13)
-        b.pressed.connect(_on_top_button.bind(item))
-        if item == "EQUIPAMENTOS":
-            b.text = "EQUIP."
+    for i in range(PIXEL_MENU.size()):
+        var menu: String = PIXEL_MENU[i]
+        var b := _button(top_panel, menu + " ▼", 12)
+        b.pressed.connect(_toggle_pixel_menu.bind(i))
         top_buttons.append(b)
+        var drop: Panel = _panel(self, Color(0.008, 0.016, 0.036, 0.99))
+        drop.visible = false
+        pixel_dropdowns.append(drop)
+        var opts: Array = []
+        for caption in PIXEL_MENU_ITEMS[i]:
+            var row := _button(drop, str(caption), 11)
+            row.alignment = HORIZONTAL_ALIGNMENT_LEFT
+            row.pressed.connect(_activate_pixel_menu.bind(str(caption)))
+            opts.append(row)
+        pixel_drop_buttons.append(opts)
 
     vitals_panel = _panel(self)
     vitals_title = _label(vitals_panel, "PILOTO  |  PIONEER", 13, C_WHITE)
@@ -236,12 +273,16 @@ func _create_shell() -> void:
         weapon_buttons.append(w)
     fire_btn = _button(weapon_panel, "ATACAR", 15)
     fire_btn.pressed.connect(func() -> void: game._toggle_auto_fire(); refresh())
+    for missile in ["CMT-1", "CMT-2", "CMT-3", "CMT-4"]:
+        var tag := _label(weapon_panel, missile, 10, C_HI)
+        tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        missile_captions.append(tag)
     _build_local_chat()
 
 func _build_local_chat() -> void:
     chat_panel = _panel(self, Color(0.008, 0.029, 0.069, 0.97))
     chat_title = _label(chat_panel, "COMUNICADOR  /  OFFLINE", 11, C_HI)
-    chat_expand = _button(chat_panel, "ABRIR", 10)
+    chat_expand = _button(chat_panel, "RECOLHER" if chat_expanded else "ABRIR", 10)
     chat_expand.pressed.connect(_toggle_chat)
     chat_preview = RichTextLabel.new()
     chat_preview.bbcode_enabled = false
@@ -252,6 +293,7 @@ func _build_local_chat() -> void:
     chat_preview.add_theme_color_override("default_color", C_WHITE)
     chat_panel.add_child(chat_preview)
     chat_input = LineEdit.new()
+    chat_input.add_theme_stylebox_override("normal", _style_box(Color(0.0, 0.01, 0.04, 1), C_EDGE))
     chat_input.placeholder_text = "Mensagem local..."
     chat_input.max_length = 160
     chat_input.add_theme_font_size_override("font_size", 11)
@@ -549,6 +591,23 @@ func show_notification(message: String) -> void:
 func modal_open() -> bool:
     return modal_overlay != null and modal_overlay.visible
 
+func _toggle_pixel_menu(index: int) -> void:
+    if PIXEL_MENU[index] == "MAPA":
+        for drop in pixel_dropdowns:
+            drop.visible = false
+        _on_top_button("MAPAS")
+        return
+    var next: bool = not pixel_dropdowns[index].visible
+    for drop in pixel_dropdowns:
+        drop.visible = false
+    pixel_dropdowns[index].visible = next
+
+func _activate_pixel_menu(label: String) -> void:
+    for drop in pixel_dropdowns:
+        drop.visible = false
+    var kind: String = str(PIXEL_MENU_KINDS.get(label, "CENTRAL"))
+    _on_top_button(kind)
+
 func _on_top_button(item: String) -> void:
     if item == "MAPAS":
         close_modal()
@@ -579,6 +638,8 @@ func _apply_sector_skin(kind: String) -> void:
         modal_backdrop.modulate = Color(0.65, 0.77, 0.96, 0.68)
 
 func _open_modal(kind: String) -> void:
+    for drop in pixel_dropdowns:
+        drop.visible = false
     _release_design_preview()
     modal_kind = kind
     modal_overlay.visible = true
@@ -1254,81 +1315,102 @@ func relayout(view_size: Vector2) -> void:
     var w := view_size.x
     var h := view_size.y
     var compact := w < 780.0
+    # Referencia do jogador: 6 menus no topo, nave/HP a esquerda, chat esquerdo,
+    # munições centralizadas e mini radar na base direita. Dropdowns funcionais.
     top_panel.position = Vector2.ZERO
-    top_panel.size = Vector2(w, 50)
-    top_title.position = Vector2(11, 3)
-    top_title.size = Vector2(145, 27)
-    top_subtitle.position = Vector2(12, 29)
-    top_subtitle.size = Vector2(250, 16)
-    var menu_start := 239.0 if not compact else 156.0
-    var btn_w := (w - menu_start - 12.0) / float(top_buttons.size()) - 4.0
+    top_panel.size = Vector2(w, 34)
+    top_title.position = Vector2(maxf(w - 212.0, 724.0), 4)
+    top_title.size = Vector2(208, 25)
+    top_title.add_theme_font_size_override("font_size", 14)
+    top_subtitle.visible = false
+    var menu_pad := 7.0
+    var menu_w := minf(125.0, maxf(71.0, (w - 226.0) / 6.0))
     for i in range(top_buttons.size()):
-        top_buttons[i].position = Vector2(menu_start + i * (btn_w + 4.0), 6)
-        top_buttons[i].size = Vector2(btn_w, 37)
-        top_buttons[i].add_theme_font_size_override("font_size", 11 if compact else 13)
-    var map_w := clampf(w * 0.22, 145.0, 216.0)
-    var map_h := 153.0
-    nav_panel.position = Vector2(w - map_w - 9, 57)
+        var posx := menu_pad + float(i) * (menu_w + 2.0)
+        top_buttons[i].position = Vector2(posx, 4)
+        top_buttons[i].text = ("CONQ. ▼" if w < 800.0 else "CONQUISTAS ▼") if i == 1 else (PIXEL_MENU[i] + " ▼")
+        top_buttons[i].size = Vector2(menu_w, 26)
+        top_buttons[i].add_theme_font_size_override("font_size", 10 if w < 850.0 else 12)
+        var popup: Panel = pixel_dropdowns[i]
+        popup.position = Vector2(posx, 32)
+        popup.size = Vector2(menu_w, float(pixel_drop_buttons[i].size()) * 27.0 + 6.0)
+        for j in range(pixel_drop_buttons[i].size()):
+            var btn: Button = pixel_drop_buttons[i][j]
+            btn.position = Vector2(3, 3 + float(j) * 27)
+            btn.size = Vector2(menu_w - 6, 25)
+            btn.add_theme_font_size_override("font_size", 9 if w < 850.0 else 11)
+    var map_w := clampf(w * 0.245, 159.0, 250.0)
+    var map_h := clampf(h * 0.29, 120.0, 166.0)
+    nav_panel.position = Vector2(w - map_w - 8, h - map_h - 9)
     nav_panel.size = Vector2(map_w, map_h)
-    minimap_caption.position = Vector2(9, 4)
-    minimap_caption.size = Vector2(map_w - 18, 19)
-    map_widget.position = Vector2(6, 26)
-    map_widget.size = Vector2(map_w - 12, map_h - 32)
-    vitals_panel.position = Vector2(9, 58)
-    vitals_panel.size = Vector2(clampf(w * 0.34, 186, 315), 80)
-    vitals_title.position = Vector2(9, 5)
-    vitals_title.size = Vector2(vitals_panel.size.x - 15, 23)
-    vitals_hp.position = Vector2(9, 35)
-    vitals_hp.size = Vector2(vitals_panel.size.x - 18, 11)
-    vitals_shield.position = Vector2(9, 54)
-    vitals_shield.size = Vector2(vitals_panel.size.x - 18, 11)
-    target_panel.position = Vector2(9, 145)
-    target_panel.size = Vector2(vitals_panel.size.x, 62)
-    target_title.position = Vector2(9, 4)
-    target_title.size = Vector2(target_panel.size.x - 18, 24)
-    target_detail.position = Vector2(9, 30)
-    target_detail.size = Vector2(target_panel.size.x - 18, 25)
-    top_target_btn.position = Vector2(target_panel.size.x - 94.0, 30)
-    top_target_btn.size = Vector2(85, 26)
-    target_detail.size.x = target_panel.size.x - 105.0
-    var bottom_y: float = h - 72.0
-    var bar_h: float = 63.0
-    var chat_w: float = clampf(w * 0.33, 210.0, 345.0)
-    chat_panel.position = Vector2(9, h - (172.0 if chat_expanded else 72.0))
-    chat_panel.size = Vector2(chat_w, 163.0 if chat_expanded else 63.0)
-    chat_title.position = Vector2(9, 4)
-    chat_title.size = Vector2(chat_w - 86, 17)
-    chat_expand.position = Vector2(chat_w - 78, 3)
-    chat_expand.size = Vector2(70, 23)
-    chat_preview.position = Vector2(9, 26 if chat_expanded else 21)
-    chat_preview.size = Vector2(chat_w - 18, 88 if chat_expanded else 16)
-    chat_input.position = Vector2(8, 119 if chat_expanded else 39)
-    chat_input.size = Vector2(chat_w - 89, 29 if chat_expanded else 20)
-    chat_send.position = Vector2(chat_w - 76, 119 if chat_expanded else 36)
-    chat_send.size = Vector2(68, 29 if chat_expanded else 23)
-    var actions_w: float = clampf(w * 0.16, 120.0, 155.0)
-    action_panel.position = Vector2(15 + chat_w, bottom_y)
-    action_panel.size = Vector2(actions_w, bar_h)
-    warp_btn.position = Vector2(4, 5)
-    warp_btn.size = Vector2((actions_w - 14) * 0.5, 53)
-    base_btn.position = Vector2(10 + (actions_w - 14) * 0.5, 5)
-    base_btn.size = Vector2((actions_w - 14) * 0.5, 53)
+    minimap_caption.position = Vector2(8, 3)
+    minimap_caption.size = Vector2(map_w - 15, 21)
+    minimap_caption.add_theme_font_size_override("font_size", 11)
+    map_widget.position = Vector2(6, 23)
+    map_widget.size = Vector2(map_w - 12, map_h - 29)
+    var vitals_w := clampf(w * 0.275, 183.0, 279.0)
+    var vitals_y := 145.0 if h >= 420.0 else 91.0
+    vitals_panel.position = Vector2(9, vitals_y)
+    vitals_panel.size = Vector2(vitals_w, 94)
+    vitals_title.position = Vector2(8, 6)
+    vitals_title.size = Vector2(vitals_w - 16, 20)
+    vitals_title.add_theme_font_size_override("font_size", 12)
+    vitals_hp.position = Vector2(8, 33)
+    vitals_hp.size = Vector2(vitals_w - 16, 16)
+    vitals_shield.position = Vector2(8, 59)
+    vitals_shield.size = Vector2(vitals_w - 16, 16)
+    target_panel.visible = h >= 420.0
+    target_panel.position = Vector2(9, vitals_y + 99)
+    target_panel.size = Vector2(vitals_w, 56)
+    target_title.position = Vector2(7, 2)
+    target_title.size = Vector2(vitals_w - 14, 20)
+    target_detail.position = Vector2(7, 23)
+    target_detail.size = Vector2(vitals_w - 104, 25)
+    target_detail.add_theme_font_size_override("font_size", 10)
+    top_target_btn.position = Vector2(vitals_w - 91, 22)
+    top_target_btn.size = Vector2(83, 27)
+    var chat_w := clampf(w * 0.295, 182.0, 302.0)
+    var chat_h := 149.0 if chat_expanded else 68.0
+    chat_panel.position = Vector2(9, h - chat_h - 9)
+    chat_panel.size = Vector2(chat_w, chat_h)
+    chat_title.position = Vector2(8, 4)
+    chat_title.size = Vector2(chat_w - 85, 18)
+    chat_expand.position = Vector2(chat_w - 76, 3)
+    chat_expand.size = Vector2(70, 24)
+    chat_preview.position = Vector2(8, 29 if chat_expanded else 20)
+    chat_preview.size = Vector2(chat_w - 16, 79 if chat_expanded else 15)
+    chat_input.position = Vector2(8, chat_h - 36)
+    chat_input.size = Vector2(chat_w - 84, 27)
+    chat_send.position = Vector2(chat_w - 70, chat_h - 36)
+    chat_send.size = Vector2(64, 27)
+    var start_x: float = chat_panel.position.x + chat_w + 10.0
+    var right_x: float = nav_panel.position.x - 8.0
+    var middle_w: float = maxf(158.0, right_x - start_x)
+    weapon_panel.position = Vector2(start_x, h - 87)
+    weapon_panel.size = Vector2(middle_w, 78)
+    var cell_w: float = (middle_w - 10.0) / 6.0
+    for i in range(missile_captions.size()):
+        missile_captions[i].position = Vector2(4 + float(i + 1) * cell_w, 5)
+        missile_captions[i].size = Vector2(cell_w - 3, 17)
+    for i in range(weapon_buttons.size()):
+        weapon_buttons[i].position = Vector2(4 + float(i) * cell_w, 27)
+        weapon_buttons[i].size = Vector2(cell_w - 3, 45)
+        weapon_buttons[i].add_theme_font_size_override("font_size", 9 if w < 900.0 else 11)
+    fire_btn.position = Vector2(4 + 5.0 * cell_w, 27)
+    fire_btn.size = Vector2(cell_w - 3, 45)
+    fire_btn.add_theme_font_size_override("font_size", 10)
+    action_panel.position = Vector2(start_x, h - 121)
+    action_panel.size = Vector2(minf(middle_w, 176), 31)
+    warp_btn.position = Vector2(4, 3)
+    warp_btn.size = Vector2(78, 25)
+    base_btn.position = Vector2(86, 3)
+    base_btn.size = Vector2(82, 25)
     target_btn.visible = false
-    weapon_panel.position = Vector2(action_panel.position.x + actions_w + 6, bottom_y)
-    weapon_panel.size = Vector2(maxf(220.0, w - weapon_panel.position.x - 9), bar_h)
-    var weapon_button_w: float = (weapon_panel.size.x - 14.0) / 6.0
-    for i in range(5):
-        weapon_buttons[i].position = Vector2(5 + i * weapon_button_w, 6)
-        weapon_buttons[i].size = Vector2(weapon_button_w - 3, 51)
-        weapon_buttons[i].add_theme_font_size_override("font_size", 10 if compact else 12)
-    fire_btn.position = Vector2(5 + 5 * weapon_button_w, 6)
-    fire_btn.size = Vector2(weapon_button_w - 3, 51)
-    fire_btn.add_theme_font_size_override("font_size", 11 if compact else 13)
-    notification_label.position = Vector2(w * 0.29, 56)
-    notification_label.size = Vector2(w * 0.43, 26)
-    info_line.position = Vector2(12, h - (189.0 if chat_expanded else 96.0))
-    info_line.size = Vector2(w - 25, 18)
-    info_line.add_theme_font_size_override("font_size", 11 if compact else 12)
+    notification_label.position = Vector2(w * 0.37, 40)
+    notification_label.size = Vector2(w * 0.31, 26)
+    info_line.position = Vector2(start_x + 2, h - 145)
+    info_line.size = Vector2(maxf(150, right_x - start_x), 21)
+    info_line.add_theme_font_size_override("font_size", 9)
 
     modal_overlay.position = Vector2.ZERO
     modal_overlay.size = view_size

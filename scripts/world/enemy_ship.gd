@@ -2,6 +2,7 @@ extends Node3D
 const Routes = preload("res://scripts/world_routes.gd")
 const Presentation = preload("res://scripts/world/model_presentation.gd")
 const NpcVisualScale = preload("res://scripts/world/npc_visual_scale.gd")
+const PixelSprite = preload("res://scripts/world/pixel_unit_sprite.gd")
 ## G0.3: NPC 3D local. Não representa entidades reais do servidor.
 
 var npc_id := ""
@@ -39,13 +40,22 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
     damage = attack_damage
     speed = move_speed
     attack_clock = randf_range(0.3, 1.6)
-    var scene := load(model_path) as PackedScene
-    if scene != null:
-        var imported: Node3D = scene.instantiate() as Node3D
-        if imported != null:
-            visual = Presentation.create_visual(imported, NpcVisualScale.span(kind))
-            visual.name = "NPC_Visual_Padronizado"
-            add_child(visual)
+    var pixel_path: String = "res://assets/pixel/map_units/npcs/%s.png" % kind.to_lower()
+    if ResourceLoader.exists(pixel_path):
+        visual = Node3D.new()
+        visual.name = "NPC_Pixel"
+        add_child(visual)
+        var sprite := PixelSprite.new()
+        visual.add_child(sprite)
+        sprite.configure(self, pixel_path, NpcVisualScale.span(kind) * 2.0, true)
+    else:
+        var scene := load(model_path) as PackedScene
+        if scene != null:
+            var imported: Node3D = scene.instantiate() as Node3D
+            if imported != null:
+                visual = Presentation.create_visual(imported, NpcVisualScale.span(kind))
+                visual.name = "NPC_Visual_Padronizado"
+                add_child(visual)
     if visual == null:
         var placeholder := MeshInstance3D.new()
         var fallback := SphereMesh.new()
@@ -112,7 +122,7 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
     muzzle_flash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     if visual != null:
         var box: AABB = visual.transform * Presentation.bounds(visual)
-        muzzle_flash.position = Vector3(0, 0.1, box.end.z + 0.05)
+        muzzle_flash.position = Vector3(0, 0.1, (NpcVisualScale.span(kind) * 0.48) if box.size == Vector3.ZERO else (box.end.z + 0.05))
     muzzle_flash.visible = false
     add_child(muzzle_flash)
 

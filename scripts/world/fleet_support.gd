@@ -1,4 +1,5 @@
 extends Node3D
+const PixelSprite = preload("res://scripts/world/pixel_unit_sprite.gd")
 ## Suporte local da G0.3: 2 drones e AUX-9, desligáveis.
 ## Nenhum dano, farm ou reparo deste protótipo é gravado em produção.
 
@@ -43,20 +44,37 @@ func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String
         var file_id: String = str(ids.get(drone_name, ""))
         if file_id.is_empty():
             continue
-        var model: PackedScene = load("res://assets/drones/%s.glb" % file_id) as PackedScene
-        if model != null:
-            var instance: Node3D = model.instantiate() as Node3D
-            if instance != null:
+        var atlas_path := "res://assets/pixel/map_units/drones/%s.png" % file_id
+        var instance: Node3D = Node3D.new()
+        if ResourceLoader.exists(atlas_path):
+            drones_root.add_child(instance)
+            var sprite := PixelSprite.new()
+            instance.add_child(sprite)
+            sprite.configure(instance, atlas_path, 2.9, false)
+            drone_models.append(instance)
+        else:
+            var model: PackedScene = load("res://assets/drones/%s.glb" % file_id) as PackedScene
+            if model != null:
+                instance.queue_free()
+                instance = model.instantiate() as Node3D
                 drones_root.add_child(instance)
                 instance.scale = Vector3.ONE * 0.55
                 drone_models.append(instance)
     if installed_aux == "AUX-9":
-        var asset: PackedScene = load("res://assets/aux/aux9.glb") as PackedScene
-        if asset != null:
-            aux_model = asset.instantiate() as Node3D
-            if aux_model != null:
-                aux_root.add_child(aux_model)
-                aux_model.scale = Vector3.ONE * 0.70
+        var pixel_path := "res://assets/pixel/map_units/aux/aux9.png"
+        if ResourceLoader.exists(pixel_path):
+            aux_model = Node3D.new()
+            aux_root.add_child(aux_model)
+            var sprite := PixelSprite.new()
+            aux_model.add_child(sprite)
+            sprite.configure(aux_model, pixel_path, 3.2, false)
+        else:
+            var asset: PackedScene = load("res://assets/aux/aux9.glb") as PackedScene
+            if asset != null:
+                aux_model = asset.instantiate() as Node3D
+                if aux_model != null:
+                    aux_root.add_child(aux_model)
+                    aux_model.scale = Vector3.ONE * 0.70
     drones_enabled = drone_models.size() > 0
     aux_enabled = aux_model != null
     snap_to_player()
