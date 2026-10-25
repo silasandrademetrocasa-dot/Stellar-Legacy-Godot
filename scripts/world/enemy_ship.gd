@@ -1,5 +1,6 @@
 extends Node3D
 const Routes = preload("res://scripts/world_routes.gd")
+const Presentation = preload("res://scripts/world/model_presentation.gd")
 ## G0.3: NPC 3D local. Não representa entidades reais do servidor.
 
 var npc_id := ""
@@ -22,6 +23,8 @@ var name_tag: Label3D
 var hit_light: MeshInstance3D
 var aim_ring: MeshInstance3D
 var hit_clock := 0.0
+var attack_flash_clock := 0.0
+var muzzle_flash: MeshInstance3D
 
 func setup(kind: String, display: String, model_path: String, where: Vector3, hp_max: float, shield_max: float, attack_damage: float, move_speed: float) -> void:
     npc_id = kind
@@ -78,6 +81,8 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
     var tor := TorusMesh.new()
     tor.inner_radius = 2.4
     tor.outer_radius = 2.52
+    tor.rings = 24
+    tor.ring_segments = 6
     var target_mat := StandardMaterial3D.new()
     target_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     target_mat.albedo_color = Color(1.0, 0.72, 0.22)
@@ -88,6 +93,33 @@ func setup(kind: String, display: String, model_path: String, where: Vector3, hp
     aim_ring.position.y = 0.08
     add_child(aim_ring)
     set_targeted(false)
+    muzzle_flash = MeshInstance3D.new()
+    muzzle_flash.name = "WeaponMuzzle"
+    var muzzle_mesh := SphereMesh.new()
+    muzzle_mesh.radius = 0.15
+    muzzle_mesh.height = 0.3
+    muzzle_mesh.radial_segments = 8
+    muzzle_mesh.rings = 4
+    var muzzle_material := StandardMaterial3D.new()
+    muzzle_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    muzzle_material.albedo_color = Color(1.0, 0.5, 0.2)
+    muzzle_material.emission_enabled = true
+    muzzle_material.emission = muzzle_material.albedo_color
+    muzzle_mesh.material = muzzle_material
+    muzzle_flash.mesh = muzzle_mesh
+    muzzle_flash.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    if visual != null:
+        var box: AABB = visual.transform * Presentation.bounds(visual)
+        muzzle_flash.position = Vector3(0, 0.1, box.end.z + 0.05)
+    muzzle_flash.visible = false
+    add_child(muzzle_flash)
+
+func show_attack() -> void:
+    attack_flash_clock = 0.12
+    muzzle_flash.visible = true
+
+func muzzle_position() -> Vector3:
+    return muzzle_flash.global_position
 
 func tick(delta: float, player_pos: Vector3) -> void:
     if not alive:
@@ -98,6 +130,8 @@ func tick(delta: float, player_pos: Vector3) -> void:
             _revive()
         return
     elapsed += delta
+    attack_flash_clock = maxf(0.0, attack_flash_clock - delta)
+    muzzle_flash.visible = attack_flash_clock > 0.0
     hit_clock = maxf(0.0, hit_clock - delta)
     if hit_light != null:
         hit_light.visible = hit_clock > 0.0
@@ -160,4 +194,6 @@ func _revive() -> void:
     shield = max_shield
     position = home
     attack_clock = 2.0
+    attack_flash_clock = 0.0
+    muzzle_flash.visible = false
     set_targeted(false)

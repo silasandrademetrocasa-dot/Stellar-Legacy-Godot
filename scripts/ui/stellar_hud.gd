@@ -15,6 +15,7 @@ const StellarStore = preload("res://scripts/ui/stellar_store.gd")
 const StellarHangarPremium = preload("res://scripts/ui/stellar_hangar_premium.gd")
 const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
 const AstralCatalog = preload("res://scripts/systems/astral_trials.gd")
+const Presentation = preload("res://scripts/world/model_presentation.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
 const WEAPON_NAMES := ["PLS-1", "PLS-2", "PLS-3", "PLS-4", "CMT-1"]
 const DRONE_ITEMS := [
@@ -584,6 +585,12 @@ func _open_modal(kind: String) -> void:
     modal_info.text = "G0.19  |  HANGAR PREMIUM / ESCUDOS 3D HQ / SALVO LOCAL" if kind == "HANGAR" else "G0.19  |  PREÇOS DE REFERÊNCIA / SIMULAÇÃO LOCAL"
     var hangar_mode: bool = kind == "HANGAR"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
+    if not hangar_mode:
+        hangar_premium.close_preview()
+    if not equipment_mode:
+        equipment_command.close_preview()
+    if kind not in ["LOJA", "MERCADO"]:
+        store_command.close_preview()
     hangar_premium.visible = hangar_mode
     if hangar_mode:
         hangar_premium.open_command()
@@ -741,7 +748,7 @@ func _load_preview(path: String) -> void:
     if path != "":
         var res := load(path) as PackedScene
         if res != null:
-            preview_mesh = res.instantiate() as Node3D
+            preview_mesh = Presentation.create_visual(res.instantiate() as Node3D, 5.0)
     if preview_mesh == null:
         preview_mesh = Node3D.new()
         var symbol := MeshInstance3D.new()
@@ -1165,6 +1172,9 @@ func _pick_ammo(index: int) -> void:
 
 func close_modal() -> void:
     modal_overlay.visible = false
+    hangar_premium.close_preview()
+    equipment_command.close_preview()
+    store_command.close_preview()
     for tab in top_buttons:
         tab.add_theme_color_override("font_color", C_WHITE)
         tab.add_theme_stylebox_override("normal", _style_box(Color(0.042, 0.085, 0.145, 0.98), Color(0.16, 0.39, 0.53), 7))

@@ -1,0 +1,289 @@
+{
+  "base_commit": "ed7158b792cb021b7f56955e244c4bd105a517a4",
+  "tested_code_commit": "3de5158",
+  "method": "Exact extraction Python from existing godot-zip-installer.yml, sequential ZIP application on a clean detached checkout",
+  "part_1": {
+    "extraction": "passed",
+    "godot_4_5_2_clean_import": "passed",
+    "errors": 0
+  },
+  "part_2": {
+    "extraction": "passed",
+    "validation": {
+      "godot": "4.5.2.stable.official.6ce3de25a",
+      "results": [
+        {
+          "check": "static-assets",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.384
+        },
+        {
+          "check": "import",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 5.508
+        },
+        {
+          "check": "parse-scripts-data-equipment_catalog",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.167
+        },
+        {
+          "check": "parse-scripts-data-npc_catalog",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.168
+        },
+        {
+          "check": "parse-scripts-data-ship_balance",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.18
+        },
+        {
+          "check": "parse-scripts-data-store_catalog",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.156
+        },
+        {
+          "check": "parse-scripts-data-weapon_art",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.169
+        },
+        {
+          "check": "parse-scripts-main",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.537
+        },
+        {
+          "check": "parse-scripts-relays-demo_reles",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.271
+        },
+        {
+          "check": "parse-scripts-relays-relay_controller",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.257
+        },
+        {
+          "check": "parse-scripts-systems-astral_trials",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.285
+        },
+        {
+          "check": "parse-scripts-systems-equipment_state",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.257
+        },
+        {
+          "check": "parse-scripts-systems-pilot_progress",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.16
+        },
+        {
+          "check": "parse-scripts-systems-resource_cargo",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.163
+        },
+        {
+          "check": "parse-scripts-systems-stellar_hub",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.153
+        },
+        {
+          "check": "parse-scripts-systems-stellar_wallet",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.179
+        },
+        {
+          "check": "parse-scripts-ui-equipment_command",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.253
+        },
+        {
+          "check": "parse-scripts-ui-galaxy_map",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.266
+        },
+        {
+          "check": "parse-scripts-ui-mini_map",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.341
+        },
+        {
+          "check": "parse-scripts-ui-stellar_hangar_premium",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.327
+        },
+        {
+          "check": "parse-scripts-ui-stellar_hud",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.612
+        },
+        {
+          "check": "parse-scripts-ui-stellar_store",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.31
+        },
+        {
+          "check": "parse-scripts-world-astral_environment",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.412
+        },
+        {
+          "check": "parse-scripts-world-combat_world",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.268
+        },
+        {
+          "check": "parse-scripts-world-enemy_ship",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.17
+        },
+        {
+          "check": "parse-scripts-world-faction_base",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.176
+        },
+        {
+          "check": "parse-scripts-world-fleet_support",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.269
+        },
+        {
+          "check": "parse-scripts-world-model_presentation",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.184
+        },
+        {
+          "check": "parse-scripts-world-portal_animation",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.172
+        },
+        {
+          "check": "parse-scripts-world-resource_field",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.275
+        },
+        {
+          "check": "parse-scripts-world-ship_presentation",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.305
+        },
+        {
+          "check": "parse-scripts-world_routes",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.175
+        },
+        {
+          "check": "parse-tests-test_assets",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.262
+        },
+        {
+          "check": "parse-tests-test_aurora",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.173
+        },
+        {
+          "check": "parse-tests-test_effects",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.278
+        },
+        {
+          "check": "parse-tests-test_fleet",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.165
+        },
+        {
+          "check": "parse-tests-test_relays",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.255
+        },
+        {
+          "check": "parse-tests-test_rendering",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.28
+        },
+        {
+          "check": "main-smoke",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 1.747
+        },
+        {
+          "check": "relay-demo-smoke",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 1.123
+        },
+        {
+          "check": "test-aurora",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 1.012
+        },
+        {
+          "check": "test-fleet",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 7.625
+        },
+        {
+          "check": "test-assets",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 3.239
+        },
+        {
+          "check": "test-relays",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 2.777
+        },
+        {
+          "check": "test-effects",
+          "passed": true,
+          "exit_code": 0,
+          "seconds": 0.362
+        }
+      ]
+    }
+  },
+  "android_device_tested": false
+}

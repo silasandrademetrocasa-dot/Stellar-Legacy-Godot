@@ -1,3 +1,22 @@
+# Atualização Codex — instalação pelo celular em duas partes
+
+Entrega em ZIPs incrementais menores que 25 MB para o instalador já existente.
+Suba a **Parte 1 ASSETS**, execute o workflow e aguarde verde; só então suba a
+**Parte 2 CORREÇÕES** e execute novamente. Apenas um ZIP na raiz por execução.
+
+- [Instruções das duas partes](docs/audit/INSTALACAO_PARTES.md).
+- [Auditoria, gravidades, procedência e pendências](docs/audit/2026-10-25-GODOT.md).
+- [Testes executados e roteiro Godot Android](docs/audit/TESTES-E-ENTREGA.md).
+
+Aurora e frota com apresentação normalizada, movimento corrigido fora do ataque,
+armas HQ recuperadas do pacote local, relés HQ/LOD e efeitos limitados.
+Branch de trabalho local: `codex/godot-fleet-audit-20261025`.
+
+As seções abaixo são o histórico das versões anteriores. Esta revisão não instala
+integralmente os antigos ZIPs e não altera produção.
+
+---
+
 # G0.20 — Naves V2 HQ definitivas
 
 - 13 naves definitivas V2 HQ substituem os protótipos G0.18, sem mudar nomes, atributos, preços, desbloqueios nem inventário.

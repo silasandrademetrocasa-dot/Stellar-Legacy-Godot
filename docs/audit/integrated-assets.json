@@ -1,0 +1,104 @@
+[
+  {
+    "path": "assets/ui/g022_textured/SL_ARMA_ARC_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "5416d2d6cddfbd9ae13ff48e48c13396777c1f73346462b3da1873b849160a4b",
+    "bytes": 30192
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_CANHAO_GAUSS_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "ec6c43e0112f22a2bf2ee66352e318b897d1361603060e7264b7b837d597f73b",
+    "bytes": 17111
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_CANHAO_ION_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "50a9f94f451146b2ca6943998a27cc01aeae00bb889f0b93e40a97f087675c2e",
+    "bytes": 30845
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_CANHAO_PLASMA_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "25261d69f90427562a9060ccccbbb139f6d5c58446d2a8451a299e694b0dd4a6",
+    "bytes": 34731
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_DESINTEGRADOR_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "ca472e2aa88b8a891a6088af3121eebfe0f539cc767693a269049b9167da663f",
+    "bytes": 30885
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_LANCA_PARTICULAS_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "ce3f5d872f83955f365f6afa2c395100eca404acbc93b7fc632337a3d8bef1ae",
+    "bytes": 26321
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_LASER_BEAM_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "005e40f27d89e12a244558d828e09417d131dbe772083a9857856845d97307aa",
+    "bytes": 21810
+  },
+  {
+    "path": "assets/ui/g022_textured/SL_LASER_PULSE_HQ.png",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "6b8db017952e93dd293d5d8fca19abadf2276f47930be8f6feba792ea751ba36",
+    "bytes": 16827
+  },
+  {
+    "path": "assets/weapons/SL_ARMA_ARC_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "38183dcd10f14db5956c5ec6fd9f0e917708d7b8ba78ece4a23fb56400ceec33",
+    "bytes": 1527364
+  },
+  {
+    "path": "assets/weapons/SL_CANHAO_GAUSS_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "384a23bd9989e1e6d4650a65b3da65f600d0e48f5713799dc74e011fedd8c804",
+    "bytes": 1470656
+  },
+  {
+    "path": "assets/weapons/SL_CANHAO_ION_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "dcec6fccc85023ce6bb036104f8141f44cf89ac3e6df198dfc71e1549b972f7a",
+    "bytes": 1549744
+  },
+  {
+    "path": "assets/weapons/SL_CANHAO_PLASMA_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "ceb875c460623bc210d5f868c8efaa1f06aed431ddf8b7b6a91de9fd9409e54a",
+    "bytes": 1521484
+  },
+  {
+    "path": "assets/weapons/SL_DESINTEGRADOR_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "d4f019e97cc55a43c4a53c655b44d8a8b935f547b707a2ed8f1e0adf9eda639e",
+    "bytes": 1569800
+  },
+  {
+    "path": "assets/weapons/SL_LANCA_PARTICULAS_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "51bc8fc5192b4bf90c21aa163d93a2d920d813b61677ffa2134f4d5464253b96",
+    "bytes": 1548104
+  },
+  {
+    "path": "assets/weapons/SL_LASER_BEAM_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "588bf1f041f0b5c080006ef77564a19f9b466fe2297e781586b673d9d9f6e8f3",
+    "bytes": 1472728
+  },
+  {
+    "path": "assets/weapons/SL_LASER_PULSE_HQ.glb",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "881ece5d85cb4dfa2d2f3d2ffa7958cf669a3dedc0578072b34f140d5c3d56b7",
+    "bytes": 1471592
+  },
+  {
+    "path": "scripts/data/weapon_art.gd",
+    "source_archive": "StellarLegacy_Godot_G0.22.1_REPARO_COMPLETO_DEPENDENCIAS_GITHUB.zip",
+    "sha256": "39392a9b046a5bde139287fb800c2807bae33d3360ddfc07942e8c1e13415d5a",
+    "bytes": 765
+  }
+]

@@ -4,6 +4,7 @@ extends Control
 const Ships = preload("res://scripts/data/ship_balance.gd")
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
 const Store = preload("res://scripts/data/store_catalog.gd")
+const Presentation = preload("res://scripts/world/model_presentation.gd")
 const SKY := Color(0.12, 0.72, 1.0)
 const WHITE := Color(0.92, 0.97, 1.0)
 const DIM := Color(0.48, 0.67, 0.80)
@@ -107,7 +108,7 @@ func setup(owner_game) -> void:
     fleet_row = HBoxContainer.new()
     fleet_row.add_theme_constant_override("separation", 6)
     fleet_scroll.add_child(fleet_row)
-    open_command()
+    # Load the selected HQ model only when the hangar is opened.
 
 func _open_tab(tab: String) -> void:
     if tab == "NAVES":
@@ -262,7 +263,7 @@ func _on_drag_hero(event: InputEvent) -> void:
         hero_view.accept_event()
 
 func _process(delta: float) -> void:
-    if visible and hero_model != null and is_instance_valid(hero_model):
+    if is_visible_in_tree() and hero_model != null and is_instance_valid(hero_model):
         hero_model.rotation.y += delta * 0.105
 
 func _best(category: String) -> String:
@@ -304,7 +305,9 @@ func _icon_for_path(model_path: String) -> Texture2D:
     if model_path.is_empty():
         return null
     var stem: String = model_path.get_file().get_basename()
-    var img_path: String = "res://assets/ui/g019_shields/%s.png" % stem
+    var img_path: String = "res://assets/ui/g022_textured/%s.png" % stem
+    if not ResourceLoader.exists(img_path):
+        img_path = "res://assets/ui/g019_shields/%s.png" % stem
     if not ResourceLoader.exists(img_path):
         img_path = "res://assets/ui/g020_ship_previews/%s.png" % stem
     if not ResourceLoader.exists(img_path):
@@ -400,15 +403,20 @@ func _set_preview_ship(ship_id: String) -> void:
     var path: String = str(st.get("model", ""))
     var packed: PackedScene = load(path) as PackedScene
     if packed != null:
-        hero_model = packed.instantiate() as Node3D
+        hero_model = Presentation.create_visual(packed.instantiate() as Node3D, 6.0)
         hero_pivot.add_child(hero_model)
         hero_model.position = Vector3.ZERO
         hero_model.rotation_degrees = Vector3(0, 10, 0)
-        hero_model.scale = Vector3.ONE * 1.65
         hero_model.visible = true
     hero_camera.position = Vector3(6.7, 5.1, 10.6) if ship_id in ["LEVIATHAN", "BULWARK"] else Vector3(5.5, 4.3, 9.0)
     hero_camera.look_at(Vector3(0.0, 0.1, 0.0), Vector3.UP)
     _refresh_stats(ship_id)
+
+func close_preview() -> void:
+    if is_instance_valid(hero_model):
+        hero_pivot.remove_child(hero_model)
+        hero_model.queue_free()
+    hero_model = null
 
 func _select_ship(ship_id: String) -> void:
     selected_ship = ship_id

@@ -10,6 +10,7 @@ signal astral_wave_finished(wave_number: int)
 
 const Enemy = preload("res://scripts/world/enemy_ship.gd")
 const NpcCatalog = preload("res://scripts/data/npc_catalog.gd")
+const BURST_SHADER = preload("res://shaders/combat_burst.gdshader")
 const NPC_DROP_RESOURCES: Dictionary = {
     "scavenger":{"Ferron":10,"Virel":10},
     "scavenger_scout":{"Ferron":12,"Virel":12},
@@ -49,6 +50,10 @@ var effects: Array[Dictionary] = []
 var beam_pool: Array[MeshInstance3D] = []
 var beam_materials: Dictionary = {}
 const MAX_BEAMS := 18
+const MAX_BURSTS := 6
+var burst_pool: Array[MeshInstance3D] = []
+var bursts: Array[Dictionary] = []
+var graphics_quality := "MEDIO"
 var loot_root: Node3D
 var enemy_root: Node3D
 var effects_root: Node3D
@@ -91,6 +96,11 @@ func configure(map_id: String, portal_positions: Array[Vector3]) -> void:
             node.visible = false
             beam_pool.append(node)
     effects.clear()
+    for burst in bursts:
+        var node: MeshInstance3D = burst["node"]
+        node.visible = false
+        burst_pool.append(node)
+    bursts.clear()
     if map_id.begins_with("4-"):
         _message("4-X: PvP reservado. Sem NPC comum.")
         return
@@ -160,7 +170,8 @@ func _process(delta: float) -> void:
         enemy.tick(delta, player_node.position)
         if enemy.alive and enemy.aggressive and enemy.attack_clock <= 0.0 and enemy.position.distance_to(player_node.position) < 59.0:
             enemy.attack_clock = 2.15
-            _draw_beam(enemy.global_position + Vector3.UP * 0.4, player_node.global_position + Vector3.UP * 0.4, Color(1.0, 0.38, 0.3))
+            enemy.show_attack()
+            _draw_beam(enemy.muzzle_position(), player_node.global_position + Vector3.UP * 0.4, Color(1.0, 0.38, 0.3))
             incoming_damage.emit(enemy.damage)
     for i in range(effects.size() - 1, -1, -1):
         effects[i]["time"] = float(effects[i]["time"]) - delta
@@ -179,6 +190,44 @@ func _process(delta: float) -> void:
             drops.remove_at(i)
     if selected != null and (not is_instance_valid(selected) or not selected.alive):
         selected = null
+    for index in range(bursts.size() - 1, -1, -1):
+        bursts[index]["age"] = float(bursts[index]["age"]) + delta
+        var progress: float = clampf(float(bursts[index]["age"]) / 0.55, 0.0, 1.0)
+        var node: MeshInstance3D = bursts[index]["node"]
+        node.scale = Vector3.ONE * (0.4 + 2.5 * progress)
+        (node.material_override as ShaderMaterial).set_shader_parameter("progress", progress)
+        if progress >= 1.0:
+            node.visible = false
+            burst_pool.append(node)
+            bursts.remove_at(index)
+
+func set_quality(profile: String) -> void:
+    graphics_quality = profile
+
+func _spawn_explosion(where: Vector3) -> void:
+    if bursts.size() >= (2 if graphics_quality == "BAIXO" else MAX_BURSTS):
+        return
+    var node: MeshInstance3D
+    if not burst_pool.is_empty():
+        node = burst_pool.pop_back()
+    else:
+        node = MeshInstance3D.new()
+        var shell := SphereMesh.new()
+        shell.radius = 0.5
+        shell.height = 1.0
+        shell.radial_segments = 12
+        shell.rings = 6
+        node.mesh = shell
+        var material := ShaderMaterial.new()
+        material.shader = BURST_SHADER
+        node.material_override = material
+        node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        effects_root.add_child(node)
+    node.global_position = where
+    node.scale = Vector3.ONE * 0.4
+    (node.material_override as ShaderMaterial).set_shader_parameter("progress", 0.0)
+    node.visible = true
+    bursts.append({"node": node, "age": 0.0})
 
 func select_nearest() -> void:
     if player_node == null:
@@ -246,7 +295,7 @@ func fire_from_player() -> void:
         laser_clock = 0.3
         return
     laser_clock = LASER_INTERVAL
-    _draw_beam(player_node.global_position + Vector3.UP * 0.3, selected.global_position + Vector3.UP * 0.3, Color(0.4, 0.9, 1.0))
+    _draw_beam(_player_muzzle(), selected.global_position + Vector3.UP * 0.3, Color(0.4, 0.9, 1.0))
     var destroyed: bool = selected.apply_hit(player_laser_damage)
     if destroyed:
         _destroy_enemy(selected)
@@ -260,9 +309,13 @@ func fire_missile_from_player() -> void:
     if player_node.position.distance_to(selected.position) > LASER_RANGE:
         return
     missile_clock = 2.0
-    _draw_beam(player_node.global_position + Vector3.UP * 0.45, selected.global_position + Vector3.UP * 0.45, Color(1.0, 0.64, 0.2))
+    _draw_beam(_player_muzzle(), selected.global_position + Vector3.UP * 0.45, Color(1.0, 0.64, 0.2))
     if selected.apply_hit(1100.0):
         _destroy_enemy(selected)
+
+func _player_muzzle() -> Vector3:
+    var mount := player_node.get_node_or_null("WeaponMuzzle") as Node3D
+    return mount.global_position if mount != null else player_node.global_position + Vector3.UP * 0.3
 
 func support_hit(from_position: Vector3, amount: float) -> void:
     if selected == null or not is_instance_valid(selected) or not selected.alive:
@@ -275,6 +328,7 @@ func support_hit(from_position: Vector3, amount: float) -> void:
 
 func _destroy_enemy(enemy: Enemy) -> void:
     kills += 1
+    _spawn_explosion(enemy.global_position)
     map_kills += 1
     _spawn_local_drop(enemy.position, enemy.npc_id)
     enemy_destroyed.emit(enemy.display_name, live_map, enemy.position)
@@ -384,6 +438,7 @@ func _draw_beam(a: Vector3, b: Vector3, tint: Color) -> void:
         cylinder.height = 1.0
         cylinder.radial_segments = 6
         beam.mesh = cylinder
+        beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
         effects_root.add_child(beam)
     if beam == null:
         return

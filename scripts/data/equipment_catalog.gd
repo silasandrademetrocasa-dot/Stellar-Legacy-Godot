@@ -1,4 +1,5 @@
 extends RefCounted
+const WeaponArt = preload("res://scripts/data/weapon_art.gd")
 ## Inventario offline G0.15 - nomes proprios Stellar Legacy. Nenhum ID de banco antigo.
 const SLOTS := {"ARMAS": 16, "ESCUDOS": 21, "MOTORES": 21, "EXTRAS": 14}
 const CATEGORY_NAMES := ["ARMAS", "ESCUDOS", "MOTORES", "EXTRAS"]
@@ -69,12 +70,19 @@ static func items_in_category(category: String) -> Array[Dictionary]:
     return result
 
 static func model_path(item_name: String) -> String:
+    var hq := WeaponArt.model_for(item_name)
+    if not hq.is_empty():
+        return hq
     var item: Dictionary = get_item(item_name)
     if item.is_empty():
         return ""
     return "res://assets/equipment/%s.glb" % str(item["model"])
 
 static func thumbnail_path(item_name: String) -> String:
+    var hq := WeaponArt.model_for(item_name)
+    var preview := "res://assets/ui/g022_textured/%s.png" % hq.get_file().get_basename()
+    if not hq.is_empty() and ResourceLoader.exists(preview):
+        return preview
     var item: Dictionary = get_item(item_name)
     if item.is_empty():
         return ""

@@ -18,6 +18,10 @@ const AstralEnvironment = preload("res://scripts/world/astral_environment.gd")
 const FactionBase = preload("res://scripts/world/faction_base.gd")
 const ResourceCargo = preload("res://scripts/systems/resource_cargo.gd")
 const ResourceField = preload("res://scripts/world/resource_field.gd")
+const ModelPresentation = preload("res://scripts/world/model_presentation.gd")
+const ShipPresentation = preload("res://scripts/world/ship_presentation.gd")
+const RelayController = preload("res://scripts/relays/relay_controller.gd")
+const PortalAnimation = preload("res://scripts/world/portal_animation.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_g015_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
@@ -121,6 +125,7 @@ var drag_last_position := Vector2(-5000.0, -5000.0)
 var drag_update_clock := 0.0
 var afterburner: Node3D
 var exhausts: Array[MeshInstance3D] = []
+var engine_mounts: Array[Vector3] = []
 
 
 
@@ -144,6 +149,9 @@ func _ready() -> void:
     _on_equipment_changed()
     select_ammunition(selected_ammo)
     _rebuild_portals()
+    ship_anchor.position = _center_spawn()
+    game_camera.position = ship_anchor.position + Vector3(0, 23, 19)
+    game_camera.look_at(ship_anchor.position, Vector3.UP)
     _populate_local_world()
     pilot_progress.visit_map(current_map)
     support_fleet.apply_equipment(equipment_state)
@@ -200,13 +208,18 @@ func _process(delta: float) -> void:
         travel_heading = atan2(movement_vector.x, movement_vector.z)
     # Visual do casco aponta para o alvo durante tiro; nave transladando em outra direção.
     var facing := travel_heading
-    if not blocked and firing_now and unit != null and unit.visible:
+    var aiming_at_target := not blocked and firing_now and unit != null and unit.visible
+    if aiming_at_target:
         var aim_dir := unit.global_position - ship_anchor.global_position
         aim_dir.y = 0.0
         if aim_dir.length_squared() > 0.01:
             facing = atan2(aim_dir.x, aim_dir.z)
     heading = lerp_angle(heading, facing, minf(TURN_RATE * delta * 1.5, 1.0))
     ship_anchor.rotation.y = heading
+    # +Z is the controller's nose. Outside combat, thrust follows the turning
+    # hull. During aimed fire, keep the approved independent travel vector.
+    if not aiming_at_target and movement_vector.length_squared() > 0.0:
+        movement_vector = Vector3(sin(heading), 0.0, cos(heading))
     speed = move_toward(speed, desired_speed if not blocked else 0.0, (ACCELERATION if desired_speed > speed else DECELERATION) * delta)
     ship_anchor.position += movement_vector * speed * delta
     _animate_engine(delta)
@@ -218,7 +231,7 @@ func _process(delta: float) -> void:
         var relay_event: String = hub_store.relay_tick(current_map, faction, ship_anchor.position.length(), delta)
         if not relay_event.is_empty() and ui_shell != null:
             ui_shell.show_notification(relay_event)
-            _update_relay_color()
+        _update_relay_color()
     if relay_ring != null and is_instance_valid(relay_ring):
         relay_ring.rotate_y(delta * 0.5)
     if destination_active and ship_anchor.position.distance_to(destination) <= ARRIVAL_DISTANCE:
@@ -401,6 +414,9 @@ func _create_world() -> void:
     ship_anchor = Node3D.new()
     ship_anchor.name = "PlayerShip"
     add_child(ship_anchor)
+    var muzzle := Marker3D.new()
+    muzzle.name = "WeaponMuzzle"
+    ship_anchor.add_child(muzzle)
     _create_engine_effect()
     game_camera = Camera3D.new()
     game_camera.current = true
@@ -445,8 +461,8 @@ func _create_engine_effect() -> void:
     for i in range(2):
         var jet := MeshInstance3D.new()
         var mesh := SphereMesh.new()
-        mesh.radius = 0.23
-        mesh.height = 1.1
+        mesh.radius = 0.14
+        mesh.height = 0.28
         mesh.radial_segments = 8
         mesh.rings = 5
         var mat := StandardMaterial3D.new()
@@ -457,24 +473,38 @@ func _create_engine_effect() -> void:
         mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
         mesh.material = mat
         jet.mesh = mesh
-        jet.position = Vector3(-0.7 if i == 0 else 0.7, 0.0, 1.2)
+        jet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        jet.position = Vector3(-0.7 if i == 0 else 0.7, 0.0, -1.2)
         afterburner.add_child(jet)
         exhausts.append(jet)
 
-func _animate_engine(delta: float) -> void:
+func _animate_engine(_delta: float) -> void:
     if afterburner == null:
         return
     var strength := clampf(speed / (MAX_SPEED + 12.0), 0.0, 1.0)
-    afterburner.rotation.y += delta * 0.15
     for i in range(exhausts.size()):
         var jet := exhausts[i]
-        jet.scale = Vector3(0.45 + strength * 0.42, 0.38 + strength * 0.18, 0.35 + strength * 0.8)
+        var pulse := 1.0 + 0.08 * sin(float(Time.get_ticks_msec()) * 0.02 + float(i))
+        var length_scale := (0.35 + strength * 1.4) * pulse
+        jet.scale = Vector3(0.45 + strength * 0.42, 0.45 + strength * 0.42, length_scale)
+        if i < engine_mounts.size():
+            jet.position = engine_mounts[i] - Vector3(0, 0, 0.14 * length_scale)
         jet.visible = strength > 0.06
+
+func _update_engine_mounts() -> void:
+    engine_mounts.clear()
+    for node in ship_visual.find_children("*engine_*_halo", "MeshInstance3D", true, false):
+        var mesh := node as MeshInstance3D
+        engine_mounts.append(ModelPresentation.relative_transform(mesh, ship_anchor) * mesh.get_aabb().get_center())
+    afterburner.rotation = Vector3.ZERO
 
 func _make_starfield() -> void:
     var sphere := SphereMesh.new()
     sphere.radius = 0.075
     sphere.height = 0.15
+    # Subpixel stars do not need the default 64 x 32 sphere tessellation.
+    sphere.radial_segments = 8
+    sphere.rings = 4
     var mat := StandardMaterial3D.new()
     mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     mat.albedo_color = Color(0.48, 0.68, 1.0)
@@ -511,6 +541,8 @@ func _make_navigation_marker() -> void:
     var ring := TorusMesh.new()
     ring.inner_radius = 0.85
     ring.outer_radius = 1.1
+    ring.rings = 24
+    ring.ring_segments = 6
     var material := StandardMaterial3D.new()
     material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     material.albedo_color = Color(1.0, 0.9, 0.32, 0.8)
@@ -691,6 +723,10 @@ func _rebuild_portals() -> void:
             if visual != null:
                 gate.add_child(visual)
                 visual.scale = Vector3.ONE * 1.45
+                var animation := PortalAnimation.new()
+                visual.add_child(animation)
+                var tint: Color = Routes.ASTRAL_COLORS.get(target, Color(1.0, 0.2, 0.25) if Routes.is_pvp(target) else (Color(0.7, 0.3, 1.0) if Routes.is_universe(target) else Color(0.15, 0.75, 1.0)))
+                animation.setup(visual, graphics_quality, tint)
         var label := Label3D.new()
         label.text = ("PORTAL " + Routes.astral_label(target)) if Routes.is_astral(target) else target
         label.position = Vector3(0, 6.8, 0)
@@ -732,6 +768,56 @@ func open_faction_base() -> void:
         ui_shell.show_notification("APROXIME-SE DA BASE DA FACCAO EM X-1")
 
 func _build_relay_visual() -> void:
+    relay_visual = null
+    relay_ring = null
+    if not Routes.is_pvp(current_map):
+        return
+    var level: int = hub_store.relay_level(current_map)
+    var packed := load("res://scenes/relays/rele_lv%d.tscn" % level) as PackedScene
+    if packed == null:
+        _build_legacy_relay_visual()
+        return
+    var controller := packed.instantiate() as RelayController
+    controller.use_mobile_lod = graphics_quality != "ALTO"
+    controller.enable_particles = graphics_quality != "BAIXO"
+    relay_visual = controller
+    controller.scale = Vector3.ONE * [0.66, 0.59, 0.50][level - 1]
+    portal_root.add_child(controller)
+    controller.level_changed.connect(_on_relay_level_changed)
+    controller.set_quality(graphics_quality)
+    _update_relay_color()
+
+func _on_relay_level_changed(level: int) -> void:
+    if relay_visual is RelayController:
+        relay_visual.scale = Vector3.ONE * [0.66, 0.59, 0.50][level - 1]
+
+func upgrade_relay_local() -> String:
+    if relay_visual is RelayController and (relay_visual as RelayController).current_state == RelayController.RelayState.EVOLVING:
+        return "Aguarde a evolucao do rele"
+    var old_level: int = hub_store.relay_level(current_map)
+    var result: String = hub_store.upgrade_relay_local(current_map, faction, ship_anchor.position.length() <= 19.0)
+    if hub_store.relay_level(current_map) > old_level and relay_visual is RelayController:
+        (relay_visual as RelayController).promote_to_next_level()
+    return result
+
+func simulate_relay_shield_hit() -> String:
+    if not Routes.is_pvp(current_map) or not (relay_visual is RelayController):
+        return "Viaje ao rele nos mapas PvP 4-X"
+    if ship_anchor.position.length() > 19.0:
+        return "Aproxime-se do centro do rele (19 unidades)"
+    var controller := relay_visual as RelayController
+    if controller.current_state == RelayController.RelayState.EVOLVING:
+        return "Aguarde a evolucao do rele"
+    controller.set_state(RelayController.RelayState.SHIELD_BROKEN)
+    get_tree().create_timer(1.5).timeout.connect(_recover_relay_shield.bind(controller.get_instance_id()))
+    return "Impacto de escudo simulado localmente"
+
+func _recover_relay_shield(controller_id: int) -> void:
+    var controller := instance_from_id(controller_id) as RelayController
+    if is_instance_valid(controller) and controller.current_state == RelayController.RelayState.SHIELD_BROKEN:
+        controller.recover_shield()
+
+func _build_legacy_relay_visual() -> void:
     relay_visual = null
     relay_ring = null
     if not Routes.is_pvp(current_map):
@@ -780,6 +866,15 @@ func _build_relay_visual() -> void:
 
 func _update_relay_color() -> void:
     if relay_visual == null or not is_instance_valid(relay_visual):
+        return
+    if relay_visual is RelayController:
+        # The approved HQ materials encode blue/ruby/emerald level colors.
+        var controller := relay_visual as RelayController
+        if not controller.shield_recovering and controller.current_state in [RelayController.RelayState.IDLE, RelayController.RelayState.COMBAT]:
+            var capturing: bool = hub_store.capture_ratio(current_map) > 0.0
+            var desired: int = RelayController.RelayState.COMBAT if capturing else RelayController.RelayState.IDLE
+            if controller.current_state != desired:
+                controller.set_state(desired)
         return
     var owner: String = str(hub_store.relay_owners.get(current_map, ""))
     var tint := Color(0.28, 0.84, 1.0)
@@ -908,9 +1003,16 @@ func _return_to_center() -> void:
     _clear_autonavigation()
     auto_fire_enabled = false
     fire_button.text = "LASER"
-    ship_anchor.position = Vector3.ZERO
+    ship_anchor.position = _center_spawn()
     speed = 0.0
     _refresh_ui()
+
+func _center_spawn() -> Vector3:
+    # X-1 / 4-X may have a portal at the origin. Keep the hull visible beside it.
+    for portal in portals:
+        if (portal["pos"] as Vector3).length() < WARP_DISTANCE:
+            return Vector3(0, 0, 16)
+    return Vector3.ZERO
 
 func _on_faction_selected(index: int) -> void:
     if index < 0 or index >= Routes.FACTIONS.size():
@@ -939,11 +1041,13 @@ func _set_ship(ship_id: String) -> void:
         return
     if ship_visual != null:
         ship_visual.queue_free()
-    ship_visual = inst
+    ship_visual = ModelPresentation.create_visual(inst, ShipPresentation.span(ship_id))
     ship_visual.name = ship_id
     ship_anchor.add_child(ship_visual)
-    # G0.18: escala apenas de cena; o GLB HQ mantem sua malha e texturas integrais.
-    ship_visual.scale = Vector3.ONE * 1.38
+    # Fit measured imported bounds; preserve +Z nose, materials and proportions.
+    _update_engine_mounts()
+    var visual_bounds := ModelPresentation.bounds(ship_visual)
+    (ship_anchor.get_node("WeaponMuzzle") as Marker3D).position = Vector3(0.0, 0.1, visual_bounds.end.z + 0.05)
     current_ship = ship_id
     equipment_state.set_active_ship(ship_id)
     var profile: Dictionary = ShipBalance.get_ship(ship_id)
@@ -1035,6 +1139,14 @@ func set_graphics_quality(profile: String, persist: bool = true) -> void:
         faction_base.set_quality(profile)
     if resource_field != null:
         resource_field.set_quality(profile)
+    if combat_world != null:
+        combat_world.set_quality(profile)
+    for portal in portals:
+        var animation := (portal["node"] as Node3D).find_child("PortalAnimation", true, false) as PortalAnimation
+        if animation != null:
+            animation.set_quality(profile)
+    if relay_visual is RelayController:
+        (relay_visual as RelayController).set_quality(profile)
     if astral_environment != null and Routes.is_astral(current_map):
         astral_environment.reset_arena(current_map,profile)
     if persist:

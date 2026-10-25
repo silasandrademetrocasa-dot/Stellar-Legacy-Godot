@@ -2,6 +2,7 @@ extends Node3D
 ## Cenario astral ornamental. Importante: qualidade controla somente os FX,
 ## nunca troca modelos de naves, drones, AUX, NPCs ou portais.
 const Routes = preload("res://scripts/world_routes.gd")
+const PortalAnimation = preload("res://scripts/world/portal_animation.gd")
 var portal_visual: Node3D
 var accent: Color = Color.CYAN
 var sparks: Array[MeshInstance3D] = []
@@ -26,6 +27,9 @@ func reset_arena(map_id: String, quality: String) -> void:
             add_child(portal_visual)
             portal_visual.position = Vector3(0.0, 0.0, 59.0)
             portal_visual.scale = Vector3.ONE * 1.85
+            var animation := PortalAnimation.new()
+            portal_visual.add_child(animation)
+            animation.setup(portal_visual, quality, accent)
     var platform := MeshInstance3D.new()
     var mesh := CylinderMesh.new()
     mesh.top_radius = 18.0
@@ -66,7 +70,6 @@ func _process(delta: float) -> void:
     if portal_visual == null or not is_instance_valid(portal_visual):
         return
     uptime += delta
-    portal_visual.rotate_y(delta * 0.12)
     for i in range(sparks.size()):
         var sp: MeshInstance3D = sparks[i]
         sp.position.y = 2.0 + float(i % 4) * 1.3 + sin(uptime * (0.8 + float(i % 3) * 0.25) + float(i)) * 1.15

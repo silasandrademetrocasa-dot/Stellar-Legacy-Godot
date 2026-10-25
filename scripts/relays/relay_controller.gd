@@ -3,6 +3,7 @@ extends Node3D
 ## All 3D structural meshes load from NEW relay GLBs. Runtime FX use lightweight CPU particles.
 
 enum RelayState { IDLE, COMBAT, SHIELD_BROKEN, EVOLVING }
+signal level_changed(level: int)
 
 @export_range(1, 3, 1) var relay_level: int = 1
 @export var use_mobile_lod: bool = false
@@ -32,6 +33,7 @@ var sparks: CPUParticles3D
 var energy_particles: CPUParticles3D
 var evolution_particles: CPUParticles3D
 var _pending_upgrade: int = 0
+var shield_recovering := false
 
 func _ready() -> void:
     _load_level()
@@ -42,6 +44,7 @@ func _ready() -> void:
 
 func _load_level() -> void:
     for node in model_root.get_children():
+        model_root.remove_child(node)
         node.queue_free()
     var stem: String = "rele_lv%d" % relay_level
     if use_mobile_lod:
@@ -67,6 +70,7 @@ func _setup_fx() -> void:
     var radius: float = [0.0, 2.45, 3.0, 3.75][relay_level]
     for pivot in [core_pivot, ring_a, ring_b]:
         for node in pivot.get_children():
+            pivot.remove_child(node)
             node.queue_free()
     # Two genuinely animated 3D rotor GLBs (not just rotating a texture).
     var a: Node3D = RING_MODEL.instantiate() as Node3D
@@ -113,6 +117,7 @@ func _setup_fx() -> void:
     energy_light.shadow_enabled = false
 
     for node in combat_lights.get_children():
+        combat_lights.remove_child(node)
         node.queue_free()
     for index in range(4+2*relay_level):
         var angle: float = float(index)*TAU/float(4+2*relay_level)
@@ -120,6 +125,8 @@ func _setup_fx() -> void:
         var ball: SphereMesh = SphereMesh.new()
         ball.radius = 0.10
         ball.height = 0.20
+        ball.radial_segments = 8
+        ball.rings = 4
         var glowing: StandardMaterial3D = StandardMaterial3D.new()
         glowing.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
         glowing.albedo_color = _energy_color()
@@ -128,11 +135,13 @@ func _setup_fx() -> void:
         glowing.emission_energy_multiplier = 4.0
         ball.material = glowing
         flare.mesh = ball
+        flare.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
         flare.position = Vector3(cos(angle)*radius*0.78, 0.85, sin(angle)*radius*0.78)
         combat_lights.add_child(flare)
     combat_lights.visible = false
 
     for node in particle_root.get_children():
+        particle_root.remove_child(node)
         node.queue_free()
     energy_particles = _make_particles("EnergyParticles", 28, 2.2, _energy_color(), Vector3(0.0,1.0,0.0))
     energy_particles.position.y = 2.3
@@ -160,6 +169,8 @@ func _make_particles(name: String, count: int, lifetime_value: float, tint: Colo
     var dot: SphereMesh = SphereMesh.new()
     dot.radius = 0.035
     dot.height = 0.07
+    dot.radial_segments = 8
+    dot.rings = 4
     var glow: StandardMaterial3D = StandardMaterial3D.new()
     glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
     glow.albedo_color = tint
@@ -168,6 +179,7 @@ func _make_particles(name: String, count: int, lifetime_value: float, tint: Colo
     glow.emission_energy_multiplier = 2.8
     dot.material = glow
     fx.mesh = dot
+    fx.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
     particle_root.add_child(fx)
     return fx
 
@@ -200,6 +212,7 @@ func set_state(next_state: int) -> void:
         push_warning("Estado de rele invalido")
         return
     current_state = next_state
+    shield_recovering = false
     match current_state:
         RelayState.IDLE:
             combat_lights.visible = false
@@ -248,17 +261,31 @@ func _on_animation_finished(clip_name: StringName) -> void:
             _pending_upgrade = 0
             _load_level()
             _setup_fx()
+            level_changed.emit(relay_level)
             set_state(RelayState.IDLE)
         else:
             anim_player.play("evolve_loop")
 
 func recover_shield() -> void:
+    shield_recovering = true
     shield_mesh.visible = true
     anim_player.play("shield_recover")
     current_state = RelayState.IDLE
     sparks.emitting = false
     evolution_particles.emitting = false
     combat_lights.visible = false
+
+func set_quality(profile: String) -> void:
+    var lod := profile != "ALTO"
+    if use_mobile_lod != lod:
+        use_mobile_lod = lod
+        _load_level()
+    enable_particles = profile != "BAIXO"
+    energy_light.visible = profile != "BAIXO"
+    energy_particles.emitting = enable_particles
+    evolution_particles.emitting = enable_particles and current_state == RelayState.EVOLVING
+    if not enable_particles:
+        sparks.emitting = false
 
 func _process(delta: float) -> void:
     phase += delta
@@ -273,7 +300,10 @@ func _process(delta: float) -> void:
     ring_a.rotation.y += delta*speed
     ring_b.rotation.y -= delta*speed*1.22
     ring_b.position.y = 2.3+0.08*sin(phase*1.9)
-    if current_state == RelayState.SHIELD_BROKEN:
+    if shield_recovering:
+        field_material.set_shader_parameter("strength", clampf(anim_player.current_animation_position / 1.1, 0.0, 1.0))
+        field_material.set_shader_parameter("fracture", 0.0)
+    elif current_state == RelayState.SHIELD_BROKEN:
         field_material.set_shader_parameter("strength", 0.22+0.20*abs(sin(phase*19.0)))
         field_material.set_shader_parameter("fracture", 0.95)
     elif current_state == RelayState.COMBAT:

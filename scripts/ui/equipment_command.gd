@@ -4,6 +4,7 @@ extends Control
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
 const Store = preload("res://scripts/data/store_catalog.gd")
 const Ships = preload("res://scripts/data/ship_balance.gd")
+const Presentation = preload("res://scripts/world/model_presentation.gd")
 const CYAN := Color(0.22, 0.78, 1.0)
 const WHITE := Color(0.88, 0.96, 1.0)
 const MUTED := Color(0.52, 0.68, 0.8)
@@ -232,18 +233,18 @@ func _showcase(parent: Node, ship: bool) -> SubViewportContainer:
         vp.add_child(halo)
     return wrap
 
-func _set_model(root: Node3D, path: String, scale_factor: float) -> Node3D:
+func _set_model(root: Node3D, path: String, target_span: float) -> Node3D:
     for child in root.get_children():
         root.remove_child(child)
         child.queue_free()
     var scene := load(path) as PackedScene
     if scene == null:
         return null
-    var obj := scene.instantiate() as Node3D
-    if obj == null:
+    var imported := scene.instantiate() as Node3D
+    if imported == null:
         return null
+    var obj := Presentation.create_visual(imported, target_span)
     root.add_child(obj)
-    obj.scale = Vector3.ONE * scale_factor
     obj.rotation = Vector3(0.13, -0.25, 0)
     return obj
 
@@ -256,7 +257,7 @@ func _load_ship() -> void:
     ship_loaded = ship_id
     var st: Dictionary = Ships.get_ship(ship_id)
     ship_caption.text = "%s • HP %s • VEL %d • PORAO %d • ARM %d / GER %d / EXT %d" % [ship_id, str(st.get("hp",0)), int(st.get("speed",0)), int(st.get("cargo",0)), int(st.get("lasers",1)), int(st.get("generators",1)), int(st.get("extras",1))]
-    ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 1.12)
+    ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 6.0)
 
 func open_command() -> void:
     visible = true
@@ -380,6 +381,9 @@ func _redraw_grid() -> void:
             thumbnail_path = "res://assets/ui/g014_models/%s.png" % model_file
         if not ResourceLoader.exists(thumbnail_path):
             thumbnail_path = "res://assets/ui/g013_models/%s.png" % model_file
+        var catalog_thumb := Catalog.thumbnail_path(name)
+        if not catalog_thumb.is_empty():
+            thumbnail_path = catalog_thumb
         if ResourceLoader.exists(thumbnail_path):
             snap.texture = load(thumbnail_path) as Texture2D
         snap.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -405,10 +409,20 @@ func _choose_item(name: String) -> void:
     item_caption.text = name
     detail_caption.text = "%s  |  POSSE: %d" % [str(entry.get("desc", "")), int(game.equipment_state.stock.get(name, 0)) if Catalog.CATEGORY_NAMES.has(category) else game.equipment_state.owned_support(name)]
     var model_path: String = Catalog.model_path(name) if Catalog.CATEGORY_NAMES.has(category) else str(entry.get("path", ""))
-    item_mesh = _set_model(item_root, model_path, 1.35)
+    item_mesh = _set_model(item_root, model_path, 3.5)
     item_view.visible = true
     _redraw_grid()
     _update_actions()
+
+func close_preview() -> void:
+    for pivot in [ship_root, item_root]:
+        for child in pivot.get_children():
+            pivot.remove_child(child)
+            child.queue_free()
+    ship_mesh = null
+    item_mesh = null
+    ship_loaded = ""
+    item_view.visible = false
 
 func _update_actions() -> void:
     var selected: bool = selected_name != ""
@@ -437,7 +451,7 @@ func _notice(message: String) -> void:
     status.text = message
 
 func _process(delta: float) -> void:
-    if not visible:
+    if not is_visible_in_tree():
         return
     if ship_mesh != null and is_instance_valid(ship_mesh):
         ship_mesh.rotation.y += delta * 0.16

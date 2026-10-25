@@ -21,9 +21,9 @@ func _ready() -> void:
     aux_root = Node3D.new()
     aux_root.name = "AUX9"
     add_child(aux_root)
-    # Kit inicial local: dois drones e AUX-9 ja equipados no save demonstrativo.
-    # Modelos somente aparecem se constarem no equipamento ativo.
-    _refresh_fleet_models(["Drone Alfa", "Drone Beta"], "AUX-9")
+    # Inventory is applied by main after setup. Do not preload unequipped HQs.
+    drones_enabled = false
+    aux_enabled = false
 
 func _refresh_fleet_models(equipped_drones: Array[String], installed_aux: String) -> void:
     var signature: String = ",".join(PackedStringArray(equipped_drones)) + "|" + installed_aux

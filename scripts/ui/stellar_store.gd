@@ -3,6 +3,7 @@ extends Control
 const Store = preload("res://scripts/data/store_catalog.gd")
 const Equip = preload("res://scripts/data/equipment_catalog.gd")
 const Ships = preload("res://scripts/data/ship_balance.gd")
+const Presentation = preload("res://scripts/world/model_presentation.gd")
 const NAVY := Color(0.012, 0.034, 0.076, 0.97)
 const CYAN := Color(0.24, 0.83, 1.0)
 const WHITE := Color(0.91, 0.96, 1.0)
@@ -100,7 +101,7 @@ func setup(owner_game) -> void:
     buy_button = _button(detail, "COMPRAR", GOLD)
     buy_button.pressed.connect(_buy_selected)
     feedback = _label(self, "LOJA DE TESTE: compras locais, sem pagamento real.", 11, GOLD)
-    _show_category("NAVES")
+    # Populate products and instantiate models on open_store, not hidden setup.
     relayout(size)
 
 func _skin(edge: Color, bg: Color = NAVY) -> StyleBoxFlat:
@@ -206,7 +207,7 @@ func _viewport(parent: Node, ship: bool) -> SubViewportContainer:
         vp.add_child(ring)
     return wrap
 
-func _set_model(pivot: Node3D, path: String, scale: float) -> Node3D:
+func _set_model(pivot: Node3D, path: String, target_span: float) -> Node3D:
     for old in pivot.get_children():
         pivot.remove_child(old)
         old.queue_free()
@@ -215,11 +216,11 @@ func _set_model(pivot: Node3D, path: String, scale: float) -> Node3D:
     var scene: PackedScene = load(path) as PackedScene
     if scene == null:
         return null
-    var model: Node3D = scene.instantiate() as Node3D
-    if model == null:
+    var imported: Node3D = scene.instantiate() as Node3D
+    if imported == null:
         return null
+    var model := Presentation.create_visual(imported, target_span)
     pivot.add_child(model)
-    model.scale = Vector3.ONE * scale
     model.rotation = Vector3(0.15, -0.15, 0)
     return model
 
@@ -238,7 +239,7 @@ func _refresh_ship() -> void:
     # Dados do balanceamento oficial; carteira e compras sao apenas demonstrativas.
     if name != last_ship:
         last_ship = name
-        ship_mesh = _set_model(ship_pivot, "res://assets/ships/SL_%s_FINAL.glb" % name, 1.18)
+        ship_mesh = _set_model(ship_pivot, "res://assets/ships/SL_%s_FINAL.glb" % name, 5.5)
     balance_label.text = "LOJA ESTELAR  |  %s CR   •   %s STL   |   VALORES OFICIAIS / SALDO LOCAL" % [_fmt(game.wallet.credits), _fmt(game.wallet.stellarium)]
 
 func _tint(rarity: String) -> Color:
@@ -354,7 +355,16 @@ func _select_product(product: Dictionary) -> void:
     if str(product["category"]) == "NAVES" and owned > 0:
         buy_button.disabled = true
     buy_button.text = "ADQUIRIDO" if str(product["category"]) == "NAVES" and owned > 0 else ("COMPRAR | %s %s" % [_fmt(int(product.get("cost", 0))), game.wallet.display_currency(currency)] if marketable else ("MODELO HQ • SEM VENDA" if str(product.get("kind", "")) == "shield_concept" else "NAO DISPONIVEL"))
-    item_mesh = _set_model(item_pivot, str(product["path"]), 1.25 if str(product["category"]) != "NAVES" else 0.85)
+    item_mesh = _set_model(item_pivot, str(product["path"]), 3.5)
+
+func close_preview() -> void:
+    for pivot in [ship_pivot, item_pivot]:
+        for child in pivot.get_children():
+            pivot.remove_child(child)
+            child.queue_free()
+    ship_mesh = null
+    item_mesh = null
+    last_ship = ""
 
 func _buy_selected() -> void:
     if selected.is_empty():
@@ -378,7 +388,7 @@ func _fmt(number: int) -> String:
     return out
 
 func _process(delta: float) -> void:
-    if not visible:
+    if not is_visible_in_tree():
         return
     if ship_mesh != null and is_instance_valid(ship_mesh):
         ship_mesh.rotation.y += delta * 0.12
