@@ -10,6 +10,7 @@ const C_WHITE := Color(0.88, 0.96, 1.0)
 const C_MUTED := Color(0.5, 0.66, 0.78)
 const EquipCatalog = preload("res://scripts/data/equipment_catalog.gd")
 const EquipmentCommand = preload("res://scripts/ui/equipment_command.gd")
+const StellarStore = preload("res://scripts/ui/stellar_store.gd")
 const HubCatalog = preload("res://scripts/systems/stellar_hub.gd")
 const AstralCatalog = preload("res://scripts/systems/astral_trials.gd")
 const SHIP_IDS := ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"]
@@ -93,6 +94,7 @@ var category_row: HFlowContainer
 var modal_backdrop: TextureRect
 var equip_notice: Label
 var equipment_command
+var store_command
 var equip_presets: HBoxContainer
 var equip_remove: Button
 var equip_copy: Button
@@ -403,6 +405,11 @@ func _create_modal() -> void:
     equipment_command.visible = false
     modal_body.add_child(equipment_command)
     equipment_command.setup(game)
+    store_command = StellarStore.new()
+    store_command.name = "LojaEstelarG013"
+    store_command.visible = false
+    modal_body.add_child(store_command)
+    store_command.setup(game)
 
 func _preview_touch(event: InputEvent) -> void:
     if preview_mesh == null or not is_instance_valid(preview_mesh):
@@ -566,20 +573,24 @@ func _open_modal(kind: String) -> void:
     modal_overlay.visible = true
     _apply_sector_skin(kind)
     modal_title.text = {"HANGAR":"HANGAR GALACTICO", "EQUIPAMENTOS":"EQUIPAMENTOS ESTELARES", "LOJA":"VITRINE GALACTICA", "BATALHA":"CENTRAL DE BATALHA", "CONFIG":"CONFIGURACOES", "PILOTO":"PERFIL DO PILOTO", "CENTRAL":"CENTRAL ESTELAR", "ALIANCA":"ALIANCA DE FACCAO", "RELES":"RELES DO PVP 4-X", "MISSOES":"MISSOES ESTELARES", "PASSE":"PASSE GALACTICO", "MERCADO":"LOJA NORMAL", "LEILAO":"LEILAO ESTELAR", "PREMIUM":"LOJA PREMIUM", "ADM":"CENTRO DE CONTROLE", "ASTRAL":"PORTAIS ASTRAIS - AURORA / NEXUS / ECLIPSE", "REFINARIA":"REFINARIA ASTRAL", "TITULOS":"TITULOS DO PILOTO"}.get(kind, kind)
-    modal_info.text = "G0.12  |  HUD PREMIUM / SUPORTE POR EQUIPAMENTO  |  OFFLINE"
+    modal_info.text = "G0.13  |  ARSENAL ORBITAL / INVENTARIO INICIAL / COMPRAS OFFLINE"
     var equipment_mode: bool = kind == "EQUIPAMENTOS"
+    var store_mode: bool = kind in ["LOJA", "MERCADO"]
+    store_command.visible = store_mode
+    if store_mode:
+        store_command.open_store()
     equipment_command.visible = equipment_mode
     if equipment_mode:
         equipment_command.open_command()
-    var show_gallery: bool = kind in ["HANGAR", "LOJA"]
-    var show_economy_3d: bool = kind in ["ASTRAL", "MERCADO", "LEILAO", "PREMIUM"]
+    var show_gallery: bool = kind == "HANGAR"
+    var show_economy_3d: bool = kind in ["ASTRAL", "LEILAO", "PREMIUM"]
     var show_preview: bool = show_gallery or show_economy_3d
     if not show_preview and preview_mesh != null and is_instance_valid(preview_mesh):
         preview_mesh.queue_free()
         preview_mesh = null
     var hub_pages: Array[String] = ["CENTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "ASTRAL", "REFINARIA", "TITULOS"]
-    category_row.visible = show_gallery or kind in hub_pages
-    list_scroll.visible = not equipment_mode
+    category_row.visible = not store_mode and (show_gallery or kind in hub_pages)
+    list_scroll.visible = not equipment_mode and not store_mode
     preview_wrap.visible = show_preview
     preview_title.visible = show_preview
     preview_note.visible = show_preview
@@ -592,7 +603,7 @@ func _open_modal(kind: String) -> void:
     equip_notice.visible = false
 
     _clear_dynamic_rows()
-    if kind in hub_pages:
+    if kind in hub_pages and not store_mode:
         _build_hub_navigation()
     if show_gallery:
         _build_categories()
@@ -608,7 +619,7 @@ func _open_modal(kind: String) -> void:
         _build_settings_menu()
     elif kind == "PILOTO":
         _build_pilot_menu()
-    elif kind in hub_pages:
+    elif kind in hub_pages and not store_mode:
         _build_hub_page(kind)
     relayout(layout_size)
 
@@ -698,10 +709,13 @@ func _select_item(index: int) -> void:
             var support_name: String = str(selected_item.get("name", ""))
             var owned: int = game.equipment_state.owned_support(support_name)
             var is_fitted: bool = game.equipment_state.equipped_support(support_name)
-            choose_btn.text = ("REMOVER " if is_fitted else ("INSTALAR " if owned > 0 else "ADQUIRIR (TESTE) ")) + support_name
+            choose_btn.text = ("REMOVER " if is_fitted else ("INSTALAR " if owned > 0 else "COMPRE NA LOJA: ")) + support_name
             preview_note.text += "  |  Inventario: %d  |  %s" % [owned, "EQUIPADO" if is_fitted else "NAO EQUIPADO"]
         else:
-            choose_btn.text = "EQUIPAR NAVE"
+            var ship_id: String = str(selected_item.get("id", ""))
+            var owned_ship: bool = ship_id != "" and game.equipment_state.owns_ship(ship_id)
+            choose_btn.text = "EQUIPAR NAVE" if owned_ship else "BLOQUEADA / LOJA"
+            choose_btn.disabled = not owned_ship
     _load_preview(str(selected_item.get("path", "")))
 
 func _load_preview(path: String) -> void:
@@ -737,13 +751,16 @@ func _load_preview(path: String) -> void:
 func _equip_preview() -> void:
     var ship_id := str(selected_item.get("id", ""))
     if modal_kind == "HANGAR" and ship_id != "":
-        game.change_ship_for_hangar(ship_id)
-        close_modal()
+        if game.equipment_state.owns_ship(ship_id):
+            game.change_ship_for_hangar(ship_id)
+            close_modal()
+        else:
+            show_notification("NAVE BLOQUEADA. COMPRE NA LOJA ESTELAR")
     elif modal_kind == "HANGAR" and active_category in ["DRONES", "AUX-9"]:
         var support_name: String = str(selected_item.get("name", ""))
         var result_note: String = ""
         if game.equipment_state.owned_support(support_name) == 0:
-            result_note = game.equipment_state.buy_support(support_name)
+            result_note = "Adquira %s na LOJA antes de instalar." % support_name
         else:
             result_note = game.equipment_state.toggle_support(support_name)
         game._on_equipment_changed()
@@ -1269,6 +1286,7 @@ func relayout(view_size: Vector2) -> void:
     modal_body.size = Vector2(modal_w - 24, modal_h - 75)
     equipment_command.position = Vector2.ZERO
     equipment_command.relayout(modal_body.size)
+    store_command.relayout(modal_body.size)
     var body_w := modal_body.size.x
     var body_h := modal_body.size.y
     var hub_modal: bool = modal_kind in ["CENTRAL", "ASTRAL", "ALIANCA", "RELES", "MISSOES", "PASSE", "MERCADO", "LEILAO", "PREMIUM", "ADM", "REFINARIA", "TITULOS"]

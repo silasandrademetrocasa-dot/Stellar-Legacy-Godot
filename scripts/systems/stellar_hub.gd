@@ -1,6 +1,7 @@
 extends RefCounted
 ## Stellar Legacy G0.8: laboratorio OFFLINE de sistemas sociais, eventos e economia.
 ## NUNCA concede permissoes ADM ou altera contas, saldos e relés de producao.
+const StoreCatalog = preload("res://scripts/data/store_catalog.gd")
 const SAVE_PATH := "user://stellar_g08_hub_demo.json"
 const VERSION := 1
 const CAPTURE_SECONDS := 12.0
@@ -213,6 +214,34 @@ func buy_equipment(item_name: String, amount: int, pilot_credits: int, equipment
     spent_credits += amount
     _save()
     return "%s adquirido no inventario LOCAL (sem compra online)" % item_name
+
+func buy_store_item(item_name: String, pilot_credits: int, equipment) -> String:
+    # Apenas mercado offline; categoria e preco derivam exclusivamente do catalogo interno.
+    var product: Dictionary = StoreCatalog.find(item_name)
+    if product.is_empty() or equipment == null:
+        return "Item nao encontrado no arsenal"
+    var cost: int = int(product.get("cost", 0))
+    var category: String = str(product.get("category", ""))
+    if category == "NAVES" and equipment.owns_ship(item_name):
+        return "Esta nave ja pertence ao hangar"
+    if category in ["DRONES", "AUX-9"] and equipment.owned_support(item_name) >= 4:
+        return "Limite de unidades atingido"
+    if cost <= 0:
+        return "Item inicial: disponivel somente no hangar"
+    if credit_balance(pilot_credits) < cost:
+        return "Creditos de simulacao insuficientes"
+    if category == "NAVES":
+        equipment.grant_ship(item_name)
+    elif category in ["DRONES", "AUX-9"]:
+        var message: String = equipment.buy_support(item_name)
+        if not message.begins_with(item_name):
+            return message
+    else:
+        equipment.stock[item_name] = int(equipment.stock.get(item_name, 0)) + 1
+        equipment._save()
+    spent_credits += cost
+    _save()
+    return "%s comprado! Abra HANGAR / EQUIPAMENTOS para instalar." % item_name
 
 func simulate_bid(lot: int) -> String:
     if lot < 0 or lot >= AUCTION.size():

@@ -9,9 +9,12 @@ var configurations: Array[Dictionary] = []
 var stock: Dictionary = {}
 # G0.12: suporte instalado no hangar, nunca por botoes de combate.
 const SUPPORT_ITEMS: Array[String] = ["Drone Alfa", "Drone Beta", "Drone Gama", "Drone Delta", "Drone Epsilon", "Drone Comum", "Drone Elite", "AUX-9"]
-var support_stock: Dictionary = {"Drone Alfa":1, "Drone Beta":1, "AUX-9":1}
-var fitted_drones: Array[String] = ["Drone Alfa", "Drone Beta"]
-var fitted_aux: String = "AUX-9"
+var support_stock: Dictionary = {}
+var fitted_drones: Array[String] = []
+var fitted_aux: String = ""
+var owned_ships: Dictionary = {"AURORA": 1}
+const STARTER_MARKER: int = 13
+const BACKUP_PATH := "user://stellar_pre_g013_inventory_backup.json"
 
 func owned_support(item_name: String) -> int:
     return int(support_stock.get(item_name, 0))
@@ -53,12 +56,54 @@ func toggle_support(item_name: String) -> String:
 func _init() -> void:
     for _i in range(2):
         configurations.append(_blank())
-    # Equipamentos iniciais da G0.6 continuam disponíveis. Itens novos devem ser conquistados/comprados no teste.
-    const STARTER_ITEMS = ["ARC-1", "ARC-2", "ARC-4", "SG-1", "SG-2", "SG-3", "THR-1", "THR-2", "THR-3", "AUTO-AIM", "NANOBOT REP-2", "RELOAD BOOSTER"]
     for item in Catalog.ITEMS:
-        var label: String = str(item["name"])
-        stock[label] = 2 if STARTER_ITEMS.has(label) else 0
+        stock[str(item["name"])] = 0
     _read()
+    _migrate_starter_once()
+
+func _migrate_starter_once() -> void:
+    # Uma unica migracao: a G0.13 nao deve recriar o kit nem dar itens gratuitos toda abertura.
+    var already_migrated: bool = false
+    if FileAccess.file_exists(SAVE_PATH):
+        var previous: FileAccess = FileAccess.open(SAVE_PATH, FileAccess.READ)
+        if previous != null:
+            var raw: String = previous.get_as_text()
+            var parsed: Variant = JSON.parse_string(raw)
+            already_migrated = parsed is Dictionary and int(parsed.get("inventory_schema", 0)) >= STARTER_MARKER
+            if not already_migrated and not FileAccess.file_exists(BACKUP_PATH):
+                var backup: FileAccess = FileAccess.open(BACKUP_PATH, FileAccess.WRITE)
+                if backup != null:
+                    backup.store_string(raw)
+    if already_migrated:
+        return
+    configurations.clear()
+    for _i in range(2):
+        configurations.append(_blank())
+    for item_name in stock.keys():
+        stock[item_name] = 0
+    for name in ["ARC-1", "SG-1", "THR-1", "REPARADOR COMUM"]:
+        stock[name] = 1
+    configurations[0]["ARMAS"][0] = "ARC-1"
+    configurations[0]["ESCUDOS"][0] = "SG-1"
+    configurations[0]["MOTORES"][0] = "THR-1"
+    configurations[0]["EXTRAS"][0] = "REPARADOR COMUM"
+    support_stock.clear()
+    fitted_drones.clear()
+    fitted_aux = ""
+    owned_ships = {"AURORA": 1}
+    active_configuration = 0
+    last_switch_ms = -100000
+    _save()
+
+func owns_ship(ship_id: String) -> bool:
+    return int(owned_ships.get(ship_id, 0)) > 0
+
+func grant_ship(ship_id: String) -> bool:
+    if owns_ship(ship_id):
+        return false
+    owned_ships[ship_id] = 1
+    _save()
+    return true
 
 func _blank() -> Dictionary:
     var result: Dictionary = {}
@@ -165,7 +210,7 @@ func bonus(kind: String) -> float:
 func _save() -> void:
     var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
     if f != null:
-        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock,"support_stock":support_stock,"fitted_drones":fitted_drones,"fitted_aux":fitted_aux}))
+        f.store_string(JSON.stringify({"active":active_configuration,"configs":configurations,"stock":stock,"support_stock":support_stock,"fitted_drones":fitted_drones,"fitted_aux":fitted_aux,"owned_ships":owned_ships,"inventory_schema":STARTER_MARKER}))
 
 func _read() -> void:
     if not FileAccess.file_exists(SAVE_PATH):
@@ -176,6 +221,13 @@ func _read() -> void:
     var parsed: Variant = JSON.parse_string(f.get_as_text())
     if not (parsed is Dictionary):
         return
+    var ship_data: Variant = parsed.get("owned_ships", {})
+    if ship_data is Dictionary:
+        owned_ships = {"AURORA":1}
+        for key in ship_data.keys():
+            var id: String = str(key)
+            if id in ["AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN", "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER", "RAPTOR", "SERAPH", "VALKYRIE"] and int(ship_data[key]) > 0:
+                owned_ships[id] = 1
     var loaded_support: Variant = parsed.get("support_stock", {})
     if loaded_support is Dictionary:
         for name in SUPPORT_ITEMS:

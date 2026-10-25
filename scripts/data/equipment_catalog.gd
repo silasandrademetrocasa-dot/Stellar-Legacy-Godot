@@ -3,6 +3,7 @@ extends RefCounted
 const SLOTS := {"ARMAS": 6, "ESCUDOS": 4, "MOTORES": 2, "EXTRAS": 3}
 const CATEGORY_NAMES := ["ARMAS", "ESCUDOS", "MOTORES", "EXTRAS"]
 const ITEMS := [
+    {"name":"REPARADOR COMUM", "category":"EXTRAS", "model":"reparador-comum", "bonus":1, "desc":"Reparador basico de casco e sistemas"},
     {"name":"ARC-1", "category":"ARMAS", "model":"arc-1", "bonus":12, "desc":"Laser de energia azul / nivel inicial"},
     {"name":"ARC-2", "category":"ARMAS", "model":"arc-2", "bonus":19, "desc":"Laser de pulso rubro / dano estendido"},
     {"name":"ARC-4", "category":"ARMAS", "model":"arc-4", "bonus":32, "desc":"Laser avancado com nucleos de plasma"},

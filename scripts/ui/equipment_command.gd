@@ -12,6 +12,7 @@ var left_panel: Panel
 var center_panel: Panel
 var right_panel: Panel
 var ship_caption: Label
+var ship_art: TextureRect
 var ship_view: SubViewportContainer
 var ship_root: Node3D
 var ship_mesh: Node3D
@@ -44,13 +45,20 @@ func setup(owner_game) -> void:
     _premium_border(left_panel, CYAN)
     _premium_border(center_panel, Color(0.33, 0.80, 1.0))
     _premium_border(right_panel, GOLD)
-    ship_caption = _label(left_panel, "NAVE ATIVA", 15, CYAN)
+    ship_art = TextureRect.new()
+    ship_art.texture = load("res://assets/ui/g013_starport.png") as Texture2D
+    ship_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    ship_art.stretch_mode = TextureRect.STRETCH_SCALE
+    ship_art.modulate = Color(0.68, 0.87, 1.0, 0.62)
+    ship_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    left_panel.add_child(ship_art)
+    ship_caption = _label(left_panel, "ESTACAO DE COMANDO   /   NAVE ATIVA", 15, CYAN)
     ship_view = _showcase(left_panel, true)
     ship_root = ship_view.get_child(0).get_node("ModelPivot") as Node3D
     var see_ship := _button(left_panel, "VER / TROCAR NAVE")
     see_ship.name = "VerNave"
     see_ship.pressed.connect(func() -> void: game.ui_shell._open_modal("HANGAR"))
-    _label(center_panel, "CONFIGURACAO GLOBAL", 15, CYAN)
+    _label(center_panel, "CONFIGURACAO GLOBAL  /  SLOTS", 15, CYAN)
     preset_one = _button(center_panel, "CONFIG 1")
     preset_two = _button(center_panel, "CONFIG 2")
     preset_one.pressed.connect(_switch_config.bind(0))
@@ -66,7 +74,7 @@ func setup(owner_game) -> void:
     slot_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     slot_stack.add_theme_constant_override("separation", 6)
     slot_scroll.add_child(slot_stack)
-    _label(right_panel, "INVENTARIO", 15, CYAN)
+    _label(right_panel, "INVENTARIO  /  ARSENAL", 15, GOLD)
     filter_row = HBoxContainer.new()
     filter_row.add_theme_constant_override("separation", 3)
     right_panel.add_child(filter_row)
@@ -109,8 +117,8 @@ func _premium_border(target: Panel, accent: Color) -> void:
     skin.corner_radius_top_right = 9
     skin.corner_radius_bottom_left = 9
     skin.corner_radius_bottom_right = 9
-    skin.shadow_color = Color(accent.r, accent.g, accent.b, 0.14)
-    skin.shadow_size = 3
+    skin.shadow_color = Color(accent.r, accent.g, accent.b, 0.27)
+    skin.shadow_size = 6
     target.add_theme_stylebox_override("panel", skin)
 
 func _panel(parent: Node) -> Panel:
@@ -142,10 +150,12 @@ func _button(parent: Node, caption: String) -> Button:
     b.mouse_filter = Control.MOUSE_FILTER_STOP
     b.focus_mode = Control.FOCUS_NONE
     var skin := StyleBoxFlat.new()
-    skin.bg_color = Color(0.027, 0.085, 0.15)
-    skin.border_color = Color(0.16, 0.46, 0.67)
+    skin.bg_color = Color(0.018, 0.073, 0.13)
+    skin.border_color = Color(0.19, 0.57, 0.79)
     skin.set_border_width_all(1)
     skin.set_corner_radius_all(6)
+    skin.shadow_color = Color(0.03, 0.52, 0.9, 0.18)
+    skin.shadow_size = 3
     b.add_theme_stylebox_override("normal", skin)
     var hot := skin.duplicate() as StyleBoxFlat
     hot.bg_color = Color(0.05, 0.2, 0.32)
@@ -242,7 +252,7 @@ func _load_ship() -> void:
     if ship_id == ship_loaded:
         return
     ship_loaded = ship_id
-    ship_caption.text = "%s  |  NAVE ATIVA" % ship_id
+    ship_caption.text = "%s  /  NAVE ATIVA" % ship_id
     ship_mesh = _set_model(ship_root, "res://assets/ships/SL_%s_FINAL.glb" % ship_id, 0.85)
 
 func open_command() -> void:
@@ -333,10 +343,32 @@ func _redraw_grid() -> void:
         var count: int = int(game.equipment_state.stock.get(name, 0))
         if count <= 0:
             continue
-        var card := _button(inventory_grid, "%s\n×%d" % [name, count])
-        card.custom_minimum_size = Vector2(65, 59)
+        var frame: PanelContainer = PanelContainer.new()
+        frame.custom_minimum_size = Vector2(69, 85)
+        frame.mouse_filter = Control.MOUSE_FILTER_PASS
+        var border: StyleBoxFlat = StyleBoxFlat.new()
+        border.bg_color = Color(0.018, 0.060, 0.12, 0.99)
+        border.border_color = GOLD if selected_name == name else CYAN.darkened(0.45)
+        border.set_border_width_all(2)
+        border.set_corner_radius_all(6)
+        border.shadow_color = Color(0.13, 0.61, 0.98, 0.20)
+        border.shadow_size = 3
+        frame.add_theme_stylebox_override("panel", border)
+        inventory_grid.add_child(frame)
+        var layout: VBoxContainer = VBoxContainer.new()
+        layout.add_theme_constant_override("separation", 1)
+        frame.add_child(layout)
+        var snap: TextureRect = TextureRect.new()
+        snap.texture = load("res://assets/ui/g013_models/%s.png" % str(entry["model"])) as Texture2D
+        snap.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        snap.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        snap.custom_minimum_size = Vector2(58, 47)
+        snap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        layout.add_child(snap)
+        var card: Button = _button(layout, "%s  x%d" % [name, count])
+        card.custom_minimum_size = Vector2(62, 28)
         card.clip_text = true
-        card.add_theme_font_size_override("font_size", 10)
+        card.add_theme_font_size_override("font_size", 8)
         if selected_name == name:
             card.add_theme_color_override("font_color", GOLD)
         card.pressed.connect(_choose_item.bind(name))
@@ -401,6 +433,8 @@ func relayout(view: Vector2) -> void:
     center_panel.size = Vector2(center_w, h - 24)
     right_panel.position = Vector2(left_w + center_w + 2.0 * gap, 0)
     right_panel.size = Vector2(right_w, h - 24)
+    ship_art.position = Vector2(5, 5)
+    ship_art.size = Vector2(left_w - 10, h - 35)
     ship_caption.position = Vector2(9, 8)
     ship_caption.size = Vector2(left_w - 18, 22)
     ship_view.position = Vector2(6, 34)

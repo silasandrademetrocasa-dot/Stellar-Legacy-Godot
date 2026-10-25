@@ -123,6 +123,10 @@ func _ready() -> void:
     hub_store = HubStore.new()
     astral_trials = AstralTrials.new()
     _read_local_profile()
+    # G0.13: o inventario antigo recebe um kit inicial unico; naves nao compradas ficam bloqueadas.
+    if not equipment_state.owns_ship(current_ship):
+        current_ship = "AURORA"
+        _write_local_profile()
     _create_world()
     set_graphics_quality(graphics_quality, false)
     _create_hud()
@@ -223,8 +227,12 @@ func _process(delta: float) -> void:
         chase_target = false
 
     combat_recovery_clock = maxf(0.0, combat_recovery_clock - delta)
-    if combat_recovery_clock <= 0.0 and aux_enabled():
-        shield = minf(MAX_SHIELD, shield + 85.0 * delta)
+    if combat_recovery_clock <= 0.0:
+        var has_repairer: bool = equipment_state != null and equipment_state.equipped("EXTRAS").has("REPARADOR COMUM")
+        if aux_enabled():
+            shield = minf(MAX_SHIELD, shield + 85.0 * delta)
+        elif has_repairer:
+            hp = minf(MAX_HP, hp + 18.0 * delta)
     var desired_camera := ship_anchor.position + Vector3(0, 23, 19)
     game_camera.global_position = game_camera.global_position.lerp(desired_camera, minf(delta * 5.0, 1.0))
     game_camera.look_at(ship_anchor.position, Vector3.UP)
@@ -890,7 +898,7 @@ func _on_faction_selected(index: int) -> void:
 
 func _on_ship_selected(index: int) -> void:
     if index >= 0 and index < SHIP_IDS.size():
-        _set_ship(SHIP_IDS[index])
+        change_ship_for_hangar(SHIP_IDS[index])
 
 func _set_ship(ship_id: String) -> void:
     var file := "res://assets/ships/SL_%s_FINAL.glb" % ship_id
@@ -1082,8 +1090,10 @@ func set_test_faction(index: int) -> void:
     faction_select.select(index)
 
 func change_ship_for_hangar(ship_id: String) -> void:
-    if ship_id in SHIP_IDS:
+    if ship_id in SHIP_IDS and equipment_state.owns_ship(ship_id):
         _set_ship(ship_id)
+    elif ui_shell != null:
+        ui_shell.show_notification("NAVE NAO ADQUIRIDA. ACESSE A LOJA ESTELAR")
 
 func _on_equipment_changed() -> void:
     # Recalcula os valores DEMONSTRATIVOS mantendo o disparo ativo.
