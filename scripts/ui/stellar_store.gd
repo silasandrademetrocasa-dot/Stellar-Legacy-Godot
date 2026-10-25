@@ -72,9 +72,10 @@ func setup(owner_game) -> void:
     rarity_row = HBoxContainer.new()
     rarity_row.add_theme_constant_override("separation", 5)
     main.add_child(rarity_row)
-    for filter_name in ["TODOS", "COMUM", "ELITE"]:
-        var filter_button: Button = _button(rarity_row, filter_name, GOLD if filter_name == "ELITE" else CYAN)
-        filter_button.custom_minimum_size = Vector2(96, 28)
+    for filter_name in ["TODOS"] + Store.RARITIES:
+        var tint: Color = GOLD if filter_name in ["ELITE", "LENDARIO"] else (_tint(filter_name) if filter_name != "TODOS" else CYAN)
+        var filter_button: Button = _button(rarity_row, filter_name, tint)
+        filter_button.custom_minimum_size = Vector2(92, 28)
         filter_button.pressed.connect(_set_rarity_filter.bind(filter_name))
     shelf_scroll = ScrollContainer.new()
     shelf_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -299,12 +300,15 @@ func _create_product_card(product: Dictionary) -> void:
     art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     art.mouse_filter = Control.MOUSE_FILTER_IGNORE
     var thumb: String = Equip.thumbnail_path(name)
-    var glb_thumb: String = "res://assets/ui/g014_models/%s.png" % str(product["path"]).get_file().get_basename()
+    var model_path: String = str(product["path"])
+    var base_name: String = model_path.get_file().get_basename()
+    var glb_thumb: String = "res://assets/ui/g015_models/%s.png" % base_name
+    if not ResourceLoader.exists(glb_thumb):
+        glb_thumb = "res://assets/ui/g014_models/%s.png" % base_name
     if ResourceLoader.exists(glb_thumb):
         thumb = glb_thumb
     if thumb == "":
-        var model_path: String = str(product["path"])
-        thumb = "res://assets/ui/g013_models/%s.png" % model_path.get_file().get_basename()
+        thumb = "res://assets/ui/g013_models/%s.png" % base_name
         if not ResourceLoader.exists(thumb):
             thumb = "res://assets/ui/g013_item_insignia.png"
     art.texture = load(thumb) as Texture2D
@@ -403,10 +407,10 @@ func relayout(view: Vector2) -> void:
     category_bar.position = Vector2(6, 36)
     category_bar.size = Vector2(center_w - 12, 66)
     rarity_row.position = Vector2(8, 103)
-    rarity_row.size = Vector2(center_w - 16, 34)
+    rarity_row.size = Vector2(center_w - 16, 62)
     shelf_grid.columns = 3 if center_w >= 530.0 else 2
-    shelf_scroll.position = Vector2(6, 139)
-    shelf_scroll.size = Vector2(center_w - 12, h - 174)
+    shelf_scroll.position = Vector2(6, 167)
+    shelf_scroll.size = Vector2(center_w - 12, h - 202)
     var card_width: float = maxf(160.0, (center_w - 40.0) / float(shelf_grid.columns))
     for card in shelf_grid.get_children():
         if card is PanelContainer:

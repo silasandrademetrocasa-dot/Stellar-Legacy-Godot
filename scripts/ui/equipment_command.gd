@@ -375,7 +375,9 @@ func _redraw_grid() -> void:
         frame.add_child(layout)
         var snap: TextureRect = TextureRect.new()
         var model_file: String = str(entry.get("model", str(entry.get("path", "")).get_file().get_basename()))
-        var thumbnail_path: String = "res://assets/ui/g014_models/%s.png" % model_file
+        var thumbnail_path: String = "res://assets/ui/g015_models/%s.png" % model_file
+        if not ResourceLoader.exists(thumbnail_path):
+            thumbnail_path = "res://assets/ui/g014_models/%s.png" % model_file
         if not ResourceLoader.exists(thumbnail_path):
             thumbnail_path = "res://assets/ui/g013_models/%s.png" % model_file
         if ResourceLoader.exists(thumbnail_path):

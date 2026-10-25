@@ -1,5 +1,5 @@
 extends RefCounted
-## Inventario offline G0.6 - nomes proprios Stellar Legacy. Nenhum ID de banco antigo.
+## Inventario offline G0.15 - nomes proprios Stellar Legacy. Nenhum ID de banco antigo.
 const SLOTS := {"ARMAS": 16, "ESCUDOS": 21, "MOTORES": 21, "EXTRAS": 14}
 const CATEGORY_NAMES := ["ARMAS", "ESCUDOS", "MOTORES", "EXTRAS"]
 const ITEMS := [
@@ -78,5 +78,9 @@ static func thumbnail_path(item_name: String) -> String:
     var item: Dictionary = get_item(item_name)
     if item.is_empty():
         return ""
-    var path: String = "res://assets/ui/catalog/%s.webp" % str(item["model"])
+    var model_name: String = str(item["model"])
+    var g015: String = "res://assets/ui/g015_models/%s.png" % model_name
+    if ResourceLoader.exists(g015):
+        return g015
+    var path: String = "res://assets/ui/catalog/%s.webp" % model_name
     return path if ResourceLoader.exists(path) else ""

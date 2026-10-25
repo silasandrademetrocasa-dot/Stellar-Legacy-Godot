@@ -1,7 +1,7 @@
 extends RefCounted
 ## Carteira DEMONSTRATIVA do Godot; nunca comunica com banco/financeiro.
 ## Os precos sao copiados do Supabase, mas os saldos abaixo sao creditos de teste.
-const SAVE_PATH := "user://stellar_g014_wallet_demo.json"
+const SAVE_PATH := "user://stellar_g015_wallet_demo.json"
 var credits: int = 150000000
 var stellarium: int = 2500000
 var purchases: int = 0

@@ -16,7 +16,7 @@ const HubStore = preload("res://scripts/systems/stellar_hub.gd")
 const AstralTrials = preload("res://scripts/systems/astral_trials.gd")
 const AstralEnvironment = preload("res://scripts/world/astral_environment.gd")
 const FactionBase = preload("res://scripts/world/faction_base.gd")
-const SAVE_PATH := "user://stellar_legacy_godot_test.json"
+const SAVE_PATH := "user://stellar_legacy_godot_g015_test.json"
 const SHIP_IDS := [
     "AURORA", "BASTION", "BULWARK", "KENSEI", "LEVIATHAN",
     "LYNX", "MERIDIAN", "PATHFINDER", "PHANTOM", "PIONEER",

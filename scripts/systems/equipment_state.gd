@@ -2,7 +2,7 @@ extends RefCounted
 ## Dois layouts locais com inventario demonstrativo. Dados gravados APENAS em user://.
 const Catalog = preload("res://scripts/data/equipment_catalog.gd")
 const ShipBalance = preload("res://scripts/data/ship_balance.gd")
-const SAVE_PATH := "user://stellar_g06_equipment_demo.json"
+const SAVE_PATH := "user://stellar_g015_equipment_demo.json"
 const SWITCH_COOLDOWN := 5.0
 var active_configuration := 0
 var last_switch_ms := -100000
@@ -74,8 +74,8 @@ func _slot_allowed(kind: String, idx: int) -> bool:
     if kind in ["ESCUDOS", "MOTORES"] and used_generators() >= ShipBalance.max_slots(active_ship, "ESCUDOS"):
         return false
     return true
-const STARTER_MARKER: int = 13
-const BACKUP_PATH := "user://stellar_pre_g013_inventory_backup.json"
+const STARTER_MARKER: int = 15
+const BACKUP_PATH := "user://stellar_pre_g015_inventory_backup.json"
 
 func owned_support(item_name: String) -> int:
     return int(support_stock.get(item_name, 0))
