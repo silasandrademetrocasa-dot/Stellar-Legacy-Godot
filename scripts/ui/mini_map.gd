@@ -92,32 +92,9 @@ func _draw() -> void:
         draw_circle(relay_location, 2.6, Color(0.95, 0.72, 0.23))
     for enemy in enemy_points:
         draw_circle(_to_screen(enemy), 2.9, Color(1.0, 0.39, 0.4))
-    # Recursos estao ocultos fora do sensor, mesmo que seus dados existam no mapa offline.
+    # Apenas nave, NPC, portais, rele e base aparecem no radar.
+    # Recursos/caixas permanecem no mundo 3D, nunca como marcadores no minimapa.
     var ship_pixel: Vector2 = _to_screen(ship_pos)
-    var screen_radius_x: float = RESOURCE_RADAR_RADIUS * (size.x - 14.0) / (WORLD_HALF.x * 2.0)
-    var screen_radius_y: float = RESOURCE_RADAR_RADIUS * (size.y - 32.0) / (WORLD_HALF.y * 2.0)
-    var radar_curve: PackedVector2Array = PackedVector2Array()
-    for i in range(49):
-        var angle: float = TAU * float(i) / 48.0
-        radar_curve.append(ship_pixel + Vector2(cos(angle) * screen_radius_x, sin(angle) * screen_radius_y))
-    draw_polyline(radar_curve, Color(0.25, 0.77, 0.89, 0.55), 1.0)
-    for box in loot_points:
-        if box.distance_to(ship_pos) > RESOURCE_RADAR_RADIUS:
-            continue
-        var pixel: Vector2 = _to_screen(box)
-        draw_rect(Rect2(pixel - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), Color(1.0, 0.83, 0.27), true)
-    for ore in ore_points:
-        if ore.distance_to(ship_pos) > RESOURCE_RADAR_RADIUS:
-            continue
-        var pix: Vector2 = _to_screen(ore)
-        var crystal: PackedVector2Array = PackedVector2Array([pix + Vector2(0,-3.5),pix + Vector2(3.5,0),pix + Vector2(0,3.5),pix + Vector2(-3.5,0)])
-        draw_colored_polygon(crystal, Color(0.23, 0.91, 0.98))
-    for bonus in bonus_points:
-        if bonus.distance_to(ship_pos) > RESOURCE_RADAR_RADIUS:
-            continue
-        var pix: Vector2 = _to_screen(bonus)
-        draw_rect(Rect2(pix - Vector2(3.1, 3.1), Vector2(6.2, 6.2)), Color(1.0, 0.68, 0.22), true)
-        draw_circle(pix, 1.8, Color(1.0, 0.98, 0.62))
     if destination_active:
         var p := _to_screen(destination)
         draw_line(_to_screen(ship_pos), p, Color(0.88, 0.95, 0.46, 0.65), 1.2)

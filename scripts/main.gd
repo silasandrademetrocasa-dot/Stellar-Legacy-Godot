@@ -20,6 +20,8 @@ const ResourceCargo = preload("res://scripts/systems/resource_cargo.gd")
 const ResourceField = preload("res://scripts/world/resource_field.gd")
 const ModelPresentation = preload("res://scripts/world/model_presentation.gd")
 const ShipPresentation = preload("res://scripts/world/ship_presentation.gd")
+const TacticalCamera = preload("res://scripts/world/tactical_camera.gd")
+const TacticalBackdrop = preload("res://scripts/world/tactical_sector_background.gd")
 const RelayController = preload("res://scripts/relays/relay_controller.gd")
 const PortalAnimation = preload("res://scripts/world/portal_animation.gd")
 const SAVE_PATH := "user://stellar_legacy_godot_g015_test.json"
@@ -117,6 +119,8 @@ var hub_store
 var astral_trials
 var graphics_quality: String = "MEDIO"
 var cinematic_light: DirectionalLight3D
+var fill_light: DirectionalLight3D
+var tactical_backdrop: Node3D
 var relay_visual: Node3D
 var relay_ring: MeshInstance3D
 var active_touch := -1
@@ -150,8 +154,7 @@ func _ready() -> void:
     select_ammunition(selected_ammo)
     _rebuild_portals()
     ship_anchor.position = _center_spawn()
-    game_camera.position = ship_anchor.position + Vector3(0, 23, 19)
-    game_camera.look_at(ship_anchor.position, Vector3.UP)
+    TacticalCamera.configure(game_camera, ship_anchor.position)
     _populate_local_world()
     pilot_progress.visit_map(current_map)
     support_fleet.apply_equipment(equipment_state)
@@ -256,9 +259,7 @@ func _process(delta: float) -> void:
             shield = minf(MAX_SHIELD, shield + 85.0 * delta)
         elif has_repairer:
             hp = minf(MAX_HP, hp + 18.0 * delta)
-    var desired_camera := ship_anchor.position + Vector3(0, 23, 19)
-    game_camera.global_position = game_camera.global_position.lerp(desired_camera, minf(delta * 5.0, 1.0))
-    game_camera.look_at(ship_anchor.position, Vector3.UP)
+    TacticalCamera.follow(game_camera, ship_anchor.position, delta)
     warp_cooldown = maxf(0.0, warp_cooldown - delta)
     ui_tick -= delta
     if ui_tick <= 0.0:
@@ -401,16 +402,17 @@ func _create_world() -> void:
     env.background_mode = Environment.BG_COLOR
     env.background_color = Color(0.008, 0.014, 0.036)
     env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-    env.ambient_light_color = Color(0.54, 0.66, 0.97)
-    env.ambient_light_energy = 0.75
+    env.ambient_light_color = Color(0.67, 0.76, 0.97)
+    env.ambient_light_energy = 0.96
     sky.environment = env
     add_child(sky)
     var light := DirectionalLight3D.new()
-    light.rotation_degrees = Vector3(-50, 27, -12)
-    light.light_energy = 1.55
+    light.name = "CameraKeyLight"
+    light.rotation_degrees = Vector3(-29.0, 28.0, 0.0)
+    light.light_color = Color(1.0, 0.94, 0.86)
+    light.light_energy = 1.18
     light.shadow_enabled = false
     cinematic_light = light
-    add_child(light)
     ship_anchor = Node3D.new()
     ship_anchor.name = "PlayerShip"
     add_child(ship_anchor)
@@ -420,10 +422,19 @@ func _create_world() -> void:
     _create_engine_effect()
     game_camera = Camera3D.new()
     game_camera.current = true
-    game_camera.fov = 56.0
-    game_camera.position = Vector3(0, 23, 19)
     add_child(game_camera)
-    game_camera.look_at(Vector3.ZERO, Vector3.UP)
+    TacticalCamera.configure(game_camera, Vector3.ZERO)
+    game_camera.add_child(light)
+    fill_light = DirectionalLight3D.new()
+    fill_light.name = "CameraFillLight"
+    fill_light.rotation_degrees = Vector3(18.0, -46.0, 0.0)
+    fill_light.light_color = Color(0.55, 0.73, 1.0)
+    fill_light.light_energy = 0.43
+    fill_light.shadow_enabled = false
+    game_camera.add_child(fill_light)
+    tactical_backdrop = TacticalBackdrop.new()
+    tactical_backdrop.name = "AmbienteTaticoG023"
+    add_child(tactical_backdrop)
     portal_root = Node3D.new()
     portal_root.name = "Portals"
     add_child(portal_root)
@@ -451,6 +462,7 @@ func _create_world() -> void:
     support_fleet.player_node = ship_anchor
     support_fleet.combat_world = combat_world
     _make_starfield()
+    tactical_backdrop.set_sector(current_map, graphics_quality)
     _make_border()
     _make_navigation_marker()
 
@@ -744,6 +756,8 @@ func _rebuild_portals() -> void:
     if Routes.is_astral(current_map):
         bg = Routes.ASTRAL_COLORS[current_map].darkened(0.93)
     sky.environment.background_color = bg
+    if tactical_backdrop != null:
+        tactical_backdrop.set_sector(current_map, graphics_quality)
     galaxy_map.set_route_view(faction, current_map)
     _refresh_ui()
 
@@ -781,7 +795,7 @@ func _build_relay_visual() -> void:
     controller.use_mobile_lod = graphics_quality != "ALTO"
     controller.enable_particles = graphics_quality != "BAIXO"
     relay_visual = controller
-    controller.scale = Vector3.ONE * [0.66, 0.59, 0.50][level - 1]
+    controller.scale = Vector3.ONE * [0.30, 0.28, 0.26][level - 1]
     portal_root.add_child(controller)
     controller.level_changed.connect(_on_relay_level_changed)
     controller.set_quality(graphics_quality)
@@ -789,7 +803,7 @@ func _build_relay_visual() -> void:
 
 func _on_relay_level_changed(level: int) -> void:
     if relay_visual is RelayController:
-        relay_visual.scale = Vector3.ONE * [0.66, 0.59, 0.50][level - 1]
+        relay_visual.scale = Vector3.ONE * [0.30, 0.28, 0.26][level - 1]
 
 func upgrade_relay_local() -> String:
     if relay_visual is RelayController and (relay_visual as RelayController).current_state == RelayController.RelayState.EVOLVING:
@@ -1129,10 +1143,14 @@ func set_graphics_quality(profile: String, persist: bool = true) -> void:
     if sky != null and sky.environment != null:
         sky.environment.ambient_light_energy = 0.70 if profile == "BAIXO" else (0.84 if profile == "MEDIO" else 1.03)
     if cinematic_light != null:
-        cinematic_light.light_energy = 1.15 if profile == "BAIXO" else (1.48 if profile == "MEDIO" else 1.85)
+        cinematic_light.light_energy = 0.85 if profile == "BAIXO" else (1.10 if profile == "MEDIO" else 1.30)
         cinematic_light.shadow_enabled = profile == "ALTO"
+    if fill_light != null:
+        fill_light.light_energy = 0.24 if profile == "BAIXO" else (0.43 if profile == "MEDIO" else 0.56)
+    if tactical_backdrop != null:
+        tactical_backdrop.set_quality(profile)
     if starfield != null:
-        starfield.visible = profile != "BAIXO" and (ui_shell == null or ui_shell.demo_starfield_visible)
+        starfield.visible = profile == "ALTO" and (ui_shell == null or ui_shell.demo_starfield_visible)
     if afterburner != null:
         afterburner.visible = profile != "BAIXO"
     if faction_base != null and is_instance_valid(faction_base):
