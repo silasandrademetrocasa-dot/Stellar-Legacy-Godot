@@ -1,0 +1,184 @@
+name: Stellar Legacy — limpar, instalar e publicar
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - stellar-legacy-build.zip
+      - .github/workflows/stellar-legacy.yml
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: stellar-legacy-pages
+  cancel-in-progress: false
+
+jobs:
+  install:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.STELLAR_REPO_TOKEN || github.token }}
+          ref: ${{ github.ref }}
+
+      - name: Validar pacote e substituir conteúdo antigo
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json
+          import os
+          import shutil
+          import stat
+          import tempfile
+          import zipfile
+          from pathlib import Path, PurePosixPath
+          
+          WORKFLOW = '.github/workflows/stellar-legacy.yml'
+          workspace = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+          if os.environ.get('GITHUB_ACTIONS') != 'true' or not (workspace / '.git').exists() or workspace == Path('/'):
+              raise SystemExit('Execute somente no checkout Git do GitHub Actions.')
+          workflow = (workspace / WORKFLOW).read_bytes()
+          
+          def safe_path(value):
+              if not isinstance(value, str) or not value or '\\' in value:
+                  raise ValueError('Caminho inválido no pacote')
+              parts = value.split('/')
+              if any(part in ('', '.', '..') or part.startswith('.') for part in parts):
+                  raise ValueError('Caminho inseguro: ' + value)
+              return PurePosixPath(value)
+          
+          def validate(root):
+              listing = root / 'offline-files.json'
+              if listing.stat().st_size > 1_000_000:
+                  raise ValueError('Manifesto excede o limite')
+              entries = json.loads(listing.read_text())
+              if not isinstance(entries, list) or not 1 <= len(entries) <= 1000:
+                  raise ValueError('Manifesto offline inválido')
+              paths = {str(safe_path(p)) for p in entries}
+              required = {'index.html', 'manifest.webmanifest', 'assets/manifest.json'}
+              if not required <= paths:
+                  raise ValueError('Use stellar-legacy-build.zip, e não o ZIP do código-fonte.')
+              paths |= {'offline-files.json', 'sw.js'}
+              for rel in paths:
+                  file = root / rel
+                  if file.is_symlink() or not file.is_file():
+                      raise ValueError('Arquivo obrigatório ausente/inseguro: ' + rel)
+                  if file.stat().st_size > 32 * 1024 * 1024:
+                      raise ValueError('Arquivo excede o limite: ' + rel)
+                  for parent in file.parents:
+                      if parent == root:
+                          break
+                      if parent.is_symlink():
+                          raise ValueError('Diretório simbólico não permitido')
+              if not (root / 'sw.js').read_text().strip():
+                  raise ValueError('Service worker vazio')
+              return paths
+          
+          with tempfile.TemporaryDirectory(prefix='stellar-', dir=os.environ['RUNNER_TEMP']) as temp:
+              staging = Path(temp) / 'game'
+              staging.mkdir()
+              archive = workspace / 'stellar-legacy-build.zip'
+              if archive.exists():
+                  with zipfile.ZipFile(archive) as z:
+                      infos = z.infolist()
+                      if len(infos) > 1200 or sum(i.file_size for i in infos) > 64 * 1024 * 1024:
+                          raise ValueError('ZIP excede os limites de tamanho')
+                      seen = set()
+                      for entry in infos:
+                          rel = str(safe_path(entry.filename.rstrip('/')))
+                          if rel in seen:
+                              raise ValueError('Entrada duplicada no ZIP: ' + rel)
+                          seen.add(rel)
+                          mode = entry.external_attr >> 16
+                          if stat.S_ISLNK(mode) or entry.flag_bits & 1:
+                              raise ValueError('ZIP criptografado ou link simbólico não permitido')
+                          if entry.is_dir():
+                              continue
+                          target = staging / rel
+                          target.parent.mkdir(parents=True, exist_ok=True)
+                          with z.open(entry) as source, target.open('wb') as dest:
+                              shutil.copyfileobj(source, dest)
+                  paths = validate(staging)
+              else:
+                  paths = validate(workspace)
+                  for rel in paths:
+                      target = staging / rel
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      shutil.copy2(workspace / rel, target)
+                  validate(staging)
+          
+              # Nenhum arquivo antigo é removido antes de o pacote completo ser validado.
+              for child in workspace.iterdir():
+                  if child.name == '.git':
+                      continue
+                  if child.is_dir() and not child.is_symlink():
+                      shutil.rmtree(child)
+                  else:
+                      child.unlink()
+              for rel in sorted(paths):
+                  target = workspace / rel
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copy2(staging / rel, target)
+              (workspace / '.nojekyll').write_text('')
+              target = workspace / WORKFLOW
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(workflow)
+              print(f'Instalação validada: {len(paths)} arquivos do jogo; conteúdo antigo e ZIP removidos.')
+          PYTHON
+
+      - name: Guardar ponto de retorno e gravar instalação limpa
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            recovery_tag="stellar-before-cleanup-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            git tag "$recovery_tag" HEAD
+            git commit -m "Install Stellar Legacy and remove legacy repository files"
+            git push --atomic origin "HEAD:${GITHUB_REF_NAME}" "refs/tags/${recovery_tag}"
+            echo "Repositório limpo. Recuperação: tag ${recovery_tag}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "O repositório já contém somente o jogo e este workflow." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Preparar apenas os arquivos públicos
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json, os, shutil
+          from pathlib import Path
+          root = Path(os.environ['GITHUB_WORKSPACE'])
+          dest = Path(os.environ['RUNNER_TEMP']) / 'stellar-public'
+          if dest.exists():
+              shutil.rmtree(dest)
+          dest.mkdir()
+          paths = set(json.loads((root / 'offline-files.json').read_text()))
+          paths |= {'offline-files.json', 'sw.js', '.nojekyll'}
+          for rel in paths:
+              target = dest / rel
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(root / rel, target)
+          PYTHON
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/stellar-public
+
+  deploy:
+    needs: install
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar jogo
+        id: deployment
+        uses: actions/deploy-pages@v4
