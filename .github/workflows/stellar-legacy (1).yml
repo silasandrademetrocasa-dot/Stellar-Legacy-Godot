@@ -1,0 +1,166 @@
+name: Stellar Legacy — extrair atualização e publicar
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - stellar-legacy-build.zip
+      - .github/workflows/stellar-legacy.yml
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: stellar-legacy-pages
+  cancel-in-progress: false
+
+jobs:
+  install:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.STELLAR_REPO_TOKEN || github.token }}
+          ref: ${{ github.ref }}
+
+      - name: Extrair ZIP de atualização sem limpar o repositório
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json
+          import os
+          import re
+          import shutil
+          import stat
+          import tempfile
+          import zipfile
+          from pathlib import Path
+          
+          root = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+          archive = root / 'stellar-legacy-build.zip'
+          pathspec = Path(os.environ['RUNNER_TEMP']) / 'stellar-updated-paths'
+          pathspec.write_bytes(b'')
+          
+          def safe_path(value):
+              if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9_./-]+', value):
+                  raise ValueError('Caminho inválido no ZIP/manifesto')
+              if any(part in ('', '.', '..') or part.startswith('.') for part in value.split('/')):
+                  raise ValueError('Caminho inseguro: ' + value)
+              return value
+          
+          if not archive.is_file():
+              print('::notice::Envie stellar-legacy-build.zip na raiz para extrair uma atualização. O jogo atual será mantido.')
+          else:
+              with tempfile.TemporaryDirectory(prefix='stellar-update-', dir=os.environ['RUNNER_TEMP']) as temp:
+                  staging = Path(temp)
+                  with zipfile.ZipFile(archive) as z:
+                      infos = z.infolist()
+                      if len(infos) > 1200 or sum(i.file_size for i in infos) > 64 * 1024 * 1024:
+                          raise ValueError('ZIP excede os limites de tamanho')
+                      seen = set()
+                      for info in infos:
+                          rel = safe_path(info.filename.rstrip('/'))
+                          if rel in seen:
+                              raise ValueError('Entrada duplicada: ' + rel)
+                          seen.add(rel)
+                          if stat.S_ISLNK(info.external_attr >> 16) or info.flag_bits & 1:
+                              raise ValueError('Links simbólicos e ZIP criptografado não são aceitos')
+                          if info.is_dir():
+                              continue
+                          if info.file_size > 32 * 1024 * 1024:
+                              raise ValueError('Arquivo excede o limite: ' + rel)
+                          target = staging / rel
+                          target.parent.mkdir(parents=True, exist_ok=True)
+                          with z.open(info) as source, target.open('wb') as dest:
+                              shutil.copyfileobj(source, dest)
+          
+                  listing = staging / 'offline-files.json'
+                  if not listing.is_file() or listing.stat().st_size > 1_000_000:
+                      raise ValueError('Use o stellar-legacy-build.zip compilado, com offline-files.json na raiz.')
+                  entries = json.loads(listing.read_text())
+                  if not isinstance(entries, list) or not 1 <= len(entries) <= 1000:
+                      raise ValueError('Lista offline inválida')
+                  paths = {safe_path(p) for p in entries}
+                  if not {'index.html', 'manifest.webmanifest', 'assets/manifest.json'} <= paths:
+                      raise ValueError('O ZIP não contém o build completo do jogo.')
+                  paths |= {'offline-files.json', 'sw.js'}
+                  for rel in paths:
+                      if not (staging / rel).is_file():
+                          raise ValueError('Arquivo ausente no pacote: ' + rel)
+                      target = root / rel
+                      if target.is_symlink() or (target.exists() and not target.is_file()):
+                          raise ValueError('Destino incompatível: ' + rel)
+                      for parent in target.parents:
+                          if parent == root:
+                              break
+                          if parent.is_symlink() or (parent.exists() and not parent.is_dir()):
+                              raise ValueError('Diretório de destino incompatível: ' + rel)
+                  if not (staging / 'sw.js').read_text().strip():
+                      raise ValueError('Service worker vazio')
+          
+                  # Somente após validar todo o pacote, sobrepor os arquivos listados.
+                  # ZIP, workflow, configurações e demais arquivos existentes são preservados.
+                  for rel in sorted(paths):
+                      target = root / rel
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      shutil.copy2(staging / rel, target)
+                  pathspec.write_bytes(b''.join(rel.encode() + b'\0' for rel in sorted(paths)))
+                  print(f'Atualização extraída: {len(paths)} arquivos do jogo. Nenhuma limpeza do repositório executada.')
+          PYTHON
+
+      - name: Registrar somente os arquivos extraídos
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -s "$RUNNER_TEMP/stellar-updated-paths" ]; then
+            git --literal-pathspecs add --pathspec-from-file="$RUNNER_TEMP/stellar-updated-paths" --pathspec-file-nul
+          fi
+          if ! git diff --cached --quiet; then
+            recovery_tag="stellar-before-update-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            git tag "$recovery_tag" HEAD
+            git commit -m "Extract Stellar Legacy game update"
+            git push --atomic origin "HEAD:${GITHUB_REF_NAME}" "refs/tags/${recovery_tag}"
+            echo "Atualização extraída e gravada. Revisão anterior: ${recovery_tag}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Nenhuma atualização nova para gravar." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Preparar apenas os arquivos públicos
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json, os, shutil
+          from pathlib import Path
+          root = Path(os.environ['GITHUB_WORKSPACE'])
+          dest = Path(os.environ['RUNNER_TEMP']) / 'stellar-public'
+          if dest.exists():
+              shutil.rmtree(dest)
+          dest.mkdir()
+          paths = set(json.loads((root / 'offline-files.json').read_text()))
+          paths |= {'offline-files.json', 'sw.js', '.nojekyll'}
+          for rel in paths:
+              target = dest / rel
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(root / rel, target)
+          PYTHON
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/stellar-public
+
+  deploy:
+    needs: install
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar jogo
+        id: deployment
+        uses: actions/deploy-pages@v4
