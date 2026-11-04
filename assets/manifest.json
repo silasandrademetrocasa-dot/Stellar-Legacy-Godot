@@ -1,0 +1,491 @@
+{
+  "version": 1,
+  "license": "Original AI-generated visual assets for this project; original synthesized audio. See docs/ARTE_E_ASSETS.md",
+  "assets": [
+    {
+      "id": "ship0",
+      "path": "sprites/ship0.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ship1",
+      "path": "sprites/ship1.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ship2",
+      "path": "sprites/ship2.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ship3",
+      "path": "sprites/ship3.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ship4",
+      "path": "sprites/ship4.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "enemy0",
+      "path": "sprites/enemy0.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "enemy1",
+      "path": "sprites/enemy1.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "enemy2",
+      "path": "sprites/enemy2.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "enemy3",
+      "path": "sprites/enemy3.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "enemy4",
+      "path": "sprites/enemy4.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "enemy5",
+      "path": "sprites/enemy5.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "station",
+      "path": "sprites/station.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "drone0",
+      "path": "sprites/drone0.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "drone1",
+      "path": "sprites/drone1.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "aux",
+      "path": "sprites/aux.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "portal",
+      "path": "sprites/portal.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "blue",
+      "path": "backgrounds/blue.webp",
+      "width": 768,
+      "height": 1152,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "red",
+      "path": "backgrounds/red.webp",
+      "width": 768,
+      "height": 1152,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "industrial",
+      "path": "backgrounds/industrial.webp",
+      "width": 768,
+      "height": 1152,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "vfx",
+      "path": "effects/vfx.png",
+      "width": 1024,
+      "height": 1024,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 64,
+      "columns": 8,
+      "rows": 8,
+      "fps": 12
+    },
+    {
+      "id": "ore0",
+      "path": "sprites/ore0.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ore1",
+      "path": "sprites/ore1.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ore2",
+      "path": "sprites/ore2.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ore3",
+      "path": "sprites/ore3.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ore4",
+      "path": "sprites/ore4.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "laser",
+      "path": "items/laser.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "shield",
+      "path": "items/shield.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "engine",
+      "path": "items/engine.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "credits",
+      "path": "items/credits.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "stellarium",
+      "path": "items/stellarium.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "medkit",
+      "path": "items/medkit.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "ammo",
+      "path": "items/ammo.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "lyra",
+      "path": "portraits/lyra.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "nilo",
+      "path": "portraits/nilo.png",
+      "width": 256,
+      "height": 256,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "icon-192",
+      "path": "icons/icon-192.png",
+      "width": 192,
+      "height": 192,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "icon-512",
+      "path": "icons/icon-512.png",
+      "width": 512,
+      "height": 512,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "frame",
+      "path": "items/frame.png",
+      "width": 128,
+      "height": 128,
+      "pivot": [
+        0.5,
+        0.5
+      ],
+      "frameCount": 1
+    },
+    {
+      "id": "item-drone0",
+      "path": "items/drone0.png",
+      "width": 256,
+      "height": 256,
+      "frameCount": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "item-drone1",
+      "path": "items/drone1.png",
+      "width": 256,
+      "height": 256,
+      "frameCount": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "item-aux",
+      "path": "items/aux.png",
+      "width": 256,
+      "height": 256,
+      "frameCount": 1,
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "shot-audio",
+      "path": "audio/shot.wav",
+      "duration": 0.15,
+      "sampleRate": 22050
+    },
+    {
+      "id": "impact-audio",
+      "path": "audio/impact.wav",
+      "duration": 0.12,
+      "sampleRate": 22050
+    },
+    {
+      "id": "explosion-audio",
+      "path": "audio/explosion.wav",
+      "duration": 0.65,
+      "sampleRate": 22050
+    },
+    {
+      "id": "reward-audio",
+      "path": "audio/reward.wav",
+      "duration": 0.6,
+      "sampleRate": 22050
+    },
+    {
+      "id": "ui-audio",
+      "path": "audio/ui.wav",
+      "duration": 0.08,
+      "sampleRate": 22050
+    },
+    {
+      "id": "engine-audio",
+      "path": "audio/engine.wav",
+      "duration": 0.4,
+      "sampleRate": 22050
+    },
+    {
+      "id": "ambient-audio",
+      "path": "audio/ambient.wav",
+      "duration": 12,
+      "sampleRate": 22050
+    }
+  ]
+}
