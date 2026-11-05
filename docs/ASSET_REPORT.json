@@ -1,8 +1,8 @@
 {
-  "files": 408,
-  "rasterFrames": 816,
+  "files": 409,
+  "rasterFrames": 824,
   "vfxAnimationFrames": 64,
-  "totalBytes": 11343969,
+  "totalBytes": 10705863,
   "groups": {
     "sprites": {
       "count": 13,
@@ -13,8 +13,8 @@
       "bytes": 171210
     },
     "effects": {
-      "count": 1,
-      "bytes": 840500
+      "count": 2,
+      "bytes": 865524
     },
     "items": {
       "count": 11,
@@ -34,7 +34,7 @@
     },
     "canonical": {
       "count": 369,
-      "bytes": 7721400
+      "bytes": 7058270
     }
   },
   "identicalFileGroups": [
@@ -49,6 +49,14 @@
     [
       "sprites/aux.png",
       "items/aux.png"
+    ],
+    [
+      "canonical/ships/aurora.webp",
+      "canonical/designers/aurora-default.webp"
+    ],
+    [
+      "canonical/ships/pioneer.webp",
+      "canonical/designers/pioneer-default.webp"
     ]
   ],
   "unusedAssetIds": [],

@@ -1,6 +1,8 @@
 > Pacote GitHub: jogo compilado, fonte editavel, testes e assets finais. Pinturas originais art-source ficam no pacote completo anterior; nao sao necessarias para build.
 
-# Stellar Legacy Offline · 1.0.1
+> Revisão 1.0.2: naves vistas de cima em 2D, mapas 1–8 encadeados, chegada no portal de retorno e base no lado direito do mapa 1. Use MINHA BASE para localizar serviços. Seletores mostram X1–X4 e os quatro mísseis, todos com estoque finito.
+
+# Stellar Legacy Offline · 1.0.2
 
 Evolução cumulativa do projeto 0.2 conforme `docs/GDD_ENTREGA_UNICA.md`. Jogo solo e laboratório de balanceamento, em português. Nenhuma conta, moeda real, chat ou servidor é necessário. Arena, clã, leilão e Warfront são simulações locais, identificadas na interface. O adapter online permanece desativado.
 

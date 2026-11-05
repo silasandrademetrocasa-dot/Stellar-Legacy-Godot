@@ -4255,6 +4255,13 @@
       "width": 512,
       "height": 256,
       "frameCount": 8
+    },
+    {
+      "id": "projectiles-v102",
+      "path": "effects/projectiles.webp",
+      "width": 1024,
+      "height": 128,
+      "frameCount": 8
     }
   ]
 }

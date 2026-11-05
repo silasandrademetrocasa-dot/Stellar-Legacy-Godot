@@ -1,3 +1,7 @@
+# 1.0.2 · Combate, portais e naves 2D
+
+Reestruturação da cadeia de mapas, chegada pelo portal de retorno, base visível no mapa 1, lasers/mísseis novos, munições finitas selecionáveis e naves ortográficas. Detalhes: docs/CORRECOES_1_0_2.md.
+
 # 1.0.1 · Orientação, base e menus
 
 Oito frames raster por nave, base estática, loja legível com validação de saldo/quantidade e fluxo orientado de recursos/equipamentos. Detalhes: docs/CORRECOES_1_0_1.md. Saves preservados.

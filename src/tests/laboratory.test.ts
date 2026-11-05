@@ -4,7 +4,7 @@ import {canonical,group} from '../content/canonical';
 import {lab,protocolSlots,shieldProperties,recipes,laserStock,npcStats,sectorConfig} from '../core/laboratory';
 import {normalizeInput,frontHeading,smoothHeading,directionFrame} from '../core/navigation';
 const command=(s:State,type:string,payload:Record<string,unknown>={},id=crypto.randomUUID() as string)=>reduce(s,{id,type,payload});
-function pilot(){let s=command(initialState(),'MIGRATE_LAB');s.world.x=700;s.credits=1000000000;s.stellarium=10000000;return s;}
+function pilot(){let s=command(initialState(),'MIGRATE_LAB');s.world.x=6500;s.credits=1000000000;s.stellarium=10000000;return s;}
 describe('canonical GDD content and local economy',()=>{
  it('imports exactly 177 records and all 34 current NPCs have a spawn route',()=>{expect(canonical).toHaveLength(177);expect(new Set(canonical.map(r=>r.code)).size).toBe(177);expect(group('naves')).toHaveLength(43);expect(group('npcs')).toHaveLength(34);expect(group('npcs futuros')).toHaveLength(27);expect(group('mapas')).toHaveLength(14);expect(group('npcs futuros').every(r=>r.status==='FUTURO')).toBe(true);});
  it('keeps event ships locked instead of making zero-price ships free',()=>{const s=pilot();expect(()=>command(s,'BUY_CATALOG',{code:'seraph'})).toThrow();expect(()=>command(s,'BUY_CATALOG',{code:'aurora'})).toThrow();expect(s.ownedShips).not.toContain('seraph');});

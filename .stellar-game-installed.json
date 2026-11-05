@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "files": [
     ".gitignore",
     "CHANGELOG_OFFLINE.md",
@@ -9,8 +9,8 @@
     "THIRD_PARTY_LICENSES.txt",
     "TODO_OFFLINE.md",
     "app.html",
-    "assets/app-CiAxZ0g5.js",
-    "assets/app-CntMP5Gz.css",
+    "assets/app-5GHmePaC.js",
+    "assets/app-Chi3GLBz.css",
     "assets/audio/ambient.wav",
     "assets/audio/engine.wav",
     "assets/audio/explosion.wav",
@@ -390,6 +390,7 @@
     "assets/canonical/stations/jupiter-federation.webp",
     "assets/canonical/stations/mars-dominion.webp",
     "assets/canonical/stations/terra-alliance.webp",
+    "assets/effects/projectiles.webp",
     "assets/effects/vfx.png",
     "assets/icons/icon-192.png",
     "assets/icons/icon-512.png",
@@ -425,6 +426,7 @@
     "docs/ATUALIZACAO_0_2.md",
     "docs/BUILD_REPORT.json",
     "docs/CORRECOES_1_0_1.md",
+    "docs/CORRECOES_1_0_2.md",
     "docs/CRITERIOS_DE_ACEITE.md",
     "docs/DECISOES_TECNICAS.md",
     "docs/GDD_ENTREGA_UNICA.md",
@@ -826,6 +828,7 @@
     "public/assets/canonical/stations/jupiter-federation.webp",
     "public/assets/canonical/stations/mars-dominion.webp",
     "public/assets/canonical/stations/terra-alliance.webp",
+    "public/assets/effects/projectiles.webp",
     "public/assets/effects/vfx.png",
     "public/assets/icons/icon-192.png",
     "public/assets/icons/icon-512.png",
@@ -883,12 +886,15 @@
     "src/tests/graphics.test.ts",
     "src/tests/heading.test.ts",
     "src/tests/laboratory.test.ts",
+    "src/tests/missiles.test.ts",
     "src/tests/storage.test.ts",
+    "src/tests/world-combat.test.ts",
     "sw.js",
     "tools/benchmark-dom.mjs",
     "tools/build-offline.mjs",
     "tools/generate-gallery.mjs",
     "tools/import-gdd.py",
+    "tools/import-topdown.py",
     "tools/install-release.py",
     "tools/package-release.py",
     "tools/prepare-assets.py",
@@ -902,5 +908,5 @@
     "tsconfig.json",
     "vite.config.ts"
   ],
-  "zip": "JOGO_v1.0.1_PARA_GITHUB.zip"
+  "zip": "JOGO_v1.0.2_PARA_GITHUB.zip"
 }
