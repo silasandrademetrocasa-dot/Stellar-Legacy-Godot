@@ -1,0 +1,126 @@
+name: Extrair ZIP do jogo
+on:
+  push:
+    branches: ['**']
+    paths: ['**.zip', '**/*.zip', '**.ZIP', '**/*.ZIP']
+  workflow_dispatch:
+    inputs:
+      zip_path:
+        description: 'Caminho do ZIP (opcional; vazio detecta o último ZIP enviado)'
+        required: false
+        type: string
+      publish_pages:
+        description: 'Publicar também no GitHub Pages (precisa estar configurado para GitHub Actions)'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: stellar-import-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validar, extrair e substituir os arquivos reais
+        id: extract
+        shell: python
+        env:
+          ZIP_INPUT: ${{ inputs.zip_path }}
+        run: |
+          import hashlib,json,os,shutil,subprocess,tempfile,zipfile
+          from pathlib import Path,PurePosixPath
+          root=Path(os.environ.get('GITHUB_WORKSPACE','.')).resolve()
+          def safe(name):
+           p=PurePosixPath(name)
+           if not name or '\\' in name or p.is_absolute() or '..' in p.parts or p.parts[0] in {'.git','.github','node_modules'}:raise ValueError('Caminho não permitido: '+name)
+           return name
+          def git(*args):return subprocess.check_output(['git',*args],cwd=root)
+          provided=os.environ.get('ZIP_INPUT','').strip()
+          tracked=[root/p.decode() for p in git('ls-files','-z').split(b'\0') if p and Path(p.decode()).suffix.lower()=='.zip']
+          if provided:
+           explicit=(root/provided).resolve()
+           if not explicit.is_relative_to(root) or not explicit.is_file():raise ValueError('ZIP informado não existe no repositório')
+           tracked=[explicit]
+          changed=set(p.decode() for p in git('diff-tree','--no-commit-id','--name-only','-r','-z','HEAD').split(b'\0') if p)
+          options=[]
+          for archive in tracked:
+           try:
+            with zipfile.ZipFile(archive) as z:
+             names=z.namelist();markers=[n for n in names if n.endswith('stellar-build.json')]
+             if len(markers)!=1:continue
+             marker=markers[0];meta=json.loads(z.read(marker))
+             if meta.get('kind')!='stellar-static-build' or meta.get('format')!=1:continue
+             prefix=marker[:-len('stellar-build.json')]
+             rel=archive.relative_to(root).as_posix();stamp=int(git('log','-1','--format=%ct','--',rel).strip() or b'0')
+             options.append((rel in changed,stamp,rel,archive,prefix,meta))
+           except (zipfile.BadZipFile,json.JSONDecodeError):continue
+          if not options:raise RuntimeError('Nenhum ZIP instalável encontrado. Envie o ZIP JOGO_v1.0.0_PARA_GITHUB.zip (o nome pode mudar). Não envie somente uma parte do pacote de fontes.')
+          _,_,relative,archive,prefix,meta=max(options,key=lambda x:x[:3])
+          with tempfile.TemporaryDirectory(prefix='stellar-import-') as temporary:
+           stage=Path(temporary);expected={f['path']:f for f in meta['files']}
+           if len(expected)!=len(meta['files']):raise ValueError('Manifesto interno com caminhos duplicados')
+           with zipfile.ZipFile(archive) as z:
+            names=[n for n in z.namelist() if not n.endswith('/')]
+            if len(names)!=len(set(names)) or set(names)!={prefix+n for n in expected}|{prefix+'stellar-build.json'}:raise ValueError('Conteúdo ZIP inconsistente')
+            for name,f in expected.items():
+             safe(name);data=z.read(prefix+name)
+             if len(data)!=f['bytes'] or hashlib.sha256(data).hexdigest()!=f['sha256']:raise ValueError('Arquivo corrompido: '+name)
+             target=stage/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+           for required in ['index.html','sw.js','manifest.webmanifest','offline-files.json']:
+            if required not in expected:raise ValueError('Jogo incompleto: '+required)
+           offline=json.loads((stage/'offline-files.json').read_text())
+           if not all(safe(p) in expected for p in offline):raise ValueError('Faltam arquivos do cache offline')
+           for name in expected:
+            target=root/name
+            if target.is_symlink() or not target.resolve().is_relative_to(root) or (target.exists() and not target.is_file()):raise ValueError('Destino incompatível: '+name)
+            if any(p.exists() and not p.is_dir() for p in target.parents if p!=root and root in p.parents):raise ValueError('Pasta de destino incompatível: '+name)
+           previous=root/'.stellar-game-installed.json';obsolete=set()
+           if previous.is_file():obsolete.update(json.loads(previous.read_text()).get('files',[]))
+           if (root/'assets').is_dir():obsolete.update(p.relative_to(root).as_posix() for p in (root/'assets').rglob('*') if p.is_file())
+           for name in obsolete-set(expected):
+            safe(name);target=root/name
+            if target.is_file() and target.resolve().is_relative_to(root):target.unlink()
+           for name in expected:
+            target=root/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(stage/name,target)
+           previous.write_text(json.dumps({'version':meta['version'],'files':sorted(expected),'zip':relative},indent=2)+'\n')
+           publish=Path(os.environ.get('RUNNER_TEMP',tempfile.gettempdir()))/'stellar-pages-ready'
+           if publish.exists():shutil.rmtree(publish)
+           shutil.copytree(stage,publish)
+           if os.environ.get('GITHUB_OUTPUT'):
+            with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('pages_path='+str(publish)+'\n')
+           if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:out.write(f'## ZIP instalado\n\nArquivo: `{relative}`\n\nVersão: {meta["version"]}\n\n{len(expected)} arquivos verificados e substituídos na raiz.\n')
+           print(f'OK: {relative}; versão {meta["version"]}; {len(expected)} arquivos instalados na raiz.')
+      - name: Gravar a atualização no repositório
+        shell: bash
+        run: |
+          git config user.name 'stellar-update[bot]'
+          git config user.email 'stellar-update@users.noreply.github.com'
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Atualiza jogo a partir do ZIP [skip ci]'
+            git push origin HEAD:"$GITHUB_REF_NAME"
+          fi
+          test "$(git rev-parse HEAD)" = "$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)"
+      - uses: actions/upload-pages-artifact@v3
+        if: inputs.publish_pages == true
+        with:
+          path: ${{ steps.extract.outputs.pages_path }}
+  pages:
+    if: inputs.publish_pages == true && github.ref_name == github.event.repository.default_branch
+    needs: install
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - uses: actions/deploy-pages@v4
+        id: deployment
