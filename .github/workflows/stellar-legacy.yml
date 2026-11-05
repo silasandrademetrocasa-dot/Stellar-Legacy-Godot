@@ -1,249 +1,65 @@
-name: Stellar Legacy — substituir build e publicar
-
+name: Install complete Stellar release and publish
 on:
-  workflow_dispatch:
-    inputs:
-      zip_path:
-        description: 'Opcional: caminho de um ZIP específico; vazio detecta automaticamente'
-        required: false
-        type: string
   push:
-    paths:
-      - '**.[zZ][iI][pP]'
-      - '.github/workflows/stellar-legacy.yml'
-
+    paths: ['**.zip', '**/*.zip', 'release-manifest.json', '.github/workflows/stellar-legacy.yml']
+  workflow_dispatch:
 permissions:
   contents: write
   pages: write
   id-token: write
-
 concurrency:
-  group: stellar-legacy-pages
+  group: stellar-release-${{ github.ref }}
   cancel-in-progress: false
-
 jobs:
-  update:
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.STELLAR_REPO_TOKEN || github.token }}
-          ref: ${{ github.ref }}
-
-      - name: Detectar ZIP, substituir arquivos e verificar hashes
-        env:
-          UPDATE_ZIP: ${{ inputs.zip_path || '' }}
-        shell: bash
-        run: |
-          python - <<'PYTHON'
-          import hashlib
-          import json
-          import os
-          import re
-          import shutil
-          import stat
-          import subprocess
-          import tempfile
-          import zipfile
-          from pathlib import Path, PurePosixPath
-          
-          root = Path(os.environ['GITHUB_WORKSPACE']).resolve()
-          temp = Path(os.environ['RUNNER_TEMP'])
-          
-          def git(*args):
-              return subprocess.check_output(['git', *args], cwd=root).decode().strip()
-          
-          def safe(value):
-              if not isinstance(value, str) or not value or '\\' in value or any(ord(c) < 32 for c in value):
-                  raise ValueError('Caminho inválido no pacote')
-              p = PurePosixPath(value)
-              if p.is_absolute() or any(part in ('', '.', '..') or (part.startswith('.') and part != '.nojekyll') for part in value.split('/')):
-                  raise ValueError('Caminho protegido/inseguro: ' + value)
-              if p.suffix.lower() == '.zip':
-                  raise ValueError('ZIP aninhado não é arquivo público do jogo')
-              return value
-          
-          def sha(path):
-              return hashlib.sha256(path.read_bytes()).hexdigest()
-          
-          tracked = set(filter(None, subprocess.check_output(['git', 'ls-files', '-z'], cwd=root).decode().split('\0')))
-          archives = [p for p in tracked if Path(p).suffix.lower() == '.zip' and (root / p).is_file()]
-          explicit = os.environ.get('UPDATE_ZIP', '').strip()
-          event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
-          changed = set()
-          before = event.get('before', '')
-          if os.environ.get('GITHUB_EVENT_NAME') == 'push' and re.fullmatch(r'[0-9a-fA-F]{40}', before) and set(before) != {'0'}:
-              # Fail rather than silently selecting an older ZIP if history cannot be read.
-              diff = subprocess.check_output(['git', 'diff', '--name-only', '-z', before, 'HEAD'], cwd=root).decode()
-              changed = {p for p in diff.split('\0') if p in archives}
-          if explicit:
-              if explicit not in archives:
-                  raise ValueError('ZIP solicitado não encontrado entre os arquivos Git: ' + explicit)
-              candidates = [explicit]
-          else:
-              candidates = list(changed or archives)
-          if not candidates:
-              raise ValueError('Nenhum ZIP encontrado. Envie o ZIP compilado da versão na raiz ou em uma pasta do repositório.')
-          
-          if not explicit and not changed:
-              history = git('rev-list', 'HEAD').splitlines()
-              depth = {commit: index for index, commit in enumerate(history)}
-              last_commit = {name: git('log', '-1', '--format=%H', '--', name) for name in candidates}
-              latest = min(last_commit.values(), key=lambda commit: depth.get(commit, len(history)))
-              candidates = [name for name in candidates if last_commit[name] == latest]
-          
-          def rank(name):
-              stamp = int(git('log', '-1', '--format=%ct', '--', name) or '0')
-              match = re.search(r'(?i)(?:v|\b)(\d+)\.(\d+)(?:\.(\d+))?', Path(name).name)
-              version = tuple(int(n or 0) for n in match.groups()) if match else (0, 0, 0)
-              return stamp, version, name
-          
-          with tempfile.TemporaryDirectory(prefix='stellar-update-', dir=temp) as work:
-              work = Path(work)
-              selected = None
-              failures = []
-              for index, name in enumerate(sorted(candidates, key=rank, reverse=True)):
-                  staging = work / str(index)
-                  staging.mkdir()
-                  try:
-                      with zipfile.ZipFile(root / name) as archive:
-                          infos = archive.infolist()
-                          if len(infos) > 3000 or sum(i.file_size for i in infos) > 96 * 1024 * 1024:
-                              raise ValueError('ZIP excede os limites de tamanho')
-                          seen = set()
-                          for info in infos:
-                              rel = safe(info.filename.rstrip('/'))
-                              if rel in seen or stat.S_ISLNK(info.external_attr >> 16) or info.flag_bits & 1:
-                                  raise ValueError('ZIP com duplicatas, links ou criptografia')
-                              seen.add(rel)
-                              if info.is_dir():
-                                  continue
-                              if info.file_size > 32 * 1024 * 1024:
-                                  raise ValueError('Arquivo maior que o limite: ' + rel)
-                              target = staging / rel
-                              target.parent.mkdir(parents=True, exist_ok=True)
-                              with archive.open(info) as source, target.open('wb') as dest:
-                                  shutil.copyfileobj(source, dest)
-                      builds = [p.parent for p in staging.rglob('offline-files.json')
-                                if (p.parent / 'index.html').is_file() and (p.parent / 'sw.js').is_file()]
-                      if len(builds) != 1:
-                          raise ValueError('É necessário um único build completo com index.html, sw.js e offline-files.json')
-                      build = builds[0]
-                      listing = build / 'offline-files.json'
-                      if listing.stat().st_size > 1_000_000:
-                          raise ValueError('Manifesto offline muito grande')
-                      entries = json.loads(listing.read_text())
-                      if not isinstance(entries, list) or not 1 <= len(entries) <= 3000:
-                          raise ValueError('Manifesto offline inválido')
-                      paths = {safe(p) for p in entries}
-                      if not {'index.html', 'manifest.webmanifest', 'assets/manifest.json'} <= paths:
-                          raise ValueError('ZIP não contém o build completo do Stellar Legacy')
-                      paths |= {'offline-files.json', 'sw.js'}
-                      for rel in paths:
-                          if not (build / rel).is_file():
-                              raise ValueError('Arquivo ausente: ' + rel)
-                      if not (build / 'sw.js').read_text().strip():
-                          raise ValueError('Service worker vazio')
-                      selected = name, build, paths
-                      break
-                  except (ValueError, OSError, zipfile.BadZipFile, RuntimeError) as error:
-                      failures.append(f'{name}: {error}')
-              if selected is None:
-                  raise ValueError('Nenhum ZIP válido de jogo compilado.\n' + '\n'.join(failures))
-              name, build, paths = selected
-              old = set()
-              old_listing = root / 'offline-files.json'
-              if old_listing.is_file():
-                  old_entries = json.loads(old_listing.read_text())
-                  if not isinstance(old_entries, list):
-                      raise ValueError('Lista offline do jogo instalado é inválida')
-                  old = {safe(p) for p in old_entries}
-              # assets belongs to the compiled game; remove obsolete bundles/textures too.
-              if (root / 'assets').is_symlink():
-                  raise ValueError('assets não pode ser link simbólico')
-              if (root / 'assets').exists():
-                  old |= {p.relative_to(root).as_posix() for p in (root / 'assets').rglob('*') if p.is_file() or p.is_symlink()}
-              obsolete = old - paths
-              for rel in paths | obsolete:
-                  target = root / rel
-                  for parent in target.parents:
-                      if parent == root:
-                          break
-                      if parent.is_symlink() or (parent.exists() and not parent.is_dir()):
-                          raise ValueError('Destino incompatível: ' + rel)
-                  if target.is_symlink() or (target.exists() and not target.is_file()):
-                      raise ValueError('Arquivo de destino incompatível: ' + rel)
-              added = sum(not (root / p).exists() for p in paths)
-              replaced = sum((root / p).is_file() and sha(root / p) != sha(build / p) for p in paths)
-              # All validation is complete. This checkout is only published AFTER commit/push.
-              for rel in sorted(paths):
-                  target = root / rel
-                  target.parent.mkdir(parents=True, exist_ok=True)
-                  shutil.copy2(build / rel, target)
-              for rel in sorted(obsolete):
-                  (root / rel).unlink(missing_ok=True)
-              (root / '.nojekyll').write_text('')
-              for rel in paths:
-                  if sha(root / rel) != sha(build / rel):
-                      raise ValueError('Falha ao substituir/verificar arquivo: ' + rel)
-              if any((root / rel).exists() for rel in obsolete):
-                  raise ValueError('Arquivo antigo não foi removido')
-              staged = {p for p in paths | obsolete if (root / p).exists() or p in tracked} | {'.nojekyll'}
-              (temp / 'stellar-updated-paths').write_bytes(b''.join(p.encode() + b'\0' for p in sorted(staged)))
-              public = temp / 'stellar-public'
-              if public.exists():
-                  shutil.rmtree(public)
-              public.mkdir()
-              for rel in paths | {'.nojekyll'}:
-                  target = public / rel
-                  target.parent.mkdir(parents=True, exist_ok=True)
-                  shutil.copy2(root / rel, target)
-              report = {'zip': name, 'zip_sha256': sha(root / name), 'added': added, 'replaced': replaced,
-                        'obsolete_removed': len(obsolete), 'verified_game_files': len(paths), 'skipped_invalid_archives': failures}
-              (temp / 'stellar-update-report.json').write_text(json.dumps(report, indent=2))
-              print(json.dumps(report, indent=2))
-              with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a') as summary:
-                  summary.write('## Atualização do jogo\n\n```json\n' + json.dumps(report, indent=2) + '\n```\n')
-          PYTHON
-
-      - name: Gravar substituições e exclusões, enviar e confirmar commit remoto
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git --literal-pathspecs add -A --pathspec-from-file="$RUNNER_TEMP/stellar-updated-paths" --pathspec-file-nul
-          if ! git diff --cached --quiet; then
-            git diff --cached --stat
-            git commit -m "Update Stellar Legacy build [skip ci]"
-            if ! git push origin "HEAD:${GITHUB_REF_NAME}"; then
-              echo "::error::Não foi possível gravar a atualização no repositório. Verifique permissão Contents: write e proteção da branch. A publicação foi interrompida."
-              exit 1
-            fi
-          fi
-          local_sha="$(git rev-parse HEAD)"
-          remote_sha="$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | cut -f1)"
-          if [ "$local_sha" != "$remote_sha" ]; then
-            echo "::error::O commit remoto não corresponde aos arquivos atualizados. Publicação interrompida."
-            exit 1
-          fi
-          echo "Commit remoto confirmado: ${local_sha}" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-      - name: Enviar somente o build verificado
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ${{ runner.temp }}/stellar-public
-
-  deploy:
-    needs: update
+  release:
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: ${{ github.ref_name == github.event.repository.default_branch && 'github-pages' || 'staging' }}
     steps:
-      - name: Publicar atualização
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - name: Verify all parts and bootstrap the verified installer
+        shell: python
+        run: |
+          import hashlib,json,pathlib,subprocess,tempfile,zipfile
+          root=pathlib.Path('.')
+          m=json.loads((root/'release-manifest.json').read_text())
+          sha=lambda b:hashlib.sha256(b).hexdigest()
+          archives=list(root.rglob('*'))
+          installer=next(f for f in m['files'] if f['path']=='tools/install-release.py')
+          code=None
+          for part in m['parts']:
+              matches=[p for p in archives if p.is_file() and p.suffix.lower()=='.zip' and p.stat().st_size==part['bytes'] and sha(p.read_bytes())==part['sha256']]
+              if not matches:raise RuntimeError('Missing/corrupted part: '+part['name']+'; nothing will be committed or published')
+              if part['name']==installer['part']:
+                  with zipfile.ZipFile(matches[0]) as z:code=z.read(installer['path'])
+          assert code and sha(code)==installer['sha256']
+          with tempfile.TemporaryDirectory() as d:
+              script=pathlib.Path(d)/'install.py';script.write_bytes(code)
+              subprocess.run(['python',str(script),'--manifest','release-manifest.json','--archives','.','--destination','.'],check=True)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: Commit complete replacement and verify remote revision
+        shell: bash
+        run: |
+          git config user.name 'stellar-release[bot]'
+          git config user.email 'stellar-release@users.noreply.github.com'
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Install verified complete Stellar release [skip ci]'
+            git push origin HEAD:"$GITHUB_REF_NAME"
+          fi
+          test "$(git rev-parse HEAD)" = "$(git ls-remote origin "refs/heads/$GITHUB_REF_NAME" | cut -f1)"
+      - uses: actions/configure-pages@v5
+        if: github.ref_name == github.event.repository.default_branch
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref_name == github.event.repository.default_branch
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
+        if: github.ref_name == github.event.repository.default_branch
