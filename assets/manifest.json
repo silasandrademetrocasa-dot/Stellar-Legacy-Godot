@@ -3912,6 +3912,349 @@
         0.5,
         0.5
       ]
+    },
+    {
+      "id": "heading-aurora-industrial",
+      "path": "canonical/heading/aurora-industrial.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-aurora-solar",
+      "path": "canonical/heading/aurora-solar.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-aurora-stellar",
+      "path": "canonical/heading/aurora-stellar.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-aurora",
+      "path": "canonical/heading/aurora.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-bastion",
+      "path": "canonical/heading/bastion.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-bulwark",
+      "path": "canonical/heading/bulwark.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-concord",
+      "path": "canonical/heading/concord.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-doppel",
+      "path": "canonical/heading/doppel.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-echo",
+      "path": "canonical/heading/echo.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-gale",
+      "path": "canonical/heading/gale.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-gravastar",
+      "path": "canonical/heading/gravastar.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-guardian",
+      "path": "canonical/heading/guardian.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-helios",
+      "path": "canonical/heading/helios.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-hellrunner",
+      "path": "canonical/heading/hellrunner.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-interdictor",
+      "path": "canonical/heading/interdictor.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-ironclaw",
+      "path": "canonical/heading/ironclaw.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-kensei",
+      "path": "canonical/heading/kensei.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-lancer",
+      "path": "canonical/heading/lancer.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-leviathan-x",
+      "path": "canonical/heading/leviathan-x.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-leviathan",
+      "path": "canonical/heading/leviathan.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-lumina",
+      "path": "canonical/heading/lumina.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-lynx",
+      "path": "canonical/heading/lynx.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-meridian",
+      "path": "canonical/heading/meridian.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-mirage",
+      "path": "canonical/heading/mirage.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-nexus-prime",
+      "path": "canonical/heading/nexus-prime.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-nullifier",
+      "path": "canonical/heading/nullifier.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-pathfinder",
+      "path": "canonical/heading/pathfinder.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-phantom",
+      "path": "canonical/heading/phantom.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-pioneer-industrial",
+      "path": "canonical/heading/pioneer-industrial.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-pioneer-solar",
+      "path": "canonical/heading/pioneer-solar.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-pioneer-stellar",
+      "path": "canonical/heading/pioneer-stellar.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-pioneer",
+      "path": "canonical/heading/pioneer.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-plaguewing",
+      "path": "canonical/heading/plaguewing.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-praetor",
+      "path": "canonical/heading/praetor.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-prism",
+      "path": "canonical/heading/prism.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-raptor",
+      "path": "canonical/heading/raptor.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-ravager",
+      "path": "canonical/heading/ravager.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-reclaimer",
+      "path": "canonical/heading/reclaimer.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-seraph",
+      "path": "canonical/heading/seraph.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-shogun",
+      "path": "canonical/heading/shogun.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-sovereign",
+      "path": "canonical/heading/sovereign.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-stormrider",
+      "path": "canonical/heading/stormrider.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-striker",
+      "path": "canonical/heading/striker.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-valkyrie",
+      "path": "canonical/heading/valkyrie.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-vanguard",
+      "path": "canonical/heading/vanguard.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-venatrix",
+      "path": "canonical/heading/venatrix.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-viper",
+      "path": "canonical/heading/viper.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-warden",
+      "path": "canonical/heading/warden.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
+    },
+    {
+      "id": "heading-wraith",
+      "path": "canonical/heading/wraith.webp",
+      "width": 512,
+      "height": 256,
+      "frameCount": 8
     }
   ]
 }

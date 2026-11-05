@@ -1,8 +1,8 @@
 {
-  "files": 359,
-  "rasterFrames": 424,
+  "files": 408,
+  "rasterFrames": 816,
   "vfxAnimationFrames": 64,
-  "totalBytes": 9685129,
+  "totalBytes": 11343969,
   "groups": {
     "sprites": {
       "count": 13,
@@ -33,8 +33,8 @@
       "bytes": 617708
     },
     "canonical": {
-      "count": 320,
-      "bytes": 6062560
+      "count": 369,
+      "bytes": 7721400
     }
   },
   "identicalFileGroups": [

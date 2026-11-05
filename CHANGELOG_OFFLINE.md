@@ -1,3 +1,7 @@
+# 1.0.1 · Orientação, base e menus
+
+Oito frames raster por nave, base estática, loja legível com validação de saldo/quantidade e fluxo orientado de recursos/equipamentos. Detalhes: docs/CORRECOES_1_0_1.md. Saves preservados.
+
 # 1.0.0 · GDD entrega única
 
 Evolução cumulativa da 0.2; não reinicia progresso nem remove FPS, presets, gesto de arrastar ou loot box.

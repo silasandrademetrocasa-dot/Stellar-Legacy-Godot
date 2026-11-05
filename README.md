@@ -1,6 +1,6 @@
-> Pacote rápido para GitHub: inclui o jogo compilado, código-fonte editável, testes e assets finais. As pinturas originais de art-source e screenshots ficam nos três ZIPs completos anteriores. Nenhuma geração de arte é necessária para npm ci/build. O workflow deve ser instalado separadamente em .github/workflows/extrair-jogo.yml.
+> Pacote GitHub: jogo compilado, fonte editavel, testes e assets finais. Pinturas originais art-source ficam no pacote completo anterior; nao sao necessarias para build.
 
-# Stellar Legacy Offline · 1.0.0
+# Stellar Legacy Offline · 1.0.1
 
 Evolução cumulativa do projeto 0.2 conforme `docs/GDD_ENTREGA_UNICA.md`. Jogo solo e laboratório de balanceamento, em português. Nenhuma conta, moeda real, chat ou servidor é necessário. Arena, clã, leilão e Warfront são simulações locais, identificadas na interface. O adapter online permanece desativado.
 
@@ -30,7 +30,7 @@ O workflow de bootstrap está incluído byte a byte na entrega. Instale-o antes 
 
 ## Jogar e instalar offline
 
-WASD/setas, joystick touch ou toque e arraste no espaço/radar. O dedo atualiza continuamente a rota. A nave se desloca em 360° mantendo vista frontal/¾, com dead zone, amortecimento e histerese. Selecione um NPC, saia da estação e use Disparar. A coleta aproxima a nave de uma única caixa de loot com todos os recursos.
+WASD/setas, joystick touch ou toque e arraste no espaço/radar. O dedo atualiza continuamente a rota. A nave se desloca em 360° usando oito frames direcionais raster por classe, com dead zone, amortecimento e histerese. A base permanece estática. Selecione um NPC, saia da estação e use Disparar. A coleta aproxima a nave de uma única caixa de loot com todos os recursos.
 
 No primeiro acesso online, em **Save → Baixar jogo completo para offline**, aguarde “Cache completo”. No Chrome Android em HTTPS, use **Instalar aplicativo / Adicionar à tela inicial**. Depois pode reabrir sem rede. Feche as abas e o PWA antigo para ativar uma atualização de cache. Exportar save continua recomendado: limpar dados do navegador remove o banco e os backups. Não mudar domínio/caminho para preservar o armazenamento. Não há APK nativo nesta entrega.
 
