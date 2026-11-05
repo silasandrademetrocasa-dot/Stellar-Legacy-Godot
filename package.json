@@ -1,0 +1,27 @@
+{
+  "name": "stellar-legacy-offline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --open /app.html",
+    "build": "tsc --noEmit && vite build && node tools/build-offline.mjs",
+    "test": "vitest run src/tests",
+    "check:assets": "node tools/validate-assets.mjs",
+    "test:e2e": "playwright test",
+    "lint": "eslint src && tsc --noEmit"
+  },
+  "dependencies": {
+    "idb": "^8.0.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.14.0",
+    "fake-indexeddb": "^6.2.7",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^7.2.0",
+    "vitest": "^4.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+import 'fake-indexeddb/auto';
+import {beforeEach,describe,it,expect,vi} from 'vitest';
+import {deleteDB} from 'idb';
+import {Repository} from '../infrastructure/storage';
+import {items} from '../content/catalog';
+import {uid,verified} from '../core/game';
+vi.stubGlobal('window',{addEventListener:()=>{}});vi.stubGlobal('navigator',{});
+let repos:Repository[]=[];
+beforeEach(async()=>{for(const r of repos)r.db.close();repos=[];await deleteDB('stellar-legacy');});
+async function funded(){const r=await repo();r.state.credits=2000000;await r.command({id:uid(),type:'CHECKPOINT'});return r;}
+async function repo(){const r=new Repository();await r.open();repos.push(r);return r;}
+describe('IndexedDB commits and recovery',()=>{
+ it('persists position, heading, health, ammo and missions through reopen',async()=>{const r=await repo();r.state.world.x=1248;r.state.world.y=1990;r.state.world.heading=1.7;r.state.world.hp=389;r.state.ammo.ion=20;await r.command({id:uid(),type:'ACCEPT',payload:{id:'m0'}});const r2=await repo();expect(r2.state).toEqual(r.lastGood);expect(r2.state.world.x).toBe(1248);await verified(r2.state);});
+ it('writes state journal and rotating backup in same commit',async()=>{const r=await repo();await r.command({id:'accept',type:'ACCEPT',payload:{id:'m0'}});expect((await r.db.get('event_journal','accept')).revision).toBe(2);expect((await r.backups())[0].state.revision).toBe(1);});
+ it('double command ID does not duplicate reward or revision',async()=>{const r=await funded();await r.command({id:'buy',type:'BUY',payload:{id:'laser1'}});const rev=r.state.revision;await r.command({id:'buy',type:'BUY',payload:{id:'laser1'}});expect(r.state.credits).toBe(2000000-items[0].price);expect(r.state.revision).toBe(rev);});
+ it('stale second writer is rejected and committed save survives',async()=>{const a=await repo(),b=await repo();await a.command({id:uid(),type:'ACCEPT',payload:{id:'m0'}});await expect(b.command({id:uid(),type:'CHECKPOINT'})).rejects.toThrow('Conflito');expect(b.readOnly).toBe(true);expect((await a.db.get('game_state','pilot')).revision).toBe(2);});
+ it('quota failure rolls back state and reports failure',async()=>{const r=await funded(),old=structuredClone(r.state);vi.spyOn(r.db,'transaction').mockImplementationOnce(()=>{throw new DOMException('Quota exceeded','QuotaExceededError');});await expect(r.command({id:uid(),type:'BUY',payload:{id:'laser1'}})).rejects.toThrow('Quota');expect(r.state).toEqual(old);expect((await r.db.get('game_state','pilot')).credits).toBe(2000000);});
+ it('corrupted active save is preserved and valid backups remain selectable',async()=>{const r=await repo();await r.command({id:uid(),type:'ACCEPT',payload:{id:'m0'}});const bad=structuredClone(r.state);bad.credits=999;await r.db.put('game_state',bad,'pilot');const other=new Repository();repos.push(other);await expect(other.open()).rejects.toThrow('Hash');expect((await other.backups()).length).toBeGreaterThan(0);expect((await other.db.get('game_state','pilot')).credits).toBe(999);});
+ it('restore verifies imported data and retains pre-import state',async()=>{const r=await funded();const first=structuredClone(r.state);await r.command({id:uid(),type:'BUY',payload:{id:'laser1'}});await r.replace(first);expect(r.state.credits).toBe(2000000);expect(r.state.revision).toBe(4);expect((await r.db.get('snapshots','before-import')).credits).toBe(2000000-items[0].price);await verified(r.state);});
+ it('serializes 100 concurrent purchases and survives ten reopen cycles',async()=>{let r=await funded();r.state.credits=200000000;await r.command({id:uid(),type:'CHECKPOINT'});await Promise.all(Array.from({length:100},(_,i)=>r.command({id:'batch-'+i,type:'BUY',payload:{id:'laser1'}})));expect(Object.keys(r.state.equipment)).toHaveLength(100);expect(r.state.credits).toBe(200000000-100*items[0].price);const expected=structuredClone(r.lastGood);for(let i=0;i<10;i++){r=await repo();expect(r.state).toEqual(expected);await verified(r.state);}expect(r.pendingCount).toBe(0);},60000);
+ it('recovers durable pending commands exactly once and records failures',async()=>{const r=await funded();await r.db.put('event_journal',{id:'crash-buy',type:'BUY',payload:{id:'laser1'},status:'pending',createdAt:1},'crash-buy');await r.db.put('event_journal',{id:'bad-buy',type:'BUY',payload:{id:'missing'},status:'pending',createdAt:2},'bad-buy');const reopened=await repo();expect(Object.keys(reopened.state.equipment)).toEqual(['crash-buy']);expect((await reopened.db.get('event_journal','crash-buy')).status).toBe('committed');expect((await reopened.db.get('event_journal','bad-buy')).status).toBe('failed');const again=await repo();expect(Object.keys(again.state.equipment)).toHaveLength(1);await verified(again.state);});
+
+});

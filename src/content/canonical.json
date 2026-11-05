@@ -1,0 +1,3093 @@
+[
+  {
+    "name": "Terra Alliance",
+    "code": "terra-alliance",
+    "category": "faccoes",
+    "role": "Tecnologia, comércio e defesa orbital.",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {}
+  },
+  {
+    "name": "Mars Dominion",
+    "code": "mars-dominion",
+    "category": "faccoes",
+    "role": "Força militar, indústria e expansão agressiva.",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {}
+  },
+  {
+    "name": "Jupiter Federation",
+    "code": "jupiter-federation",
+    "category": "faccoes",
+    "role": "Pesquisa, mineração e domínio das rotas externas.",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {}
+  },
+  {
+    "name": "Aurora",
+    "code": "aurora",
+    "category": "naves",
+    "role": "Nave inicial",
+    "currency": "credits",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "INICIAL",
+    "attributes": {
+      "hp": 104000,
+      "lasers": 1,
+      "generators": 1,
+      "speed": 320,
+      "cargo": 100,
+      "extras": 1,
+      "markers": "Loja bloqueada"
+    }
+  },
+  {
+    "name": "Pioneer",
+    "code": "pioneer",
+    "category": "naves",
+    "role": "Progressão inicial",
+    "currency": "credits",
+    "referencePrice": 10000000,
+    "labPrice": 10000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 116000,
+      "lasers": 4,
+      "generators": 6,
+      "speed": 300,
+      "cargo": 400,
+      "extras": 2,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Raptor",
+    "code": "raptor",
+    "category": "naves",
+    "role": "Ataque rápido",
+    "currency": "credits",
+    "referencePrice": 30000000,
+    "labPrice": 30000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 164000,
+      "lasers": 6,
+      "generators": 8,
+      "speed": 360,
+      "cargo": 600,
+      "extras": 2,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Meridian",
+    "code": "meridian",
+    "category": "naves",
+    "role": "Farm e progressão",
+    "currency": "credits",
+    "referencePrice": 80000000,
+    "labPrice": 80000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 220000,
+      "lasers": 7,
+      "generators": 10,
+      "speed": 340,
+      "cargo": 700,
+      "extras": 3,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Bastion",
+    "code": "bastion",
+    "category": "naves",
+    "role": "Tanque comum",
+    "currency": "credits",
+    "referencePrice": 150000000,
+    "labPrice": 150000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 360000,
+      "lasers": 8,
+      "generators": 15,
+      "speed": 260,
+      "cargo": 800,
+      "extras": 3,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Concord",
+    "code": "concord",
+    "category": "naves",
+    "role": "Nave de progressão avançada",
+    "currency": "credits",
+    "referencePrice": 160000000,
+    "labPrice": 160000000,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 240000,
+      "lasers": 7,
+      "generators": 10,
+      "speed": 340,
+      "cargo": 900,
+      "extras": 3,
+      "markers": "Evento, Loja bloqueada"
+    }
+  },
+  {
+    "name": "Vanguard",
+    "code": "vanguard",
+    "category": "naves",
+    "role": "Caçadora comum avançada",
+    "currency": "credits",
+    "referencePrice": 240000000,
+    "labPrice": 240000000,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 160000,
+      "lasers": 10,
+      "generators": 10,
+      "speed": 340,
+      "cargo": 1000,
+      "extras": 3,
+      "markers": "Evento, Loja bloqueada"
+    }
+  },
+  {
+    "name": "Sovereign",
+    "code": "sovereign",
+    "category": "naves",
+    "role": "Nave comum topo de créditos",
+    "currency": "credits",
+    "referencePrice": 400000000,
+    "labPrice": 400000000,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 320000,
+      "lasers": 12,
+      "generators": 12,
+      "speed": 340,
+      "cargo": 1500,
+      "extras": 3,
+      "markers": "Evento, Loja bloqueada"
+    }
+  },
+  {
+    "name": "Lynx",
+    "code": "lynx",
+    "category": "naves",
+    "role": "Elite de mapas baixos",
+    "currency": "stellarium",
+    "referencePrice": 900000,
+    "labPrice": 900000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 164000,
+      "lasers": 6,
+      "generators": 6,
+      "speed": 360,
+      "cargo": 500,
+      "extras": 1,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Valkyrie",
+    "code": "valkyrie",
+    "category": "naves",
+    "role": "Elite veloz",
+    "currency": "stellarium",
+    "referencePrice": 1400000,
+    "labPrice": 1400000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 280000,
+      "lasers": 10,
+      "generators": 10,
+      "speed": 380,
+      "cargo": 1000,
+      "extras": 2,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Leviathan",
+    "code": "leviathan",
+    "category": "naves",
+    "role": "Elite de combate pesado",
+    "currency": "stellarium",
+    "referencePrice": 2500000,
+    "labPrice": 2500000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 356000,
+      "lasers": 15,
+      "generators": 15,
+      "speed": 300,
+      "cargo": 1500,
+      "extras": 3,
+      "markers": "—"
+    }
+  },
+  {
+    "name": "Striker",
+    "code": "striker",
+    "category": "naves",
+    "role": "Elite ofensiva de alta velocidade",
+    "currency": "stellarium",
+    "referencePrice": 3500000,
+    "labPrice": 3500000,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 225000,
+      "lasers": 16,
+      "generators": 12,
+      "speed": 370,
+      "cargo": 500,
+      "extras": 3,
+      "markers": "Evento, Loja bloqueada"
+    }
+  },
+  {
+    "name": "Seraph",
+    "code": "seraph",
+    "category": "naves",
+    "role": "EVENTO • suporte",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 455000,
+      "lasers": 11,
+      "generators": 18,
+      "speed": 315,
+      "cargo": 2250,
+      "extras": 4,
+      "markers": "Evento, Habilidade especial"
+    }
+  },
+  {
+    "name": "Venatrix",
+    "code": "venatrix",
+    "category": "naves",
+    "role": "EVENTO • controle tóxico",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 450000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 330,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Ravager",
+    "code": "ravager",
+    "category": "naves",
+    "role": "EVENTO • contra-ataque",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 620000,
+      "lasers": 8,
+      "generators": 18,
+      "speed": 300,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Praetor",
+    "code": "praetor",
+    "category": "naves",
+    "role": "EVENTO • projetos instáveis",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 455000,
+      "lasers": 16,
+      "generators": 17,
+      "speed": 335,
+      "cargo": 1600,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Bulwark",
+    "code": "bulwark",
+    "category": "naves",
+    "role": "EVENTO • tanque pesado",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 750000,
+      "lasers": 8,
+      "generators": 21,
+      "speed": 250,
+      "cargo": 4500,
+      "extras": 5,
+      "markers": "Evento, Habilidade especial"
+    }
+  },
+  {
+    "name": "Nexus Prime",
+    "code": "nexus-prime",
+    "category": "naves",
+    "role": "EVENTO • dano contínuo",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 455000,
+      "lasers": 16,
+      "generators": 17,
+      "speed": 325,
+      "cargo": 1600,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Phantom",
+    "code": "phantom",
+    "category": "naves",
+    "role": "EVENTO • camuflagem",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 290000,
+      "lasers": 12,
+      "generators": 11,
+      "speed": 380,
+      "cargo": 900,
+      "extras": 3,
+      "markers": "Evento, Habilidade especial"
+    }
+  },
+  {
+    "name": "Wraith",
+    "code": "wraith",
+    "category": "naves",
+    "role": "EVENTO • camuflagem reforçada",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 365000,
+      "lasers": 12,
+      "generators": 12,
+      "speed": 385,
+      "cargo": 1000,
+      "extras": 3,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Nullifier",
+    "code": "nullifier",
+    "category": "naves",
+    "role": "EVENTO • anti-escudo",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 460000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 325,
+      "cargo": 1700,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Interdictor",
+    "code": "interdictor",
+    "category": "naves",
+    "role": "EVENTO • interferência",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 450000,
+      "lasers": 14,
+      "generators": 16,
+      "speed": 345,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Leviathan-X",
+    "code": "leviathan-x",
+    "category": "naves",
+    "role": "EVENTO • congelamento",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 540000,
+      "lasers": 15,
+      "generators": 18,
+      "speed": 305,
+      "cargo": 1900,
+      "extras": 5,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Ironclaw",
+    "code": "ironclaw",
+    "category": "naves",
+    "role": "EVENTO • suporte pesado",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 465000,
+      "lasers": 13,
+      "generators": 18,
+      "speed": 305,
+      "cargo": 1900,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Lumina",
+    "code": "lumina",
+    "category": "naves",
+    "role": "EVENTO • feixe de partículas",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 475000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 320,
+      "cargo": 1600,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Mirage",
+    "code": "mirage",
+    "category": "naves",
+    "role": "EVENTO • reversão",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 445000,
+      "lasers": 15,
+      "generators": 16,
+      "speed": 330,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Gravastar",
+    "code": "gravastar",
+    "category": "naves",
+    "role": "EVENTO • controle gravitacional",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 480000,
+      "lasers": 15,
+      "generators": 18,
+      "speed": 320,
+      "cargo": 1750,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Plaguewing",
+    "code": "plaguewing",
+    "category": "naves",
+    "role": "EVENTO • contágio",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 445000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 330,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Echo",
+    "code": "echo",
+    "category": "naves",
+    "role": "EVENTO • evasão",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 430000,
+      "lasers": 13,
+      "generators": 15,
+      "speed": 350,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Doppel",
+    "code": "doppel",
+    "category": "naves",
+    "role": "EVENTO • duplicação",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 440000,
+      "lasers": 15,
+      "generators": 16,
+      "speed": 320,
+      "cargo": 1750,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Warden",
+    "code": "warden",
+    "category": "naves",
+    "role": "EVENTO • sobrevivência",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 500000,
+      "lasers": 13,
+      "generators": 20,
+      "speed": 315,
+      "cargo": 1750,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Lancer",
+    "code": "lancer",
+    "category": "naves",
+    "role": "EVENTO • tiro carregado",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 465000,
+      "lasers": 15,
+      "generators": 16,
+      "speed": 340,
+      "cargo": 1600,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Guardian",
+    "code": "guardian",
+    "category": "naves",
+    "role": "EVENTO • defesa",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 535000,
+      "lasers": 15,
+      "generators": 18,
+      "speed": 305,
+      "cargo": 1800,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Reclaimer",
+    "code": "reclaimer",
+    "category": "naves",
+    "role": "EVENTO • reparação",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 465000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 320,
+      "cargo": 1800,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Helios",
+    "code": "helios",
+    "category": "naves",
+    "role": "EVENTO • incêndio",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 460000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 330,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Pathfinder",
+    "code": "pathfinder",
+    "category": "naves",
+    "role": "EVENTO • reconhecimento",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 280000,
+      "lasers": 7,
+      "generators": 12,
+      "speed": 410,
+      "cargo": 650,
+      "extras": 3,
+      "markers": "Evento, Habilidade especial"
+    }
+  },
+  {
+    "name": "Prism",
+    "code": "prism",
+    "category": "naves",
+    "role": "EVENTO • defesa prismática",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 510000,
+      "lasers": 15,
+      "generators": 18,
+      "speed": 310,
+      "cargo": 1750,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Hellrunner",
+    "code": "hellrunner",
+    "category": "naves",
+    "role": "EVENTO • velocidade / foguetes",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 460000,
+      "lasers": 14,
+      "generators": 16,
+      "speed": 345,
+      "cargo": 1700,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Stormrider",
+    "code": "stormrider",
+    "category": "naves",
+    "role": "EVENTO • eletricidade",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 450000,
+      "lasers": 14,
+      "generators": 16,
+      "speed": 360,
+      "cargo": 1700,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Viper",
+    "code": "viper",
+    "category": "naves",
+    "role": "EVENTO • dano contínuo",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 450000,
+      "lasers": 15,
+      "generators": 17,
+      "speed": 335,
+      "cargo": 1700,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Kensei",
+    "code": "kensei",
+    "category": "naves",
+    "role": "EVENTO • aceleração",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 340000,
+      "lasers": 10,
+      "generators": 13,
+      "speed": 365,
+      "cargo": 1100,
+      "extras": 3,
+      "markers": "Evento, Habilidade especial"
+    }
+  },
+  {
+    "name": "Shogun",
+    "code": "shogun",
+    "category": "naves",
+    "role": "EVENTO • aceleração",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 390000,
+      "lasers": 11,
+      "generators": 14,
+      "speed": 375,
+      "cargo": 1200,
+      "extras": 3,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "Gale",
+    "code": "gale",
+    "category": "naves",
+    "role": "EVENTO • momentum",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "hp": 380000,
+      "lasers": 13,
+      "generators": 16,
+      "speed": 370,
+      "cargo": 1650,
+      "extras": 4,
+      "markers": "Evento, Loja bloqueada, Habilidade especial"
+    }
+  },
+  {
+    "name": "ARC-1",
+    "code": "arc-1",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "credits",
+    "referencePrice": 1000000,
+    "labPrice": 1000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 65",
+      "damage": 65
+    }
+  },
+  {
+    "name": "ARC-P1",
+    "code": "arc-p1",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "credits",
+    "referencePrice": 5000000,
+    "labPrice": 5000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 70",
+      "damage": 70
+    }
+  },
+  {
+    "name": "SOL-1",
+    "code": "sol-1",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "credits",
+    "referencePrice": 20000000,
+    "labPrice": 20000000,
+    "status": "BLOQUEADO",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 125",
+      "damage": 125
+    }
+  },
+  {
+    "name": "ARC-2",
+    "code": "arc-2",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "credits",
+    "referencePrice": 25000000,
+    "labPrice": 25000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 140",
+      "damage": 140
+    }
+  },
+  {
+    "name": "ARC-3",
+    "code": "arc-3",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "stellarium",
+    "referencePrice": 125000,
+    "labPrice": 125000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 175; Bônus PvE: 0.15",
+      "damage": 175
+    }
+  },
+  {
+    "name": "ARC-4",
+    "code": "arc-4",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "stellarium",
+    "referencePrice": 500000,
+    "labPrice": 500000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 200",
+      "damage": 200
+    }
+  },
+  {
+    "name": "ARC-X",
+    "code": "arc-x",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 250; Bônus PvE: 0.04",
+      "damage": 250
+    }
+  },
+  {
+    "name": "ARC-Ω",
+    "code": "arc-omega",
+    "category": "equipamentos",
+    "role": "laser",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "laser",
+      "description": "Dano: 265; Bônus PvE: 0.06",
+      "damage": 265
+    }
+  },
+  {
+    "name": "THR-1",
+    "code": "thr-1",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 250000,
+    "labPrice": 250000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 2",
+      "speed": 2
+    }
+  },
+  {
+    "name": "THR-2",
+    "code": "thr-2",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 1000000,
+    "labPrice": 1000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 3",
+      "speed": 3
+    }
+  },
+  {
+    "name": "THR-3",
+    "code": "thr-3",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 3000000,
+    "labPrice": 3000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 4",
+      "speed": 4
+    }
+  },
+  {
+    "name": "THR-4",
+    "code": "thr-4",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 10000000,
+    "labPrice": 10000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 5",
+      "speed": 5
+    }
+  },
+  {
+    "name": "THR-5",
+    "code": "thr-5",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 80000,
+    "labPrice": 80000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 7",
+      "speed": 7
+    }
+  },
+  {
+    "name": "THR-6",
+    "code": "thr-6",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 250000,
+    "labPrice": 250000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 10",
+      "speed": 10
+    }
+  },
+  {
+    "name": "THR-7",
+    "code": "thr-7",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "speed",
+      "description": "Vel.: 14",
+      "speed": 14
+    }
+  },
+  {
+    "name": "AEG-1",
+    "code": "aeg-1",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 15000000,
+    "labPrice": 15000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 3200; Absorção: 70; Regen. escudo: 0.0625",
+      "shield": 3200,
+      "absorption": 70
+    }
+  },
+  {
+    "name": "AEG-2",
+    "code": "aeg-2",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 80000000,
+    "labPrice": 80000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 5600; Absorção: 75; Regen. escudo: 0.0625",
+      "shield": 5600,
+      "absorption": 75
+    }
+  },
+  {
+    "name": "AEG-3",
+    "code": "aeg-3",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 12500; Absorção: 82; Regen. escudo: 0.0625",
+      "shield": 12500,
+      "absorption": 82
+    }
+  },
+  {
+    "name": "AEG-4",
+    "code": "aeg-4",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 17200; Absorção: 84; Regen. escudo: 0.0625",
+      "shield": 17200,
+      "absorption": 84
+    }
+  },
+  {
+    "name": "VSH-0",
+    "code": "vsh-0",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 13500; Absorção: 78",
+      "shield": 13500,
+      "absorption": 78
+    }
+  },
+  {
+    "name": "VSH-1",
+    "code": "vsh-1",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 1000000,
+    "labPrice": 1000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 1000; Absorção: 40",
+      "shield": 1000,
+      "absorption": 40
+    }
+  },
+  {
+    "name": "VSH-2",
+    "code": "vsh-2",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 5000000,
+    "labPrice": 5000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 5000; Absorção: 50",
+      "shield": 5000,
+      "absorption": 50
+    }
+  },
+  {
+    "name": "VSH-3",
+    "code": "vsh-3",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 20000000,
+    "labPrice": 20000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 5000; Absorção: 60",
+      "shield": 5000,
+      "absorption": 60
+    }
+  },
+  {
+    "name": "VSH-4",
+    "code": "vsh-4",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "credits",
+    "referencePrice": 60000000,
+    "labPrice": 60000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 9500; Absorção: 70",
+      "shield": 9500,
+      "absorption": 70
+    }
+  },
+  {
+    "name": "VSH-5",
+    "code": "vsh-5",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 250000,
+    "labPrice": 250000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 10000; Absorção: 80",
+      "shield": 10000,
+      "absorption": 80
+    }
+  },
+  {
+    "name": "VSH-6",
+    "code": "vsh-6",
+    "category": "equipamentos",
+    "role": "generator",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "shield",
+      "description": "Escudo: 17500; Absorção: 85",
+      "shield": 17500,
+      "absorption": 85
+    }
+  },
+  {
+    "name": "Mira Autônoma",
+    "code": "mira-autonoma",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 10000000,
+    "labPrice": 10000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Ao selecionar um alvo, inicia o laser automaticamente."
+    }
+  },
+  {
+    "name": "Lançador Autônomo",
+    "code": "lancador-autonomo",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 12000000,
+    "labPrice": 12000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Dispara automaticamente o míssil selecionado durante o combate."
+    }
+  },
+  {
+    "name": "Propulsor de Recarga",
+    "code": "propulsor-de-recarga",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 25000000,
+    "labPrice": 25000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Reduz o cooldown de mísseis pela metade."
+    }
+  },
+  {
+    "name": "CPU Expansora de Extras • Comum",
+    "code": "cpu-expansora-de-extras-comum",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 50000000,
+    "labPrice": 50000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Extra slots: 3"
+    }
+  },
+  {
+    "name": "CPU Expansora de Extras • Elite",
+    "code": "cpu-expansora-de-extras-elite",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "stellarium",
+    "referencePrice": 250000,
+    "labPrice": 250000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Extra slots: 6"
+    }
+  },
+  {
+    "name": "Nanobot de Reparo • Comum",
+    "code": "nanobot-de-reparo-comum",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 20000000,
+    "labPrice": 20000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Reparo: 0.01"
+    }
+  },
+  {
+    "name": "Nanobot de Reparo • Elite",
+    "code": "nanobot-de-reparo-elite",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "stellarium",
+    "referencePrice": 180000,
+    "labPrice": 180000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Reparo: 0.02"
+    }
+  },
+  {
+    "name": "Nanobot Prime",
+    "code": "nanobot-prime",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "stellarium",
+    "referencePrice": 0,
+    "labPrice": 0,
+    "status": "EVENTO",
+    "attributes": {
+      "class": "extra",
+      "description": "Reparo: 0.024"
+    }
+  },
+  {
+    "name": "Módulo de Porão • Comum",
+    "code": "modulo-de-porao-comum",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 75000000,
+    "labPrice": 75000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Porão +: 2500",
+      "cargo": 2500
+    }
+  },
+  {
+    "name": "Módulo de Porão • Elite",
+    "code": "modulo-de-porao-elite",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "stellarium",
+    "referencePrice": 500000,
+    "labPrice": 500000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Porão +: 10000",
+      "cargo": 10000
+    }
+  },
+  {
+    "name": "Repositor Automático",
+    "code": "repositor-automatico",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "credits",
+    "referencePrice": 30000000,
+    "labPrice": 30000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "Compra automaticamente novo pacote da munição laser e do míssil selecionados quando o estoque estiver baixo."
+    }
+  },
+  {
+    "name": "Terminal Mercante Remoto • Elite",
+    "code": "terminal-mercante-remoto-elite",
+    "category": "equipamentos",
+    "role": "extra",
+    "currency": "stellarium",
+    "referencePrice": 350000,
+    "labPrice": 350000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "extra",
+      "description": "EXTRA Elite: enquanto equipado, permite vender recursos diretamente na aba Refinaria do Hangar em qualquer setor, sem retorno"
+    }
+  },
+  {
+    "name": "Halo",
+    "code": "halo",
+    "category": "equipamentos",
+    "role": "drone",
+    "currency": "credits",
+    "referencePrice": 10000000,
+    "labPrice": 10000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "drone",
+      "description": "Slots: 1",
+      "slots": 1
+    }
+  },
+  {
+    "name": "Nova",
+    "code": "nova",
+    "category": "equipamentos",
+    "role": "drone",
+    "currency": "stellarium",
+    "referencePrice": 15000,
+    "labPrice": 15000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "class": "drone",
+      "description": "Slots: 2",
+      "slots": 2
+    }
+  },
+  {
+    "name": "PLS-1",
+    "code": "pls-1",
+    "category": "municao laser",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": 500000,
+    "labPrice": 500000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 1,
+      "drain": false,
+      "damage": 0,
+      "quantity": 10000
+    }
+  },
+  {
+    "name": "PLS-2",
+    "code": "pls-2",
+    "category": "municao laser",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": 1500000,
+    "labPrice": 1500000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 2,
+      "drain": false,
+      "damage": 0,
+      "quantity": 5000
+    }
+  },
+  {
+    "name": "PLS-3",
+    "code": "pls-3",
+    "category": "municao laser",
+    "role": "—",
+    "currency": "stellarium",
+    "referencePrice": 20000,
+    "labPrice": 20000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 3,
+      "drain": false,
+      "damage": 0,
+      "quantity": 5000
+    }
+  },
+  {
+    "name": "PLS-4",
+    "code": "pls-4",
+    "category": "municao laser",
+    "role": "—",
+    "currency": "stellarium",
+    "referencePrice": 100000,
+    "labPrice": 100000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 4,
+      "drain": false,
+      "damage": 0,
+      "quantity": 5000
+    }
+  },
+  {
+    "name": "SIP-2",
+    "code": "sip-2",
+    "category": "municao laser",
+    "role": "Captura energia de escudo x2 e transfere o valor drenado para seu próprio…",
+    "currency": "stellarium",
+    "referencePrice": 45000,
+    "labPrice": 45000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 2,
+      "drain": true,
+      "damage": 0,
+      "quantity": 5000
+    }
+  },
+  {
+    "name": "CMT-1",
+    "code": "cmt-1",
+    "category": "misseis",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": 500000,
+    "labPrice": 500000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 1,
+      "drain": false,
+      "damage": 1000,
+      "quantity": 100
+    }
+  },
+  {
+    "name": "CMT-2",
+    "code": "cmt-2",
+    "category": "misseis",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": 2000000,
+    "labPrice": 2000000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 1,
+      "drain": false,
+      "damage": 2000,
+      "quantity": 100
+    }
+  },
+  {
+    "name": "CMT-3",
+    "code": "cmt-3",
+    "category": "misseis",
+    "role": "—",
+    "currency": "stellarium",
+    "referencePrice": 10000,
+    "labPrice": 10000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 1,
+      "drain": false,
+      "damage": 4000,
+      "quantity": 100
+    }
+  },
+  {
+    "name": "CMT-4",
+    "code": "cmt-4",
+    "category": "misseis",
+    "role": "—",
+    "currency": "stellarium",
+    "referencePrice": 30000,
+    "labPrice": 30000,
+    "status": "ADAPTAR",
+    "attributes": {
+      "multiplier": 1,
+      "drain": false,
+      "damage": 6000,
+      "quantity": 100
+    }
+  },
+  {
+    "name": "Ferron",
+    "code": "ferron",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 1000,
+      "sell": 1
+    }
+  },
+  {
+    "name": "Cryon",
+    "code": "cryon",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 1500,
+      "sell": 2
+    }
+  },
+  {
+    "name": "Virel",
+    "code": "virel",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 2500,
+      "sell": 2
+    }
+  },
+  {
+    "name": "Ferrite",
+    "code": "ferrite",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 10000,
+      "sell": 10
+    }
+  },
+  {
+    "name": "Duracite",
+    "code": "duracite",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 15000,
+      "sell": 15
+    }
+  },
+  {
+    "name": "Solarium",
+    "code": "solarium",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 35000,
+      "sell": 35
+    }
+  },
+  {
+    "name": "Voidite",
+    "code": "voidite",
+    "category": "recursos",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "sellReference": 0,
+      "sell": 0
+    }
+  },
+  {
+    "name": "Scavenger",
+    "code": "scavenger",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 900,
+      "shield": 500,
+      "damage": 95,
+      "xp": 200,
+      "credits": 6200,
+      "stellarium": 13,
+      "drops": "Ferron×12, Cryon×12"
+    }
+  },
+  {
+    "name": "Scavenger Scout",
+    "code": "scavenger-scout",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1100,
+      "shield": 700,
+      "damage": 130,
+      "xp": 260,
+      "credits": 8800,
+      "stellarium": 17,
+      "drops": "Ferron×14, Cryon×14"
+    }
+  },
+  {
+    "name": "Scavenger Support",
+    "code": "scavenger-support",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1500,
+      "shield": 1000,
+      "damage": 210,
+      "xp": 370,
+      "credits": 12400,
+      "stellarium": 26,
+      "drops": "Ferron×15, Virel×15"
+    }
+  },
+  {
+    "name": "Scavenger Prime",
+    "code": "scavenger-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1600,
+      "shield": 800,
+      "damage": 120,
+      "xp": 440,
+      "credits": 15400,
+      "stellarium": 32,
+      "drops": "Ferron×20, Virel×20"
+    }
+  },
+  {
+    "name": "Vrax",
+    "code": "vrax",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 2000,
+      "shield": 2000,
+      "damage": 240,
+      "xp": 530,
+      "credits": 18500,
+      "stellarium": 32,
+      "drops": "Ferron×20, Virel×20, Cryon×20"
+    }
+  },
+  {
+    "name": "Vrax Prime",
+    "code": "vrax-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 4000,
+      "shield": 4000,
+      "damage": 480,
+      "xp": 1060,
+      "credits": 37100,
+      "stellarium": 63,
+      "drops": "Ferron×40, Virel×40, Cryon×40, Voidite×1"
+    }
+  },
+  {
+    "name": "Zyron",
+    "code": "zyron",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 6000,
+      "shield": 6000,
+      "damage": 600,
+      "xp": 1060,
+      "credits": 36000,
+      "stellarium": 47,
+      "drops": "Ferron×40, Virel×40, Cryon×40, Ferrite×2, Duracite×2"
+    }
+  },
+  {
+    "name": "Zyron Prime",
+    "code": "zyron-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 12000,
+      "shield": 12000,
+      "damage": 1200,
+      "xp": 2110,
+      "credits": 72100,
+      "stellarium": 94,
+      "drops": "Ferron×80, Virel×80, Cryon×80, Ferrite×4, Duracite×4, Voidite×2"
+    }
+  },
+  {
+    "name": "Kharon",
+    "code": "kharon",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 20000,
+      "shield": 10000,
+      "damage": 1170,
+      "xp": 2640,
+      "credits": 92700,
+      "stellarium": 105,
+      "drops": "Ferron×80, Virel×80, Cryon×80, Ferrite×8, Duracite×8, Solarium×1"
+    }
+  },
+  {
+    "name": "Kharon Prime",
+    "code": "kharon-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 40000,
+      "shield": 20000,
+      "damage": 2340,
+      "xp": 5280,
+      "credits": 185400,
+      "stellarium": 210,
+      "drops": "Ferron×160, Virel×160, Cryon×160, Ferrite×16, Duracite×16, Solarium×2, Voidite×4"
+    }
+  },
+  {
+    "name": "Dreadnox",
+    "code": "dreadnox",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 108000,
+      "shield": 108000,
+      "damage": 3780,
+      "xp": 8780,
+      "credits": 330000,
+      "stellarium": 280,
+      "drops": "Ferron×100, Virel×100, Cryon×100, Ferrite×16, Duracite×16, Solarium×2"
+    }
+  },
+  {
+    "name": "Dreadnox Prime",
+    "code": "dreadnox-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 216000,
+      "shield": 216000,
+      "damage": 7560,
+      "xp": 17570,
+      "credits": 660000,
+      "stellarium": 560,
+      "drops": "Ferron×200, Virel×200, Cryon×200, Ferrite×32, Duracite×32, Solarium×4, Voidite×8"
+    }
+  },
+  {
+    "name": "Colossar",
+    "code": "colossar",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 216000,
+      "shield": 216000,
+      "damage": 8350,
+      "xp": 14640,
+      "credits": 715000,
+      "stellarium": 448,
+      "drops": "Ferron×200, Virel×200, Cryon×200, Ferrite×32, Duracite×32, Solarium×4"
+    }
+  },
+  {
+    "name": "Colossar Prime",
+    "code": "colossar-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 432000,
+      "shield": 432000,
+      "damage": 16695,
+      "xp": 29280,
+      "credits": 1430000,
+      "stellarium": 896,
+      "drops": "Ferron×400, Virel×400, Cryon×400, Ferrite×64, Duracite×64, Solarium×8, Voidite×16"
+    }
+  },
+  {
+    "name": "Ember Fang",
+    "code": "ember-fang",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 266800,
+      "shield": 172500,
+      "damage": 4535,
+      "xp": 19580,
+      "credits": 731600,
+      "stellarium": 487,
+      "drops": "Ferrite×20, Duracite×20, Solarium×3"
+    }
+  },
+  {
+    "name": "Ember Fang Prime",
+    "code": "ember-fang-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 533600,
+      "shield": 345000,
+      "damage": 8425,
+      "xp": 40500,
+      "credits": 1475000,
+      "stellarium": 986,
+      "drops": "Ferrite×31, Duracite×31, Solarium×7, Voidite×2"
+    }
+  },
+  {
+    "name": "Iron Wasp",
+    "code": "iron-wasp",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 324800,
+      "shield": 253000,
+      "damage": 5510,
+      "xp": 23620,
+      "credits": 896800,
+      "stellarium": 580,
+      "drops": "Ferrite×22, Duracite×22, Solarium×3"
+    }
+  },
+  {
+    "name": "Iron Wasp Prime",
+    "code": "iron-wasp-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 649600,
+      "shield": 494500,
+      "damage": 10045,
+      "xp": 48600,
+      "credits": 1829000,
+      "stellarium": 1137,
+      "drops": "Ferrite×36, Duracite×36, Solarium×7, Voidite×2"
+    }
+  },
+  {
+    "name": "Rift Mauler",
+    "code": "rift-mauler",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 417600,
+      "shield": 368000,
+      "damage": 6910,
+      "xp": 31050,
+      "credits": 1156400,
+      "stellarium": 754,
+      "drops": "Ferrite×25, Duracite×25, Solarium×4, Voidite×1"
+    }
+  },
+  {
+    "name": "Rift Mauler Prime",
+    "code": "rift-mauler-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 835200,
+      "shield": 713000,
+      "damage": 12745,
+      "xp": 63450,
+      "credits": 2360000,
+      "stellarium": 1508,
+      "drops": "Ferrite×40, Duracite×40, Solarium×9, Voidite×3"
+    }
+  },
+  {
+    "name": "Obsidian Pike",
+    "code": "obsidian-pike",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 580000,
+      "shield": 483000,
+      "damage": 8965,
+      "xp": 41850,
+      "credits": 1593000,
+      "stellarium": 986,
+      "drops": "Ferrite×27, Duracite×29, Solarium×6, Voidite×2"
+    }
+  },
+  {
+    "name": "Obsidian Pike Prime",
+    "code": "obsidian-pike-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1136800,
+      "shield": 989000,
+      "damage": 16415,
+      "xp": 87750,
+      "credits": 3304000,
+      "stellarium": 1972,
+      "drops": "Ferrite×45, Duracite×47, Solarium×11, Voidite×4"
+    }
+  },
+  {
+    "name": "Apex Overlord",
+    "code": "apex-overlord",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 6000000,
+      "shield": 4200000,
+      "damage": 32000,
+      "xp": 425000,
+      "credits": 14000000,
+      "stellarium": 8800,
+      "drops": "Ferrite×110, Duracite×110, Solarium×36, Voidite×45"
+    }
+  },
+  {
+    "name": "Sentinel Scavenger",
+    "code": "sentinel-scavenger",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 780000,
+      "shield": 590000,
+      "damage": 10465,
+      "xp": 52200,
+      "credits": 1952000,
+      "stellarium": 1140,
+      "drops": "Ferrite×34, Duracite×34, Solarium×7, Voidite×2"
+    }
+  },
+  {
+    "name": "Sentinel Scout",
+    "code": "sentinel-scout",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 912000,
+      "shield": 684400,
+      "damage": 11770,
+      "xp": 60900,
+      "credits": 2257000,
+      "stellarium": 1320,
+      "drops": "Ferrite×36, Duracite×36, Solarium×7, Voidite×2"
+    }
+  },
+  {
+    "name": "Sentinel Support",
+    "code": "sentinel-support",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1080000,
+      "shield": 826000,
+      "damage": 13950,
+      "xp": 75400,
+      "credits": 2684000,
+      "stellarium": 1560,
+      "drops": "Ferrite×38, Duracite×40, Solarium×9, Voidite×3"
+    }
+  },
+  {
+    "name": "Batedor da Fenda",
+    "code": "batedor-da-fenda",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 371200,
+      "shield": 253000,
+      "damage": 5615,
+      "xp": 24300,
+      "credits": 1003000,
+      "stellarium": 696,
+      "drops": "Ferrite×27, Duracite×27, Solarium×4"
+    }
+  },
+  {
+    "name": "Batedor da Fenda Prime",
+    "code": "batedor-da-fenda-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 719200,
+      "shield": 517500,
+      "damage": 10585,
+      "xp": 51300,
+      "credits": 2124000,
+      "stellarium": 1392,
+      "drops": "Ferrite×40, Duracite×40, Solarium×9, Voidite×2"
+    }
+  },
+  {
+    "name": "Corsário do Vazio",
+    "code": "corsario-do-vazio",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 556800,
+      "shield": 437000,
+      "damage": 8210,
+      "xp": 37800,
+      "credits": 1475000,
+      "stellarium": 986,
+      "drops": "Ferrite×31, Duracite×31, Solarium×6, Voidite×1"
+    }
+  },
+  {
+    "name": "Corsário do Vazio Prime",
+    "code": "corsario-do-vazio-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1067200,
+      "shield": 874000,
+      "damage": 15660,
+      "xp": 78300,
+      "credits": 3186000,
+      "stellarium": 1914,
+      "drops": "Ferrite×45, Duracite×45, Solarium×10, Voidite×3"
+    }
+  },
+  {
+    "name": "Guardião Nexus",
+    "code": "guardiao-nexus",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 840000,
+      "shield": 731600,
+      "damage": 11990,
+      "xp": 62350,
+      "credits": 2318000,
+      "stellarium": 1440,
+      "drops": "Ferrite×38, Duracite×38, Solarium×8, Voidite×2"
+    }
+  },
+  {
+    "name": "Guardião Nexus Prime",
+    "code": "guardiao-nexus-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1620000,
+      "shield": 1357000,
+      "damage": 22455,
+      "xp": 124700,
+      "credits": 4758000,
+      "stellarium": 2760,
+      "drops": "Ferrite×54, Duracite×54, Solarium×13, Voidite×6"
+    }
+  },
+  {
+    "name": "Ceifador Astral",
+    "code": "ceifador-astral",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 1260000,
+      "shield": 1038400,
+      "damage": 17005,
+      "xp": 92800,
+      "credits": 3477000,
+      "stellarium": 2100,
+      "drops": "Ferrite×43, Duracite×43, Solarium×9, Voidite×3"
+    }
+  },
+  {
+    "name": "Ceifador Astral Prime",
+    "code": "ceifador-astral-prime",
+    "category": "npcs",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "hp": 2460000,
+      "shield": 2006000,
+      "damage": 30955,
+      "xp": 191400,
+      "credits": 7076000,
+      "stellarium": 4080,
+      "drops": "Ferrite×63, Duracite×63, Solarium×16, Voidite×9"
+    }
+  },
+  {
+    "name": "Vrax Spore",
+    "code": "vrax-spore",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 4000,
+      "shield": 4000,
+      "damage": 160,
+      "xp": 400,
+      "credits": 800,
+      "stellarium": 3
+    }
+  },
+  {
+    "name": "Colossar Spawn",
+    "code": "colossar-spawn",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 40000,
+      "shield": 40000,
+      "damage": 3200,
+      "xp": 3200,
+      "credits": 12800,
+      "stellarium": 12
+    }
+  },
+  {
+    "name": "Colossar Spawn Prime",
+    "code": "colossar-spawn-prime",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 160000,
+      "shield": 160000,
+      "damage": 12800,
+      "xp": 12800,
+      "credits": 102400,
+      "stellarium": 48
+    }
+  },
+  {
+    "name": "Colossar Spawn Apex",
+    "code": "colossar-spawn-apex",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 320000,
+      "shield": 320000,
+      "damage": 8000,
+      "xp": 25600,
+      "credits": 204800,
+      "stellarium": 96
+    }
+  },
+  {
+    "name": "Vrax Overlord",
+    "code": "vrax-overlord",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 300000,
+      "shield": 200000,
+      "damage": 3600,
+      "xp": 25600,
+      "credits": 204800,
+      "stellarium": 64
+    }
+  },
+  {
+    "name": "Vrax Overlord Prime",
+    "code": "vrax-overlord-prime",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 1200000,
+      "shield": 800000,
+      "damage": 14400,
+      "xp": 102400,
+      "credits": 819200,
+      "stellarium": 256
+    }
+  },
+  {
+    "name": "Vrax Overlord Apex",
+    "code": "vrax-overlord-apex",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 2400000,
+      "shield": 1600000,
+      "damage": 32000,
+      "xp": 204800,
+      "credits": 1638400,
+      "stellarium": 512
+    }
+  },
+  {
+    "name": "Crysalid",
+    "code": "crysalid",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 50000,
+      "shield": 40000,
+      "damage": 1650,
+      "xp": 6400,
+      "credits": 12800,
+      "stellarium": 16
+    }
+  },
+  {
+    "name": "Crysalid Prime",
+    "code": "crysalid-prime",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 200000,
+      "shield": 160000,
+      "damage": 4700,
+      "xp": 25600,
+      "credits": 51200,
+      "stellarium": 64
+    }
+  },
+  {
+    "name": "Crysalid Apex",
+    "code": "crysalid-apex",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 400000,
+      "shield": 320000,
+      "damage": 13200,
+      "xp": 51200,
+      "credits": 102400,
+      "stellarium": 128
+    }
+  },
+  {
+    "name": "Crysalon",
+    "code": "crysalon",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 400000,
+      "shield": 300000,
+      "damage": 4450,
+      "xp": 51200,
+      "credits": 409600,
+      "stellarium": 128
+    }
+  },
+  {
+    "name": "Crysalon Prime",
+    "code": "crysalon-prime",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 1600000,
+      "shield": 1200000,
+      "damage": 20000,
+      "xp": 204800,
+      "credits": 1638400,
+      "stellarium": 512
+    }
+  },
+  {
+    "name": "Crysalon Apex",
+    "code": "crysalon-apex",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 3200000,
+      "shield": 2400000,
+      "damage": 40000,
+      "xp": 490000,
+      "credits": 3276800,
+      "stellarium": 1024
+    }
+  },
+  {
+    "name": "Reaver",
+    "code": "reaver",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 40000,
+      "shield": 30000,
+      "damage": 3000,
+      "xp": 6000,
+      "credits": 12000,
+      "stellarium": 15
+    }
+  },
+  {
+    "name": "Reaver Prime",
+    "code": "reaver-prime",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 80000,
+      "shield": 40000,
+      "damage": 2000,
+      "xp": 12800,
+      "credits": 25600,
+      "stellarium": 32
+    }
+  },
+  {
+    "name": "Reaver Apex",
+    "code": "reaver-apex",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 320000,
+      "shield": 240000,
+      "damage": 7500,
+      "xp": 48000,
+      "credits": 96000,
+      "stellarium": 120
+    }
+  },
+  {
+    "name": "Wardrone",
+    "code": "wardrone",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 50000,
+      "shield": 40000,
+      "damage": 1500,
+      "xp": 6400,
+      "credits": 12800,
+      "stellarium": 16
+    }
+  },
+  {
+    "name": "Wardrone Apex",
+    "code": "wardrone-apex",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 400000,
+      "shield": 320000,
+      "damage": 12000,
+      "xp": 51200,
+      "credits": 102400,
+      "stellarium": 128
+    }
+  },
+  {
+    "name": "Nexus Core",
+    "code": "nexus-core",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 1600000,
+      "shield": 1200000,
+      "damage": 0,
+      "xp": 536200,
+      "credits": 1638400,
+      "stellarium": 1024
+    }
+  },
+  {
+    "name": "Riftling II",
+    "code": "riftling-ii",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 1200000,
+      "shield": 750000,
+      "damage": null,
+      "xp": null,
+      "credits": 200000,
+      "stellarium": 45
+    }
+  },
+  {
+    "name": "Warden IX",
+    "code": "warden-ix",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 9000000,
+      "shield": 4800000,
+      "damage": null,
+      "xp": null,
+      "credits": 1000000,
+      "stellarium": 275
+    }
+  },
+  {
+    "name": "Harbinger XVI",
+    "code": "harbinger-xvi",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 36000000,
+      "shield": 0,
+      "damage": null,
+      "xp": null,
+      "credits": 9500000,
+      "stellarium": 2000
+    }
+  },
+  {
+    "name": "Pyre Behemoth",
+    "code": "pyre-behemoth",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 135000000,
+      "shield": 0,
+      "damage": null,
+      "xp": null,
+      "credits": 200000000,
+      "stellarium": 5000
+    }
+  },
+  {
+    "name": "Starfall Barrage",
+    "code": "starfall-barrage",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 4500000,
+      "shield": 500000,
+      "damage": null,
+      "xp": null,
+      "credits": 6500000,
+      "stellarium": 4000
+    }
+  },
+  {
+    "name": "Emperor Vrax",
+    "code": "emperor-vrax",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 9600000,
+      "shield": 6800000,
+      "damage": 45000,
+      "xp": 768000,
+      "credits": 2000000,
+      "stellarium": 9214
+    }
+  },
+  {
+    "name": "Emperor Crysalon",
+    "code": "emperor-crysalon",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 14080000,
+      "shield": 10560000,
+      "damage": 60000,
+      "xp": 1536000,
+      "credits": 5000000,
+      "stellarium": 36864
+    }
+  },
+  {
+    "name": "Emperor Colossar",
+    "code": "emperor-colossar",
+    "category": "npcs futuros",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "FUTURO",
+    "attributes": {
+      "hp": 6400000,
+      "shield": 6400000,
+      "damage": 35000,
+      "xp": 409600,
+      "credits": 1400000,
+      "stellarium": 4608
+    }
+  },
+  {
+    "name": "Fronteira Inicial",
+    "code": "fronteira-inicial",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 1,
+      "risk": "Seguro",
+      "width": 7200,
+      "height": 5400,
+      "ore": "Ferron, Cryon",
+      "population": "Scavenger × 10, Scavenger Scout × 6, Scavenger Support × 5",
+      "portals": "x2"
+    }
+  },
+  {
+    "name": "Nebulosa Azul",
+    "code": "nebulosa-azul",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 2,
+      "risk": "Baixo",
+      "width": 7900,
+      "height": 5800,
+      "ore": "Ferron, Cryon, Virel",
+      "population": "Scavenger × 7, Scavenger Scout × 5, Scavenger Support × 5, Scavenger Prime × 4, Vrax × 8, Vrax Prime × 2",
+      "portals": "x1, x3, x4"
+    }
+  },
+  {
+    "name": "Cinturão Sombrio",
+    "code": "cinturao-sombrio",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 3,
+      "risk": "Médio",
+      "width": 8650,
+      "height": 6250,
+      "ore": "Cryon, Virel",
+      "population": "Vrax × 7, Zyron × 7, Zyron Prime × 2, Kharon × 6, Kharon Prime × 2, Dreadnox × 2, Dreadnox Prime × 1",
+      "portals": "x2, x4"
+    }
+  },
+  {
+    "name": "Planícies de Fogo",
+    "code": "planicies-de-fogo",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 4,
+      "risk": "Alto",
+      "width": 9400,
+      "height": 6750,
+      "ore": "Cryon, Virel",
+      "population": "Vrax × 5, Zyron × 6, Zyron Prime × 4, Kharon × 6, Colossar × 3, Colossar Prime × 1",
+      "portals": "x2, x3, battleHome"
+    }
+  },
+  {
+    "name": "Véu da Fenda",
+    "code": "veu-da-fenda",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 5,
+      "risk": "Alto",
+      "width": 10100,
+      "height": 7300,
+      "ore": "Ferron, Cryon, Virel",
+      "population": "Ember Fang × 10, Ember Fang Prime × 2, Iron Wasp × 8, Iron Wasp Prime × 2",
+      "portals": "—"
+    }
+  },
+  {
+    "name": "Desfiladeiro Vazio",
+    "code": "desfiladeiro-vazio",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 6,
+      "risk": "Crítico",
+      "width": 10700,
+      "height": 7800,
+      "ore": "Ferron, Cryon, Virel",
+      "population": "Rift Mauler × 8, Rift Mauler Prime × 2, Obsidian Pike × 7, Obsidian Pike Prime × 2",
+      "portals": "—"
+    }
+  },
+  {
+    "name": "Coração do Nexus",
+    "code": "coracao-do-nexus",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 7,
+      "risk": "Extremo",
+      "width": 11300,
+      "height": 8300,
+      "ore": "Ferron, Cryon, Virel",
+      "population": "Rift Mauler × 5, Obsidian Pike × 7, Obsidian Pike Prime × 3, Apex Overlord × 2",
+      "portals": "—"
+    }
+  },
+  {
+    "name": "Bastião Astral",
+    "code": "bastiao-astral",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 8,
+      "risk": "Extremo",
+      "width": 12000,
+      "height": 8900,
+      "ore": "Ferron, Cryon, Virel",
+      "population": "Sentinel Scavenger × 7, Sentinel Scout × 6, Sentinel Support × 5",
+      "portals": "—"
+    }
+  },
+  {
+    "name": "Deep Battle Alpha",
+    "code": "deep-battle-alpha",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 41,
+      "risk": "Extremo",
+      "width": 11800,
+      "height": 8400,
+      "ore": "—",
+      "population": "Batedor da Fenda × 8, Batedor da Fenda Prime × 2, Corsário do Vazio × 6",
+      "portals": "x4HomeEarth, b42, b43"
+    }
+  },
+  {
+    "name": "Alien Core Beta",
+    "code": "alien-core-beta",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 42,
+      "risk": "Extremo",
+      "width": 12500,
+      "height": 8900,
+      "ore": "—",
+      "population": "Corsário do Vazio × 8, Corsário do Vazio Prime × 3, Guardião Nexus × 5",
+      "portals": "x4HomeMars, b41, b43"
+    }
+  },
+  {
+    "name": "Abismo Vermelho",
+    "code": "abismo-vermelho",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 43,
+      "risk": "Extremo",
+      "width": 13500,
+      "height": 9600,
+      "ore": "—",
+      "population": "Guardião Nexus × 8, Guardião Nexus Prime × 2, Ceifador Astral × 4, Guardião Nexus Prime × 1",
+      "portals": "x4HomeJupiter, b41, b42"
+    }
+  },
+  {
+    "name": "Portal Astral Alpha",
+    "code": "portal-astral-alpha",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 90,
+      "risk": "Portal",
+      "width": 11500,
+      "height": 8500,
+      "ore": "—",
+      "population": "—",
+      "portals": "—"
+    }
+  },
+  {
+    "name": "Portal Astral Beta",
+    "code": "portal-astral-beta",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 94,
+      "risk": "Portal Elite",
+      "width": 13200,
+      "height": 9600,
+      "ore": "—",
+      "population": "—",
+      "portals": "—"
+    }
+  },
+  {
+    "name": "Portal Astral Gamma",
+    "code": "portal-astral-gamma",
+    "category": "mapas",
+    "role": "—",
+    "currency": "credits",
+    "referencePrice": null,
+    "labPrice": 0,
+    "status": "ADAPTAR",
+    "attributes": {
+      "tier": 99,
+      "risk": "Portal Extremo",
+      "width": 14800,
+      "height": 10800,
+      "ore": "—",
+      "population": "—",
+      "portals": "—"
+    }
+  }
+]

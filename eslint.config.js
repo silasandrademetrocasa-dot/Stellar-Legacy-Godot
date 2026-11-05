@@ -1,0 +1,2 @@
+import ts from 'typescript-eslint';
+export default [{ignores:['dist/**','dist-pages/**','node_modules/**','public/**','art-source/**','test-results/**','playwright-report/**']},{files:['src/**/*.ts'],languageOptions:{parser:ts.parser,ecmaVersion:'latest',sourceType:'module'},rules:{'no-eval':'error','no-implied-eval':'error','no-with':'error','valid-typeof':'error','no-unreachable':'error','no-unsafe-finally':'error','no-dupe-args':'error','no-dupe-else-if':'error','no-duplicate-case':'error','no-constant-binary-expression':'error','no-loss-of-precision':'error'}}];

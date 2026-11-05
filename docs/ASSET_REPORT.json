@@ -1,0 +1,56 @@
+{
+  "files": 359,
+  "rasterFrames": 424,
+  "vfxAnimationFrames": 64,
+  "totalBytes": 9685129,
+  "groups": {
+    "sprites": {
+      "count": 13,
+      "bytes": 1354072
+    },
+    "backgrounds": {
+      "count": 3,
+      "bytes": 171210
+    },
+    "effects": {
+      "count": 1,
+      "bytes": 840500
+    },
+    "items": {
+      "count": 11,
+      "bytes": 326482
+    },
+    "portraits": {
+      "count": 2,
+      "bytes": 196749
+    },
+    "icons": {
+      "count": 2,
+      "bytes": 115848
+    },
+    "audio": {
+      "count": 7,
+      "bytes": 617708
+    },
+    "canonical": {
+      "count": 320,
+      "bytes": 6062560
+    }
+  },
+  "identicalFileGroups": [
+    [
+      "sprites/drone0.png",
+      "items/drone0.png"
+    ],
+    [
+      "sprites/drone1.png",
+      "items/drone1.png"
+    ],
+    [
+      "sprites/aux.png",
+      "items/aux.png"
+    ]
+  ],
+  "unusedAssetIds": [],
+  "referenceAudit": "Scene sprites share one runtime atlas; individual originals remain for UI and gallery. Resource icons use sprites/ore0–4; crate is independent of resource type. All assets retained for gameplay/UI or gallery. Drone/AUX UI copies have identical source bytes. Sources in art-source are excluded from deployment."
+}
